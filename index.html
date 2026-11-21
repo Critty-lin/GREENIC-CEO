@@ -7,207 +7,181 @@
   <title>英伟达CEO竞选计</title>
   <style>
     :root {
-      --bg: #07140a;
-      --panel: #0c1f10;
-      --ink: #def5c8;
-      --dim: #7fa36a;
-      --nv: #76b900;
-      --nv2: #4e7c00;
-      --up: #8dff4a;
-      --down: #ff6b57;
-      --gold: #e6c35c;
-      --line: #1d3a18;
-      --btn: #132816;
+      --bg: #07140a; --panel: #0c1f10; --ink: #def5c8; --dim: #7fa36a;
+      --nv: #76b900; --nv2: #4e7c00; --up: #8dff4a; --down: #ff6b57;
+      --gold: #e6c35c; --line: #1d3a18; --btn: #132816;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
-      margin: 0; padding: 0; height: 100%;
-      background: var(--bg);
-      color: var(--ink);
+      margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--ink);
       font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
       overflow: hidden;
     }
     body {
       background-image:
         linear-gradient(rgba(7,20,10,.92), rgba(7,20,10,.92)),
-        repeating-linear-gradient(90deg, #0a1c0c 0 12px, #081609 12px 24px),
-        repeating-linear-gradient(0deg, transparent 0 7px, rgba(118,185,0,.05) 7px 8px);
+        repeating-linear-gradient(90deg, #0a1c0c 0 12px, #081609 12px 24px);
     }
-    button, textarea { font-family: inherit; }
+    button { font-family: inherit; }
     #frame {
-      height: 100dvh;
-      height: 100svh;
-      max-width: 480px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
+      height: 100dvh; height: 100svh; max-width: 480px; margin: 0 auto;
+      display: flex; flex-direction: column;
       padding: calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
     }
     #frame::after {
-      content: "";
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
+      content: ""; pointer-events: none; position: absolute; inset: 0; z-index: 8;
       background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.12) 3px 4px);
-      z-index: 8;
     }
     .hud {
-      flex: 0 0 auto;
-      border: 3px solid var(--nv);
-      background: #061108;
-      padding: 8px 10px 7px;
-      box-shadow: 4px 4px 0 #031006;
+      flex: 0 0 auto; border: 3px solid var(--nv); background: #061108;
+      padding: 8px 10px 7px; box-shadow: 4px 4px 0 #031006;
     }
     .hud-top { display: flex; align-items: center; gap: 8px; }
     .price-block { min-width: 0; flex: 1; }
     .price-label { font-size: 10px; letter-spacing: .14em; color: var(--nv); }
-    .price {
-      font-size: 22px; font-weight: 800; letter-spacing: .04em;
-      line-height: 1.1; white-space: nowrap;
-    }
+    .price { font-size: 22px; font-weight: 800; line-height: 1.1; white-space: nowrap; }
     .price.up { color: var(--up); }
     .price.down { color: var(--down); }
     .price.flash { animation: pulse .35s steps(2); }
     .delta { font-size: 12px; margin-left: 4px; }
-    #spark {
-      width: 108px; height: 36px; flex: 0 0 auto;
-      image-rendering: pixelated; background: #040a05; border: 2px solid var(--line);
-    }
-    .hud-bot {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 6px;
-      margin-top: 7px;
-      font-size: 11px;
-      color: var(--dim);
-    }
-    .stat b { display: block; color: var(--ink); font-size: 14px; letter-spacing: .03em; }
+    #spark { width: 108px; height: 36px; flex: 0 0 auto; image-rendering: pixelated; background: #040a05; border: 2px solid var(--line); }
+    .hud-bot { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 7px; font-size: 11px; color: var(--dim); }
+    .stat b { display: block; color: var(--ink); font-size: 14px; }
     .bar { height: 6px; background: #12210f; border: 1px solid var(--line); margin-top: 3px; }
-    .bar > i { display: block; height: 100%; width: 50%; background: var(--nv); box-shadow: 4px 0 0 var(--nv2); }
+    .bar > i { display: block; height: 100%; width: 50%; background: var(--nv); }
+    .news-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .news { flex: 1; min-width: 0; font-size: 11px; color: var(--nv); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mute, .lock-btn {
+      flex: 0 0 auto; min-height: 32px; min-width: 44px; border: 2px solid var(--line);
+      background: #061108; color: var(--dim); font-size: 11px; padding: 4px 8px; cursor: pointer;
+    }
+    .lock-btn { border-color: var(--gold); color: var(--gold); }
     #stage {
       flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;
       margin: 10px 0 8px; border: 3px solid var(--line); background: var(--panel);
-      padding: 12px 12px 10px; position: relative;
+      padding: 12px; position: relative;
     }
-    .scene-kicker { font-size: 10px; letter-spacing: .16em; color: var(--gold); text-transform: uppercase; }
-    h1, h2 { margin: 6px 0 8px; line-height: 1.25; }
-    h1 { font-size: 26px; color: var(--nv); letter-spacing: .06em; text-shadow: 3px 3px 0 #102406; }
-    h2 { font-size: 18px; }
-    .who { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0 10px; }
-    .portrait {
-      width: 72px; height: 72px; flex: 0 0 72px;
-      image-rendering: pixelated; background: #08150b; border: 3px solid var(--nv2);
-    }
-    .body { font-size: 15px; line-height: 1.55; color: var(--ink); }
-    .hint { margin-top: 10px; color: var(--dim); font-size: 12px; line-height: 1.5; }
-    .crisis #stage { border-color: var(--down); animation: warn 1s steps(2) infinite; }
     #choices { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; }
-    .choice, .go, .shell, .mute {
-      appearance: none; touch-action: manipulation; cursor: pointer;
+    .scene-kicker { font-size: 10px; letter-spacing: .16em; color: var(--gold); }
+    h1, h2 { margin: 6px 0 8px; line-height: 1.25; }
+    h1 { font-size: 24px; color: var(--nv); text-shadow: 3px 3px 0 #102406; }
+    h2 { font-size: 18px; }
+    .hero-wrap { display: flex; gap: 12px; align-items: flex-end; margin: 8px 0 12px; }
+    .hero {
+      image-rendering: pixelated; image-rendering: crisp-edges;
+      width: 96px; height: 120px; flex: 0 0 96px;
+      background: #08150b; border: 3px solid var(--nv);
     }
+    .hero.lg { width: 120px; height: 150px; flex-basis: 120px; }
+    .body { font-size: 15px; line-height: 1.55; }
+    .hint { margin-top: 8px; color: var(--dim); font-size: 12px; line-height: 1.5; }
     .choice, .go {
-      width: 100%; text-align: left; background: var(--btn); color: var(--ink);
-      border: 3px solid var(--nv); padding: 12px; min-height: 48px;
-      font-size: 14px; line-height: 1.4; box-shadow: 3px 3px 0 #031006;
-      overflow-wrap: anywhere;
+      appearance: none; width: 100%; text-align: left; background: var(--btn); color: var(--ink);
+      border: 3px solid var(--nv); padding: 12px; min-height: 48px; font-size: 14px; line-height: 1.4;
+      cursor: pointer; box-shadow: 3px 3px 0 #031006; overflow-wrap: anywhere; touch-action: manipulation;
     }
-    .go { text-align: center; background: #16380c; font-size: 16px; letter-spacing: .08em; }
-    .choice:active, .go:active, .shell:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #031006; }
-    .choice:focus-visible, .go:focus-visible, .shell:focus-visible, .weak:focus-visible {
-      outline: 3px solid var(--gold); outline-offset: 2px;
-    }
-    .key { display: inline-block; min-width: 18px; margin-right: 8px; color: var(--nv); font-weight: 800; }
+    .go { text-align: center; background: #16380c; font-size: 16px; }
     .ghost { background: #0a160c; border-color: var(--line); color: var(--dim); }
-    .news-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-    .mute {
-      flex: 0 0 auto; min-width: 44px; min-height: 32px; border: 2px solid var(--line);
-      background: #061108; color: var(--dim); font-size: 11px; padding: 4px 8px;
-    }
-    .news {
-      flex: 1; min-width: 0; font-size: 11px; color: var(--nv);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
+    .choice:active, .go:active { transform: translate(2px, 2px); }
+    .choice:focus-visible, .go:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .key { display: inline-block; min-width: 18px; margin-right: 8px; color: var(--nv); font-weight: 800; }
     .floaters { pointer-events: none; position: fixed; left: 0; top: 0; right: 0; z-index: 12; }
-    .floater {
-      position: absolute; font-weight: 800; font-size: 16px;
-      animation: rise .9s steps(8) forwards; text-shadow: 2px 2px 0 #000;
-    }
+    .floater { position: absolute; font-weight: 800; font-size: 16px; animation: rise .9s steps(8) forwards; text-shadow: 2px 2px 0 #000; }
     .floater.up { color: var(--up); }
     .floater.down { color: var(--down); }
     .toast {
-      position: absolute; left: 10px; right: 10px; bottom: 10px;
-      background: #10240c; border: 2px solid var(--gold); padding: 8px 10px;
-      font-size: 12px; color: var(--gold); animation: in .2s steps(2);
+      position: absolute; left: 10px; right: 10px; bottom: 10px; background: #10240c;
+      border: 2px solid var(--gold); padding: 8px 10px; font-size: 12px; color: var(--gold); z-index: 4;
     }
     .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
     .chip { font-size: 10px; border: 2px solid var(--line); padding: 3px 6px; color: var(--dim); }
     .chip.out { opacity: .35; text-decoration: line-through; }
-    .end-box { margin-top: 8px; }
     .end-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 2px solid var(--line); }
     .score-pop { font-size: 28px; color: var(--gold); font-weight: 800; margin: 8px 0; }
-    .weak {
-      display: inline; padding: 0 4px; margin: 0 2px; background: #3a2a00;
-      color: var(--gold); border: 2px solid var(--gold); font: inherit; cursor: pointer;
-      animation: pulse 1s steps(2) infinite;
+    .apply {
+      background: #0a1408; border: 3px solid #76b900; padding: 12px;
     }
-    .shell {
-      width: 100%; text-align: left; background: #13200c; color: var(--ink);
-      border: 3px solid var(--line); padding: 10px 12px; min-height: 44px;
-      font-size: 13px; line-height: 1.35; box-shadow: 3px 3px 0 #031006;
+    .apply .brand { color: var(--nv); font-size: 12px; letter-spacing: .2em; }
+    .apply .job { font-size: 18px; margin: 6px 0 4px; }
+    .apply .meta { color: var(--dim); font-size: 12px; line-height: 1.6; }
+    .ok-anim { text-align: center; padding: 18px 8px; }
+    .ok-anim .check {
+      width: 56px; height: 56px; margin: 0 auto 10px; border: 4px solid var(--nv);
+      display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--nv);
+      animation: pop .35s steps(3);
     }
-    .shell.on { border-color: var(--gold); background: #2a2408; }
-    .shell b { color: var(--gold); display: block; font-size: 12px; margin-bottom: 2px; }
-    .track {
-      position: relative; height: 36px; background: #08150b;
-      border: 3px solid var(--line); overflow: hidden; margin: 12px 0 8px;
+    .spin { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--nv); border-right-color: transparent; animation: spin .7s steps(8) infinite; vertical-align: middle; }
+    .arena {
+      position: relative; height: 168px; overflow: hidden; background: #08150b;
+      border: 3px solid var(--line); margin-top: 8px;
     }
-    .zone {
-      position: absolute; top: 0; bottom: 0;
-      background: rgba(118, 185, 0, .38);
+    .dm {
+      position: absolute; white-space: nowrap; font-size: 12px; padding: 5px 8px;
+      border: 2px solid var(--nv); background: #10240c; color: var(--ink); cursor: pointer;
+      max-width: 86%; overflow: hidden; text-overflow: ellipsis;
     }
-    .needle {
-      position: absolute; top: 0; bottom: 0; width: 4px; background: var(--gold);
-      box-shadow: 2px 0 0 #000;
+    .dm.trap { border-color: var(--down); color: #ffc8c0; }
+    .dm.hit { background: var(--nv); color: #08150b; }
+    .dm.miss { background: var(--down); color: #fff; }
+    .quote-bar { margin-top: 8px; font-size: 12px; color: var(--gold); }
+    .track { position: relative; height: 36px; background: #08150b; border: 3px solid var(--line); overflow: hidden; margin: 12px 0 8px; }
+    .zone { position: absolute; top: 0; bottom: 0; background: rgba(118,185,0,.38); }
+    .needle { position: absolute; top: 0; bottom: 0; width: 4px; background: var(--gold); }
+    .seq { font-size: 22px; text-align: center; color: var(--nv); min-height: 40px; margin: 12px 0; letter-spacing: .08em; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mem {
+      min-height: 48px; border: 3px solid var(--nv); background: var(--btn); color: var(--ink);
+      font-size: 14px; cursor: pointer;
     }
-    .talkbox {
-      width: 100%; min-height: 88px; resize: none; margin-top: 8px;
-      background: #08150b; color: var(--ink); border: 3px solid var(--line);
-      padding: 10px; font-size: 16px; line-height: 1.45;
+    .faces { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .face {
+      border: 3px solid var(--line); background: #10240c; padding: 10px; min-height: 64px;
+      text-align: left; color: var(--ink); cursor: pointer; font-size: 13px;
     }
-    .mark {
-      display: inline-block; margin-top: 8px; padding: 2px 6px;
-      border: 2px solid var(--gold); color: var(--gold); font-size: 10px; letter-spacing: .12em;
+    .face.on { border-color: var(--nv); }
+    .face.lock { border-color: var(--gold); color: var(--gold); }
+    .face.dead { opacity: .4; pointer-events: none; }
+    .candles { position: relative; height: 150px; overflow: hidden; background: #08150b; border: 3px solid var(--line); margin-top: 8px; }
+    .cndl {
+      position: absolute; width: 22px; cursor: pointer; border: 2px solid #000;
     }
+    .cndl.red { background: var(--down); }
+    .cndl.green { background: var(--nv); }
+    #overlay {
+      position: absolute; inset: 0; z-index: 9; display: none;
+      align-items: center; justify-content: center; padding: 16px;
+      background: rgba(0,0,0,.72);
+    }
+    #overlay.on { display: flex; }
+    .modal { width: 100%; }
+    .sheet {
+      width: 100%; background: #0c1a0c; border: 3px solid var(--gold); padding: 14px;
+      box-shadow: 6px 6px 0 #031006;
+    }
+    .sheet h3 { margin: 0 0 8px; color: var(--gold); font-size: 16px; }
+    .progress { height: 10px; background: #12210f; border: 2px solid var(--line); margin: 10px 0; }
+    .progress > i { display: block; height: 100%; width: 0; background: var(--gold); }
     @keyframes pulse { 50% { transform: scale(1.06); } }
     @keyframes rise { to { transform: translateY(-46px); opacity: 0; } }
-    @keyframes warn { 50% { box-shadow: inset 0 0 0 2px var(--down); } }
-    @keyframes in { from { transform: scale(.96); opacity: 0; } }
+    @keyframes pop { from { transform: scale(.4); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
     @media (min-width: 800px) {
       #frame {
-        margin-top: 18px; height: calc(100dvh - 36px);
-        border: 4px solid #1a3d12; background: #07140a;
+        margin-top: 18px; height: calc(100dvh - 36px); border: 4px solid #1a3d12;
         box-shadow: 0 0 0 8px #040a05, 12px 12px 0 #031006;
       }
-      h1 { font-size: 30px; }
-    }
-    @media (max-width: 430px) {
-      .hud-bot { grid-template-columns: 1fr 1fr; }
-      .price { font-size: 18px; }
     }
     @media (max-height: 700px) {
-      .portrait { width: 56px; height: 56px; flex-basis: 56px; }
-      h1 { font-size: 22px; }
-      h2 { font-size: 16px; }
+      .hero { width: 72px; height: 90px; flex-basis: 72px; }
+      .hero.lg { width: 88px; height: 110px; flex-basis: 88px; }
+      h1 { font-size: 20px; }
       .body { font-size: 14px; }
+      .arena, .candles { height: 132px; }
       .price { font-size: 18px; }
-      #spark { width: 88px; height: 30px; }
-      .choice, .go { padding: 10px; }
-      .talkbox { min-height: 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .price.flash, .crisis #stage, .floater, .toast, .weak { animation: none; }
+      .price.flash, .floater, .ok-anim .check, .spin { animation: none; }
     }
   </style>
 </head>
@@ -224,16 +198,17 @@
       <div class="hud-bot">
         <div class="stat">对手剩余<b id="rivals">9</b></div>
         <div class="stat">董事会印象<b id="trust">50</b><div class="bar"><i id="trustBar"></i></div></div>
-        <div class="stat">言弹<b id="ammo">0</b></div>
         <div class="stat">进度<b id="round">开局</b></div>
       </div>
       <div class="news-row">
-        <div class="news" id="news">盘前等待开盘 · 海选通道已打开</div>
-        <button class="mute" id="muteBtn" type="button" aria-label="音效开关">音效</button>
+        <div class="news" id="news">盘前等待开盘</div>
+        <button class="lock-btn" id="lockBtn" type="button" hidden>弱点 ¥</button>
+        <button class="mute" id="muteBtn" type="button">音效</button>
       </div>
     </header>
     <main id="stage"></main>
     <div id="choices"></div>
+    <div id="overlay"></div>
   </div>
   <div class="floaters" id="floaters"></div>
   <script>
@@ -241,166 +216,85 @@
     const $ = (id) => document.getElementById(id);
     const OPEN = 138.4;
     const NAMES = ["Max", "Lisa", "Kai", "林博", "Rex", "Nova", "钱总", "Cloud", "匿名"];
-    const SPRITE = {
-      xun: "0001111000000112221100012333321001234443210123444431012344443101232223210012111121001111111100110100100",
-      npc: "00011110000012222110012333321001235553210123555321012355532101232222310012111121001111111100110100100",
-      gpu: "111111111111444444411144000044114404404411440000441144444444114400004411440440441144000044111111111111"
-    };
-    const PAL = {
-      xun: ["#0000", "#1b1b1b", "#f0c090", "#3a2418", "#76b900", "#c8f090"],
-      npc: ["#0000", "#222", "#e8d2b0", "#5a3a22", "#76b900", "#3d6ad6"],
-      gpu: ["#0000", "#14330a", "#76b900", "#9ae03a", "#0b1a0c"]
-    };
+    const HERO = [
+      "....111111......",
+      "...11111111.....",
+      "..1122222211....",
+      "..1232223211....",
+      "..1222122211....",
+      "..1222222221....",
+      "...12222221.....",
+      "....122221......",
+      "...14444441.....",
+      "..1455555441....",
+      ".145555555441...",
+      ".145544445541...",
+      ".145555555541...",
+      ".145555555541...",
+      ".144555555441...",
+      "..1445555441....",
+      "...14444441.....",
+      "....14..41......",
+      "....14..41......",
+      "....11..11......"
+    ];
+    const HPAL = ["#0000", "#141414", "#f0c090", "#3a2418", "#3d6a00", "#76b900"];
 
-    const STORY = {
-      title: {
-        kicker: "PIXEL CAMPAIGN",
-        title: "英伟达CEO竞选计",
-        who: "xun",
-        name: "xunxun",
-        body: "你是 xunxun。英伟达正在海选下一任 CEO。每一轮会抽一种打法：选项、言弹对决、开口时机、或自己打字。三条账一起算：印象、对手、股价。",
-        hint: "点选项或按 1 2 3。言弹先选再射高亮那句。开口时机按空格或点按钮。打字也可用现成选项。",
-        choices: [
-          { key: "1", text: "投递简历", next: "resume" },
-          { key: "2", text: "先看怎么玩", next: "help" }
-        ]
-      },
-      help: {
-        kicker: "怎么玩",
-        title: "两条线，四种打法",
-        who: "gpu",
-        name: "规则",
-        body: "叙事和股价一直同时跑。选项会改账；言弹是用前面攒下的证据射对方的破绽；开口时机要在绿区把话甩出去；自己打字由现场阅卷打分。不想打字，随时改用选项。",
-        hint: "盘前风暴那轮优先抽开口时机。越晚出手，股价掉得越狠。",
-        choices: [{ key: "1", text: "知道了，去投简历", next: "resume" }]
-      },
-      resume: {
-        round: "简历", kicker: "投递", title: "把名字扔进海选", who: "xun", name: "投递页", next: "hr",
-        body: "凌晨 2:17。屏幕上还挂着 9 个公开竞争者。第一封简历会变成后面能射的言弹。",
-        choices: [
-          { key: "1", text: "写成「我能让每颗 GPU 自己讲故事」", trust: 8, stock: 2.2, kill: 0, news: "市场听到一个会讲故事的新名字", bullet: { id: "story", name: "会讲故事", text: "你把简历写成 GPU 会自己讲故事" } },
-          { key: "2", text: "只附 CUDA 优化实录，不写形容词", trust: 12, stock: 0.6, kill: 1, news: "技术派被一份冷冰冰的内核记录震了一下", bullet: { id: "cuda", name: "CUDA 实录", text: "你只附了 CUDA 优化记录，没有形容词" } },
-          { key: "3", text: "只丢一句：我想当 CEO", trust: -4, stock: -1.8, kill: 0, news: "一句空话进了海选箱，盘口轻轻晃了一下", bullet: { id: "ambition", name: "我想当 CEO", text: "简历上只有一句：我想当 CEO" } }
-        ]
-      },
-      hr: {
-        round: "初面", kicker: "第 1 关 · HR", title: "你为什么现在来", who: "npc", name: "陈招 · HR", next: "crisis",
-        body: "陈招隔着玻璃问：老黄还在位。你这个时候出现，董事会会把你读成接班，还是读成抢班？",
-        choices: [
-          { key: "1", text: "我来让公司在下一轮周期活下来", trust: 11, stock: 3.4, kill: 1, news: "「周期」两个字传到买方，买盘抬了一下", bullet: { id: "cycle", name: "下一轮周期", text: "你说自己来让公司活过下一轮周期" } },
-          { key: "2", text: "股价太高了，我想先把它坐实", trust: 7, stock: -2.4, kill: 1, news: "有人把「坐实」听成了降温，股价先怯一步", bullet: { id: "sit", name: "把股价坐实", text: "你说股价太高，要先坐实" } },
-          { key: "3", text: "我就是来赢的", trust: 2, stock: 0.9, kill: 0, news: "气势有了，对手一动不动", bullet: { id: "win", name: "我来赢", text: "你当着 HR 说：我就是来赢的" } }
-        ]
-      },
-      crisis: {
-        round: "风暴", kicker: "盘前 · 股价压力", title: "收入可能不及预期", who: "gpu", name: "交易台", next: "tech", crisis: true,
-        body: "有人放风：数据中心收入可能不及预期。股价正在往下掉。绿区开口，你把话甩进市场；红区开口，越描越黑。",
-        hint: "针走进绿色窗口时点「开口」。键盘空格或回车也能开口。",
-        choices: [
-          { key: "1", text: "发备忘：需求还在，只是交付在排队", trust: 5, stock: 5.6, kill: 1, news: "备忘流出，空头先收了一截", bullet: { id: "backlog", name: "交付在排队", text: "你说需求还在，只是交付在排队" } },
-          { key: "2", text: "不说话，让市场自己消化", trust: 3, stock: -3.2, kill: 0, news: "沉默被读成心虚，盘口继续软", bullet: { id: "silence", name: "现场沉默", text: "风暴里你选择不说话" } },
-          { key: "3", text: "对外说我们会超预期", trust: 1, stock: 0, kill: 1, news: "豪言出口，市场先愣住", gamble: true, bullet: { id: "beat", name: "会超预期", text: "你对外说我们会超预期" } }
-        ]
-      },
-      tech: {
-        round: "深潜", kicker: "第 2 关 · 技术", title: "如果 CUDA 被替代", who: "npc", name: "Arch · 技术面", next: "campus",
-        body: "Arch 把一杯冷掉的咖啡推开：如果开源栈真把 CUDA 咬出缺口，你当上的第一周做什么？",
-        talkHint: "用自己的话写第一周。写完点阅卷。也可以改用下面的现成选项。",
-        choices: [
-          { key: "1", text: "把护城河转到系统和供应", trust: 14, stock: 5.1, kill: 2, news: "系统叙事让两名纯软件派提前出局", bullet: { id: "moat", name: "系统护城河", text: "你要把护城河转到系统和供应" } },
-          { key: "2", text: "加倍投入开发者，把生态再焊死", trust: 9, stock: 1.8, kill: 1, news: "开发者路线稳，一名空降被比下去", bullet: { id: "devrel", name: "焊死生态", text: "你要加倍投入开发者" } },
-          { key: "3", text: "那不可能发生", trust: -8, stock: -4.2, kill: 0, news: "傲慢被记了一笔，盘口不喜欢这种口气", bullet: { id: "deny", name: "不可能发生", text: "你说 CUDA 被替代不可能发生" } }
-        ]
-      },
-      campus: {
-        round: "职场", kicker: "第 3 关 · 食堂", title: "Lisa 找你联手", who: "npc", name: "Lisa · 内部派", next: "board",
-        body: "食堂角落。Lisa 刚才还说华尔街空降 Kai 在买董事，转头又改口。这是局，也是考题。",
-        choices: [
-          { key: "1", text: "联手，先清掉空降", trust: -2, stock: 1.2, kill: 2, news: "派系传闻让两个人消失，印象却脏了一点", bullet: { id: "ally", name: "联手清场", text: "你答应和 Lisa 联手" } },
-          { key: "2", text: "拒绝，当场讲自己的路线", trust: 10, stock: 2.9, kill: 1, news: "独立叙事传出，Lisa 自己也开始晃", bullet: { id: "own", name: "自己的路线", text: "你拒绝联手，走自己的路线" } },
-          { key: "3", text: "当面答应，回头拆台", trust: -11, stock: -3.6, kill: 3, news: "三个人出局，丑闻味也出来了", bullet: { id: "backstab", name: "当面一套", text: "你当面答应 Lisa，回头拆台" } }
-        ]
-      },
-      board: {
-        round: "董事会", kicker: "第 4 关 · 路演", title: "再跌两成，还扩产吗", who: "npc", name: "周衡 · 独立董事", next: "final",
-        body: "没有窗户的会议室。周衡敲了敲桌子：如果股价从这里再跌两成，你还要不要把产线往前推？",
-        talkHint: "用自己的话回答扩产还是坐实。也可以改用选项。",
-        choices: [
-          { key: "1", text: "扩。算力缺口是几年的事", trust: 11, stock: -3.8, kill: 1, news: "资本开支担忧压了一下股价，董事会却记下了胆色", bullet: { id: "build", name: "继续扩产", text: "你说算力缺口是几年的事，要扩" } },
-          { key: "2", text: "先慢一点，把现金流坐实", trust: 7, stock: 6.4, kill: 1, news: "稳健派鼓掌，股价先松一口气", bullet: { id: "cash", name: "现金流优先", text: "你要先把现金流坐实" } },
-          { key: "3", text: "跌两成正好加码", trust: 4, stock: 8.1, kill: 1, news: "这句被当成口号传出，短线资金涌进来", bullet: { id: "double", name: "跌了加码", text: "你说跌两成正好加码" } }
-        ]
-      },
-      final: {
-        round: "终局", kicker: "第 5 关 · 公开信", title: "第一封信写给谁", who: "xun", name: "xunxun", next: "end",
-        body: "剩下的人被叫进同一间房。屏幕上只有一句：若你出任，第一封公开信写给谁。可以自己写，也可以用现成的三封。",
-        talkHint: "写给开发者、股东或员工都行。阅卷看你写到没有，以及像不像一封任命信。",
-        choices: [
-          { key: "1", text: "写给开发者：继续做全世界的加速器", trust: 8, stock: 2.4, kill: 1, news: "开发者信流出，生态溢价回来一截", letter: "dev" },
-          { key: "2", text: "写给股东：利润与纪律", trust: 5, stock: 7.2, kill: 1, news: "纪律两个字让资金先站上你这边", letter: "share" },
-          { key: "3", text: "写给员工：下一站更难，我先扛", trust: 10, stock: 0.8, kill: 1, news: "内部士气抬了一下，对手少了一个", letter: "staff" }
-        ]
-      }
-    };
-
-    const DEBATES = {
-      tech: {
-        speaker: "Arch",
-        line: "CUDA 不可能被替代。我们什么都不用改，开发者会永远留在这。",
-        weak: "什么都不用改",
-        hit: ["cuda", "cycle", "backlog", "moat", "devrel"]
-      },
-      campus: {
-        speaker: "Lisa",
-        line: "空降不可怕。Kai 没有在买任何人，他只是来把股价做上去。",
-        weak: "没有在买任何人",
-        hit: ["kai-buy", "win", "own"],
-        grant: { id: "kai-buy", name: "买董事", text: "Lisa 亲口说过：Kai 在买董事" }
-      },
-      board: {
-        speaker: "周衡",
-        line: "扩产会毁了现金流。算力需求到今年就见顶了，现在加码是把公司推进坑里。",
-        weak: "到今年就见顶了",
-        hit: ["cycle", "cuda", "backlog", "build", "moat"]
-      }
-    };
-
+    const QUOTES = [
+      { id: "story", text: "让每颗 GPU 自己讲故事", beats: ["pr", "vapor"] },
+      { id: "tech", text: "只交 CUDA 优化实录", beats: ["academic", "vapor"] },
+      { id: "ambition", text: "我就来当 CEO", beats: ["timid", "finance"] }
+    ];
+    const DANMAKU = [
+      { text: "Max：我管过两家上市公司", type: "pr" },
+      { text: "Lisa：内部的人才能碰芯片", type: "insider" },
+      { text: "Kai：华尔街要的是纪律", type: "finance" },
+      { text: "林博：论文才是护城河", type: "academic" },
+      { text: "Rex：堆料就能赢", type: "vapor" },
+      { text: "Nova：我上过封面", type: "pr" },
+      { text: "钱总：先裁员再谈梦想", type: "finance" },
+      { text: "Cloud：云厂商才是未来", type: "vapor" },
+      { text: "匿名：我只是来看看", type: "timid" },
+      { text: "有人：需求已经见顶", type: "timid" },
+      { text: "有人：CUDA 会永远赢", type: "vapor" },
+      { text: "有人：把开发者留下就行", type: "academic" }
+    ];
+    const GOSSIP = [
+      { t: "Lisa 说 Kai 在买董事", catch: true },
+      { t: "有人夸你简历写得好", catch: false },
+      { t: "匿名在散你空降的谣", catch: true },
+      { t: "咖啡洒了，纯意外", catch: false },
+      { t: "Rex 说你不懂硬件", catch: true }
+    ];
+    const MEM_POOL = ["CUDA", "供应", "生态", "Blackwell", "交付", "开源"];
+    const BOARD = [
+      { id: "zhou", name: "周衡", ok: true },
+      { id: "lin", name: "林席", ok: true },
+      { id: "kai", name: "Kai", ok: false, locked: true },
+      { id: "old", name: "老兵席", ok: true }
+    ];
     const ENDINGS = {
-      ceo: { title: "你出任 CEO", body: "董事会把钥匙交给 xunxun。对手清场，股价还站得住，第一封信被放上了首页。" },
-      crisis_ceo: { title: "临危受命", body: "股价不好看，但你是唯一还敢把话说完的人。他们把危机交给你。" },
-      bubble: { title: "泡沫上的加冕", body: "你坐上了位子，可收盘价高得吓人。门外已经有人在问下一根阴线算谁的。" },
-      stolen: { title: "被对手截胡", body: "名字还在名单上的人太多。董事会说再看看。海选没有结束，只是你这一轮到此为止。" },
-      crash: { title: "任命冻结", body: "股价先把房间清空了。没有人敢在暴跌里宣布新 CEO。" },
-      fail: { title: "印象没过线", body: "对手可以少，股价可以晃，但董事会对你的印象没有过线。" },
-      almost: { title: "有争议的任命", body: "你出任了，可房间里一半人在鼓掌，一半人在看股价。" },
-      advisor: { title: "顾问席", body: "他们留了你，但把 CEO 给了别人。你拿到一张靠近权力的椅子，和一张看盘的屏幕。" }
+      quit: { title: "另谋出路", body: "你关掉投递页，去别的公司投了一份普通简历。平平无奇，海选与你无关。" },
+      ceo: { title: "你出任 CEO", body: "董事会把钥匙交给 xunxun。对手清场，股价还站得住。" },
+      crisis_ceo: { title: "临危受命", body: "股价不好看，但你是还敢把小游戏打完的人。危机交给你。" },
+      bubble: { title: "泡沫上的加冕", body: "你坐上了位子，收盘价高得吓人。" },
+      stolen: { title: "被对手截胡", body: "名单上还剩太多人。董事会说再看看。" },
+      crash: { title: "任命冻结", body: "股价先把房间清空了。" },
+      fail: { title: "印象没过线", body: "小游戏打完了，董事会对你的印象没有过线。" },
+      almost: { title: "有争议的任命", body: "你出任了，房间里一半人在看股价。" },
+      advisor: { title: "顾问席", body: "他们留了你，把 CEO 给了别人。" }
     };
-
-    const HAND_LABEL = { choice: "选项", bullet: "言弹对决", timing: "开口时机", talk: "自己表述" };
 
     const state = {
-      scene: "title",
-      stock: OPEN,
-      hist: [OPEN, OPEN + 0.3, OPEN - 0.2, OPEN + 0.5, OPEN],
-      rivals: NAMES.map((n) => ({ n, out: false })),
-      trust: 50,
-      sentiment: 0,
-      crisis: false,
-      muted: false,
-      playing: true,
-      letter: "",
-      news: "盘前等待开盘 · 海选通道已打开",
-      lastDelta: 0,
-      belt: [],
-      slots: {},
-      sel: -1,
-      forceChoice: false,
-      busy: false,
-      needleX: 0,
-      zone: { left: 0.38, width: 0.24 },
-      timingRaf: 0,
-      timingT: 0,
-      timingTries: 0
+      scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
+      rivals: NAMES.map((n) => ({ n, out: false })), trust: 50, sentiment: 0,
+      muted: false, news: "盘前等待开盘", quote: null, busy: false,
+      pay: "idle", votes: {},
+      dm: { items: [], raf: 0, t0: 0, hits: 0, miss: 0, running: false },
+      time: { raf: 0, x: 0, t: 0, n: 0, hits: 0, tries: 0, zone: { left: 0.34, width: 0.28 } },
+      mem: { seq: [], step: 0, phase: "show" },
+      gossip: { i: 0, ok: 0 },
+      boardg: { raf: 0, items: [], t0: 0, smash: 0, leak: 0, running: false }
     };
 
     let audioCtx = null;
@@ -412,88 +306,55 @@
     function tone(freq, dur, type, vol) {
       if (state.muted) return;
       try {
-        const a = ctx();
-        const o = a.createOscillator();
-        const g = a.createGain();
-        o.type = type || "square";
-        o.frequency.value = freq;
-        g.gain.value = vol || 0.045;
+        const a = ctx(), o = a.createOscillator(), g = a.createGain();
+        o.type = type || "square"; o.frequency.value = freq; g.gain.value = vol || 0.045;
         g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
-        o.connect(g); g.connect(a.destination);
-        o.start(); o.stop(a.currentTime + dur);
+        o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur);
       } catch (_) {}
     }
-    function sfx(kind) {
-      if (kind === "click") tone(880, 0.06);
-      if (kind === "up") { tone(440, 0.08); setTimeout(() => tone(554, 0.08), 70); setTimeout(() => tone(659, 0.1), 140); }
-      if (kind === "down") { tone(330, 0.08); setTimeout(() => tone(247, 0.1), 80); }
-      if (kind === "kill") { tone(196, 0.12, "sawtooth", 0.03); setTimeout(() => tone(98, 0.18, "square", 0.04), 90); }
-      if (kind === "win") { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.12), i * 90)); }
-      if (kind === "lose") { tone(174, 0.2, "triangle", 0.05); setTimeout(() => tone(110, 0.28), 120); }
-      if (kind === "shoot") { tone(988, 0.05); setTimeout(() => tone(1320, 0.08), 50); }
+    function sfx(k) {
+      if (k === "click") tone(880, 0.06);
+      if (k === "up") { tone(440, 0.08); setTimeout(() => tone(659, 0.1), 90); }
+      if (k === "down") tone(220, 0.12);
+      if (k === "ok") { [523, 659, 784].forEach((f, i) => setTimeout(() => tone(f, 0.1), i * 80)); }
+      if (k === "win") { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.1), i * 90)); }
+      if (k === "lose") tone(110, 0.28);
+      if (k === "hit") tone(988, 0.05);
     }
 
-    function drawSprite(kind) {
-      const map = SPRITE[kind] || SPRITE.xun;
-      const pal = PAL[kind] || PAL.xun;
+    function drawHero() {
       const c = document.createElement("canvas");
-      c.width = 11; c.height = 14;
+      c.width = 16; c.height = 20;
       const g = c.getContext("2d");
-      for (let i = 0; i < map.length; i++) {
-        const ch = map[i];
-        if (ch === "0") continue;
-        g.fillStyle = pal[Number(ch)] || pal[1];
-        g.fillRect(i % 11, (i / 11) | 0, 1, 1);
-      }
+      HERO.forEach((row, y) => {
+        for (let x = 0; x < row.length; x++) {
+          const ch = row[x];
+          if (ch === ".") continue;
+          g.fillStyle = HPAL[Number(ch)] || HPAL[1];
+          g.fillRect(x, y, 1, 1);
+        }
+      });
       const out = document.createElement("canvas");
-      out.width = 72; out.height = 72;
+      out.width = 120; out.height = 150;
       const og = out.getContext("2d");
       og.imageSmoothingEnabled = false;
       og.fillStyle = "#08150b";
-      og.fillRect(0, 0, 72, 72);
-      og.drawImage(c, 8, 6, 55, 60);
+      og.fillRect(0, 0, 120, 150);
+      og.drawImage(c, 0, 0, 16, 16, 12, 12, 96, 126);
       return out.toDataURL();
     }
-    const SPR_URL = { xun: drawSprite("xun"), npc: drawSprite("npc"), gpu: drawSprite("gpu") };
+    const HERO_URL = drawHero();
 
     function alive() { return state.rivals.filter((r) => !r.out); }
     function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
     function fmt(n) { return "$" + n.toFixed(2); }
-    function esc(s) {
-      return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-    }
-
-    function planSlots() {
-      const s = { hr: "choice", crisis: "timing", tech: "choice", campus: "choice", board: "choice", final: "talk" };
-      const spots = ["tech", "campus", "board"];
-      const a = spots[(Math.random() * 3) | 0];
-      s[a] = "bullet";
-      if (Math.random() < 0.34) {
-        if (a === "tech") s.board = "bullet";
-        else if (a === "board") s.tech = "bullet";
-      }
-      if (s.tech === "choice" && Math.random() < 0.42) s.tech = "talk";
-      if (s.board === "choice" && Math.random() < 0.4) s.board = "timing";
-      if (Math.random() < 0.22) s.final = "choice";
-      return s;
-    }
-
-    function handOf(scene) {
-      if (state.forceChoice) return "choice";
-      const h = state.slots[scene] || "choice";
-      if (h === "bullet" && (!DEBATES[scene] || state.belt.length === 0)) return "choice";
-      return h;
-    }
+    function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
     function drawSpark() {
-      const c = $("spark");
-      const g = c.getContext("2d");
-      const w = c.width, h = c.height;
-      g.fillStyle = "#040a05";
-      g.fillRect(0, 0, w, h);
+      const c = $("spark"), g = c.getContext("2d"), w = c.width, h = c.height;
+      g.fillStyle = "#040a05"; g.fillRect(0, 0, w, h);
       const data = state.hist.slice(-18);
-      const min = Math.min.apply(null, data) - 1;
-      const max = Math.max.apply(null, data) + 1;
+      const min = Math.min.apply(null, data) - 1, max = Math.max.apply(null, data) + 1;
       g.beginPath();
       data.forEach((v, i) => {
         const x = (i / Math.max(1, data.length - 1)) * (w - 4) + 2;
@@ -501,26 +362,20 @@
         if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
       });
       g.strokeStyle = state.stock >= OPEN ? "#76b900" : "#ff6b57";
-      g.lineWidth = 2;
-      g.stroke();
+      g.lineWidth = 2; g.stroke();
     }
-
     function floatAt(text, up, x, y) {
       const el = document.createElement("div");
       el.className = "floater " + (up ? "up" : "down");
       el.textContent = text;
-      el.style.left = (x || 40) + "px";
-      el.style.top = (y || 70) + "px";
+      el.style.left = (x || 40) + "px"; el.style.top = (y || 70) + "px";
       $("floaters").appendChild(el);
-      setTimeout(() => el.remove(), 950);
+      setTimeout(() => el.remove(), 900);
     }
-
     function bumpStock(d, news, silent) {
       const prev = state.stock;
       state.stock = clamp(state.stock + d, 42, 260);
-      state.lastDelta = state.stock - prev;
-      state.hist.push(state.stock);
-      if (state.hist.length > 40) state.hist.shift();
+      state.hist.push(state.stock); if (state.hist.length > 40) state.hist.shift();
       if (news) state.news = news;
       if (!silent && Math.abs(d) >= 0.4) {
         const hud = $("hud").getBoundingClientRect();
@@ -530,185 +385,77 @@
         setTimeout(() => $("price").classList.remove("flash"), 360);
       }
     }
-
     function bumpTrust(d) {
       if (!d) return;
       state.trust = clamp(state.trust + d, 0, 100);
       const hud = $("hud").getBoundingClientRect();
-      floatAt((d >= 0 ? "印象+" : "印象") + d, d >= 0, hud.left + 140, hud.top + 58);
+      floatAt((d >= 0 ? "印象+" : "印象") + d, d >= 0, hud.left + 150, hud.top + 58);
     }
-
     function kill(n) {
       if (n <= 0) return [];
-      const pool = alive();
-      const gone = [];
+      const pool = alive(), gone = [];
       const count = Math.min(n, Math.max(0, pool.length - (state.scene === "end" ? 0 : 1)));
       for (let i = 0; i < count; i++) {
         const pick = pool.splice((Math.random() * pool.length) | 0, 1)[0];
-        if (!pick) break;
-        pick.out = true;
-        gone.push(pick.n);
+        if (!pick) break; pick.out = true; gone.push(pick.n);
       }
       if (gone.length) {
-        sfx("kill");
         const hud = $("hud").getBoundingClientRect();
-        floatAt("对手-" + gone.length, true, hud.right - 90, hud.top + 58);
+        floatAt("对手-" + gone.length, true, hud.right - 80, hud.top + 58);
       }
       return gone;
     }
-
-    function grantBullet(b) {
-      if (!b || state.belt.some((x) => x.id === b.id)) return;
-      if (state.belt.length >= 6) state.belt.shift();
-      state.belt.push(b);
-      const hud = $("hud").getBoundingClientRect();
-      floatAt("言弹 " + b.name, true, hud.left + 220, hud.top + 70);
+    function toast(msg) {
+      const old = $("stage").querySelector(".toast"); if (old) old.remove();
+      const el = document.createElement("div"); el.className = "toast"; el.textContent = msg;
+      $("stage").appendChild(el); setTimeout(() => el.remove(), 1200);
     }
-
     function paintHud() {
-      const p = $("price");
       const d = state.stock - OPEN;
-      p.className = "price " + (d >= 0 ? "up" : "down");
+      $("price").className = "price " + (d >= 0 ? "up" : "down");
       $("delta").textContent = (d >= 0 ? "+" : "") + d.toFixed(2);
       $("price").childNodes[0].textContent = fmt(state.stock) + " ";
       $("rivals").textContent = String(alive().length);
       $("trust").textContent = String(state.trust);
       $("trustBar").style.width = state.trust + "%";
-      $("ammo").textContent = String(state.belt.length);
       $("news").textContent = state.news;
+      const showLock = ["danmaku", "hr", "tech", "campus", "defend", "vote"].indexOf(state.scene) >= 0 && state.pay !== "pranked" && state.pay !== "lost";
+      $("lockBtn").hidden = !showLock;
       drawSpark();
     }
-
-    function chipsHtml() {
-      return '<div class="chips">' + state.rivals.map((r) =>
-        '<span class="chip' + (r.out ? " out" : "") + '">' + r.n + "</span>"
-      ).join("") + "</div>";
+    function chips() {
+      return '<div class="chips">' + state.rivals.map((r) => '<span class="chip' + (r.out ? " out" : "") + '">' + r.n + "</span>").join("") + "</div>";
+    }
+    function heroHtml(lg) {
+      return '<img class="hero' + (lg ? " lg" : "") + '" alt="xunxun" width="120" height="150" src="' + HERO_URL + '" />';
+    }
+    function stopLoops() {
+      if (state.dm.raf) cancelAnimationFrame(state.dm.raf);
+      if (state.time.raf) cancelAnimationFrame(state.time.raf);
+      if (state.boardg.raf) cancelAnimationFrame(state.boardg.raf);
+      state.dm.raf = state.time.raf = state.boardg.raf = 0;
+      state.dm.running = state.boardg.running = false;
     }
 
-    function toast(msg) {
-      const old = $("stage").querySelector(".toast");
-      if (old) old.remove();
-      const el = document.createElement("div");
-      el.className = "toast";
-      el.textContent = msg;
-      $("stage").appendChild(el);
-      setTimeout(() => el.remove(), 1100);
-    }
-
-    function stopTiming() {
-      if (state.timingRaf) cancelAnimationFrame(state.timingRaf);
-      state.timingRaf = 0;
-    }
-
-    function startTiming() {
-      stopTiming();
-      state.timingT = Math.random() * 3;
-      state.timingTries = 0;
-      state.zone = { left: 0.30 + Math.random() * 0.28, width: 0.18 + Math.random() * 0.08 };
-      const zone = document.querySelector(".zone");
-      const needle = document.querySelector(".needle");
-      if (zone) {
-        zone.style.left = (state.zone.left * 100) + "%";
-        zone.style.width = (state.zone.width * 100) + "%";
-      }
-      const step = () => {
-        if (handOf(state.scene) !== "timing") return;
-        state.timingT += 0.05;
-        const x = (Math.sin(state.timingT * 2.6) + 1) / 2;
-        state.needleX = x;
-        if (needle) needle.style.left = (x * 97) + "%";
-        state.timingRaf = requestAnimationFrame(step);
-      };
-      state.timingRaf = requestAnimationFrame(step);
-    }
-
-    function storyHead(sc, extraKicker) {
-      const kicker = extraKicker || sc.kicker;
-      return '<div class="scene-kicker">' + kicker + "</div>" +
-        (state.scene === "title" ? "<h1>" + sc.title + "</h1>" : "<h2>" + sc.title + "</h2>") +
-        '<div class="who"><img class="portrait" alt="" width="72" height="72" src="' + SPR_URL[sc.who] + '" />' +
-        '<div><div class="scene-kicker">' + sc.name + '</div><div class="body">' + sc.body + "</div></div></div>";
-    }
-
-    function render() {
-      stopTiming();
-      const sc = STORY[state.scene];
-      const stage = $("stage");
-      const box = $("choices");
-      const hand = handOf(state.scene);
-      document.getElementById("frame").classList.toggle("crisis", !!(sc && sc.crisis) || state.crisis);
-      if (state.scene === "end") {
-        const e = judge();
-        $("round").textContent = "结局";
-        const info = ENDINGS[e.id];
-        stage.innerHTML =
-          '<div class="scene-kicker">任命结果</div><h2>' + info.title + "</h2>" +
-          '<div class="who"><img class="portrait" alt="" width="72" height="72" src="' + SPR_URL.xun + '" />' +
-          '<div class="body">' + info.body + "</div></div>" +
-          '<div class="end-box">' +
-          '<div class="end-line"><span>收盘价</span><b>' + fmt(state.stock) + "</b></div>" +
-          '<div class="end-line"><span>剩余对手</span><b>' + alive().length + "</b></div>" +
-          '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
-          '<div class="end-line"><span>言弹</span><b>' + state.belt.length + "</b></div>" +
-          '<div class="score-pop" id="scorePop">0</div></div>' + chipsHtml();
-        box.innerHTML = '<button class="go" data-act="restart" type="button">再竞选一次</button>';
-        animateScore(e.score);
-        sfx(e.good ? "win" : "lose");
-        paintHud();
-        return;
-      }
-      $("round").textContent = sc.round || "开局";
-      if (state.scene === "title" || state.scene === "help" || hand === "choice") {
-        stage.innerHTML = storyHead(sc) +
-          (sc.hint ? '<div class="hint">' + sc.hint + "</div>" : "") +
-          (state.scene === "title" || state.scene === "campus" || state.scene === "final" ? chipsHtml() : "");
-        box.innerHTML = sc.choices.map((c) =>
-          '<button class="choice" data-next="' + c.key + '" type="button"><span class="key">' + c.key + "</span>" + c.text + "</button>"
-        ).join("");
-        paintHud();
-        return;
-      }
-      if (hand === "bullet") {
-        const d = DEBATES[state.scene];
-        if (d && d.grant) grantBullet(d.grant);
-        const line = d.line.replace(d.weak, '<button type="button" class="weak" data-act="fire">' + esc(d.weak) + "</button>");
-        stage.innerHTML = storyHead(sc, sc.kicker + " · 言弹") +
-          '<div class="mark">言弹对决</div>' +
-          '<div class="body" style="margin-top:8px">' + d.speaker + "：「" + line + "」</div>" +
-          '<div class="hint">先点一枚言弹，再点金色那句或按发射。键盘 1 到 ' + Math.min(9, state.belt.length) + " 选，回车发射。</div>";
-        box.innerHTML = state.belt.map((b, i) =>
-          '<button class="shell' + (state.sel === i ? " on" : "") + '" data-act="pick" data-i="' + i + '" type="button"><b>' + (i + 1) + " · " + esc(b.name) + "</b>" + esc(b.text) + "</button>"
-        ).join("") + '<button class="go" data-act="fire" type="button">发射</button>';
-        paintHud();
-        return;
-      }
-      if (hand === "timing") {
-        stage.innerHTML = storyHead(sc, sc.kicker + " · 开口") +
-          '<div class="mark">开口时机</div>' +
-          '<div class="track"><div class="zone"></div><div class="needle"></div></div>' +
-          '<div class="hint">针走进绿色窗口时开口。空格或回车也能开口。两次机会。</div>';
-        box.innerHTML = '<button class="go" data-act="timing" type="button">开口</button>';
-        paintHud();
-        startTiming();
-        return;
-      }
-      if (hand === "talk") {
-        stage.innerHTML = storyHead(sc, sc.kicker + " · 自己写") +
-          '<div class="mark">现场阅卷</div>' +
-          '<textarea class="talkbox" id="talk" maxlength="280" placeholder="写你的回答…"></textarea>' +
-          '<div class="hint">' + (sc.talkHint || "写完点阅卷。也可以改用现成选项。") + "</div>";
-        box.innerHTML =
-          '<button class="go" data-act="talk" type="button">提交阅卷</button>' +
-          '<button class="choice ghost" data-act="fallback" type="button">改用现成选项</button>';
-        paintHud();
-        setTimeout(() => { const t = $("talk"); if (t) t.focus(); }, 50);
-        return;
-      }
+    function settle(opts, next) {
+      if (state.busy) return;
+      state.busy = true;
+      stopLoops();
+      if (opts.trust) bumpTrust(opts.trust);
+      if (opts.stock) bumpStock(opts.stock, opts.news);
+      else if (opts.news) state.news = opts.news;
+      const gone = kill(opts.kill || 0);
+      if (gone.length) state.news = (opts.news || state.news) + " · " + gone.join("、") + " 出局";
+      state.sentiment = clamp(state.sentiment + ((opts.stock || 0) > 0 ? 0.1 : -0.06), -0.4, 0.35);
+      toast(state.news);
+      state.scene = next;
+      setTimeout(() => { state.busy = false; render(); }, 380);
     }
 
     function judge() {
+      if (state.scene === "quitend" || state.quit) return { id: "quit", score: 120, good: false };
       const s = state.stock, t = state.trust, c = alive().length;
-      const score = Math.round(t * 12 + Math.max(0, s - 90) * 2.2 + (9 - c) * 18 + state.belt.length * 6);
+      const score = Math.round(t * 12 + Math.max(0, s - 90) * 2.2 + (9 - c) * 18);
       if (s < 96) return { id: "crash", score, good: false };
       if (t < 42) return { id: "fail", score, good: false };
       if (c >= 5) return { id: "stolen", score, good: false };
@@ -719,9 +466,171 @@
       return { id: "advisor", score, good: false };
     }
 
+    function render() {
+      stopLoops();
+      const stage = $("stage"), box = $("choices");
+      const sc = state.scene;
+      const roundMap = { title: "开局", apply: "投递", sending: "筛选", quote: "海选", danmaku: "海选", hr: "初面", tech: "二面", campus: "职场", defend: "董事会", vote: "终局", end: "结局", quitend: "结局" };
+      $("round").textContent = roundMap[sc] || "开局";
+      paintHud();
+
+      if (sc === "end" || sc === "quitend") {
+        const e = judge();
+        const info = ENDINGS[e.id];
+        stage.innerHTML = '<div class="scene-kicker">任命结果</div><h2>' + info.title + "</h2>" +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">' + info.body + "</div></div>" +
+          '<div class="end-line"><span>收盘价</span><b>' + fmt(state.stock) + "</b></div>" +
+          '<div class="end-line"><span>剩余对手</span><b>' + alive().length + "</b></div>" +
+          '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
+          '<div class="score-pop" id="scorePop">0</div>' + chips();
+        box.innerHTML = '<button class="go" data-act="restart" type="button">再竞选一次</button>';
+        animateScore(e.score); sfx(e.good ? "win" : "lose");
+        return;
+      }
+
+      if (sc === "title") {
+        stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>英伟达CEO竞选计</h1>' +
+          '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun。先投简历，再打海选弹幕、初面开口、二面记顺序、职场拆谣、董事会护盘。股价一直挂在头顶。</div></div></div>' +
+          '<div class="hint">点选项或按 1 2。弹幕用点的。开口按空格。</div>' + chips();
+        box.innerHTML = '<button class="go" data-act="apply" type="button"><span class="key">1</span>去投简历</button>' +
+          '<button class="choice ghost" data-act="help" type="button"><span class="key">2</span>怎么玩</button>';
+        return;
+      }
+      if (sc === "help") {
+        stage.innerHTML = '<div class="scene-kicker">怎么玩</div><h2>投递，然后打关</h2>' +
+          '<div class="body">投递页可以提交或放弃。放弃会直接结束。海选先选一句语录，再点飘过的别人宣言：点中克制的加分，点错扣分。初面开口三次，慢一些。二面记住闪过的词。职场拆穿谣言。董事会拍掉红蜡烛护股价。</div>';
+        box.innerHTML = '<button class="go" data-act="apply" type="button">去投简历</button>';
+        return;
+      }
+      if (sc === "apply") {
+        stage.innerHTML = '<div class="apply"><div class="brand">NVIDIA CAREERS</div>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div><div class="job">President and CEO</div>' +
+          '<div class="meta">Santa Clara · 海选进行中<br/>申请人 xunxun<br/>状态：待提交</div></div></div></div>' +
+          '<div class="hint">提交会进入筛选。放弃会直接去一个平淡结局。</div>';
+        box.innerHTML = '<button class="go" data-act="send" type="button"><span class="key">1</span>提交申请</button>' +
+          '<button class="choice ghost" data-act="quitask" type="button"><span class="key">2</span>放弃机会</button>';
+        return;
+      }
+      if (sc === "sending") {
+        stage.innerHTML = '<div class="ok-anim"><div class="check">OK</div><h2>投递成功</h2>' +
+          '<div class="body">我们已收到 xunxun 的申请。</div>' +
+          '<div class="hint"><span class="spin"></span> 正在筛选候选人…</div></div>';
+        box.innerHTML = "";
+        sfx("ok");
+        setTimeout(() => { if (state.scene === "sending") { state.scene = "quote"; render(); } }, 1300);
+        return;
+      }
+      if (sc === "quote") {
+        stage.innerHTML = '<div class="scene-kicker">海选 · 选语录</div><h2>你带哪一句进场</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">海选弹幕里全是别人的宣言。你选的这句，决定哪些宣言能被点掉。</div></div>';
+        box.innerHTML = QUOTES.map((q, i) =>
+          '<button class="choice" data-act="quote" data-id="' + q.id + '" type="button"><span class="key">' + (i + 1) + "</span>" + q.text + "</button>"
+        ).join("");
+        return;
+      }
+      if (sc === "danmaku") {
+        const q = QUOTES.find((x) => x.id === state.quote) || QUOTES[0];
+        stage.innerHTML = '<div class="scene-kicker">海选 · 弹幕</div><h2>点掉能克制的宣言</h2>' +
+          '<div class="quote-bar">你的语录：' + esc(q.text) + "</div>" +
+          '<div class="arena" id="arena"></div>' +
+          '<div class="hint">点滑动的弹幕。克制到的加分，点错扣分。空格打最左边那条。</div>';
+        box.innerHTML = '<button class="go ghost" data-act="skipdm" type="button">提前结束这波</button>';
+        startDanmaku();
+        return;
+      }
+      if (sc === "hr") {
+        stage.innerHTML = '<div class="scene-kicker">初面 · 开口</div><h2>连着三次，慢一点</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">陈招在对面等你开口。针走进绿区再开口。一共三次。</div></div>' +
+          '<div class="track"><div class="zone" id="zone"></div><div class="needle" id="needle"></div></div>' +
+          '<div class="hint" id="hrHint">第 1 / 3 次 · 空格或点开口</div>';
+        box.innerHTML = '<button class="go" data-act="open" type="button">开口</button>';
+        startTiming();
+        return;
+      }
+      if (sc === "tech") {
+        stage.innerHTML = '<div class="scene-kicker">二面 · 记顺序</div><h2>Arch 甩出一串词</h2>' +
+          '<div class="body">看清闪过的顺序，再按同样顺序点出来。</div>' +
+          '<div class="seq" id="seq">看清</div>' +
+          '<div class="grid2" id="memGrid"></div>';
+        box.innerHTML = "";
+        startMemory();
+        return;
+      }
+      if (sc === "campus") {
+        const g = GOSSIP[state.gossip.i];
+        stage.innerHTML = '<div class="scene-kicker">职场 · 拆谣</div><h2>这句话要不要拆</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">' + esc(g.t) + "</div></div>" +
+          '<div class="hint">第 ' + (state.gossip.i + 1) + " / " + GOSSIP.length + " 句。谣言就拆，闲聊就放。</div>";
+        box.innerHTML = '<button class="go" data-act="catch" type="button"><span class="key">1</span>拆穿</button>' +
+          '<button class="choice" data-act="pass" type="button"><span class="key">2</span>放过</button>';
+        return;
+      }
+      if (sc === "defend") {
+        stage.innerHTML = '<div class="scene-kicker">董事会 · 护盘</div><h2>拍掉红蜡烛</h2>' +
+          '<div class="body">红的砸下来就点掉，护住股价。绿的是买盘，别乱拍。</div>' +
+          '<div class="candles" id="candles"></div>' +
+          '<div class="hint">点红的。大约八秒。</div>';
+        box.innerHTML = "";
+        startDefend();
+        return;
+      }
+      if (sc === "vote") {
+        stage.innerHTML = '<div class="scene-kicker">终局 · 拉票</div><h2>点能说动的人</h2>' +
+          '<div class="faces">' + BOARD.map((b) => {
+            const voted = state.votes[b.id];
+            const cls = b.locked ? "face lock" : voted ? "face on dead" : "face";
+            const act = b.locked ? "pay" : "vote";
+            const label = b.locked ? (state.pay === "lost" ? b.name + " · 已失去" : b.name + " · 弱点锁") : (voted ? b.name + " · 已说动" : b.name);
+            return '<button class="' + cls + '" data-act="' + act + '" data-id="' + b.id + '" type="button">' + label + "</button>";
+          }).join("") + "</div>" +
+          '<div class="hint">有一张是糊弄人的付费锁。点完能说动的人，再提交表决。</div>';
+        box.innerHTML = '<button class="go" data-act="finish" type="button">提交表决</button>';
+        return;
+      }
+    }
+
+    function showPay() {
+      const ov = $("overlay");
+      let inner = "";
+      let actions = "";
+      if (state.pay === "offer") {
+        inner = '<h3>Kai 的弱点已加密</h3><div class="body">限时优惠。解锁后可让一名对手直接出局，并公开他的黑料。</div>';
+        actions = '<button class="go" data-act="buynow" type="button">立即解锁 ¥128</button>' +
+          '<button class="choice ghost" data-act="nopay" type="button">算了</button>';
+      } else if (state.pay === "buying") {
+        inner = '<h3>正在连接收银台</h3><div class="progress"><i id="bar"></i></div><div class="hint">请稍候…</div>';
+      } else if (state.pay === "prank") {
+        inner = '<h3>你被耍了</h3><div class="body">没有扣款，也没有弱点。董事会只记下：你愿意为情报掏钱。</div>';
+        actions = '<button class="go" data-act="prankok" type="button">知道了</button>';
+      } else if (state.pay === "retain") {
+        inner = '<h3>真的放弃吗</h3><div class="body">这可是价值百亿的情报。再想想？</div>';
+        actions = '<button class="go" data-act="buynow" type="button">还是解锁</button>' +
+          '<button class="choice ghost" data-act="giveup" type="button">确认放弃</button>';
+      } else if (state.pay === "lost") {
+        inner = '<h3>你失去了价值百亿的机会！</h3><div class="body">门关上了。Kai 还坐在房间里，只是你点不开了。</div>';
+        actions = '<button class="go" data-act="lostok" type="button">知道了</button>';
+      } else {
+        ov.className = ""; ov.innerHTML = ""; return;
+      }
+      ov.className = "on";
+      $("choices").style.visibility = "hidden";
+      ov.innerHTML = '<div class="sheet">' + inner + (actions ? '<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">' + actions + "</div>" : "") + "</div>";
+      if (state.pay === "buying") {
+        const bar = $("bar");
+        let w = 0;
+        const t = setInterval(() => {
+          w += 14; if (bar) bar.style.width = Math.min(100, w) + "%";
+          if (w >= 100) { clearInterval(t); state.pay = "prank"; sfx("ok"); showPay(); }
+        }, 90);
+      }
+    }
+    function hidePay() {
+      const ov = $("overlay"); ov.className = ""; ov.innerHTML = "";
+      $("choices").style.visibility = "";
+    }
+
     function animateScore(target) {
-      const el = $("scorePop");
-      if (!el) return;
+      const el = $("scorePop"); if (!el) return;
       const t0 = performance.now();
       const step = (now) => {
         const k = Math.min(1, (now - t0) / 700);
@@ -731,267 +640,317 @@
       requestAnimationFrame(step);
     }
 
-    function settle(opts) {
-      if (state.busy) return;
-      state.busy = true;
-      stopTiming();
-      state.crisis = false;
-      state.forceChoice = false;
-      state.sel = -1;
-      if (opts.trust) bumpTrust(opts.trust);
-      let stock = opts.stock || 0;
-      if (opts.gamble) stock = Math.random() < 0.5 ? 9.4 : -9.8;
-      if (stock) bumpStock(stock, opts.news);
-      else if (opts.news) state.news = opts.news;
-      const gone = kill(opts.kill || 0);
-      if (opts.letter) state.letter = opts.letter;
-      if (opts.bullet) grantBullet(opts.bullet);
-      if (gone.length) state.news = (opts.news || state.news) + " · " + gone.join("、") + " 出局";
-      state.sentiment = clamp((state.sentiment || 0) + (stock > 0 ? 0.12 : -0.08), -0.4, 0.35);
-      toast(state.news);
-      const sc = STORY[state.scene];
-      state.scene = opts.next || (sc && sc.next) || "end";
-      if (STORY[state.scene] && STORY[state.scene].crisis) state.crisis = true;
-      setTimeout(() => { state.busy = false; render(); }, 320);
-    }
-
-    function choose(key) {
-      const sc = STORY[state.scene];
-      if (!sc || !sc.choices) return;
-      if (state.scene !== "title" && state.scene !== "help" && handOf(state.scene) !== "choice") return;
-      const c = sc.choices.find((x) => x.key === key);
-      if (!c) return;
-      sfx("click");
-      settle({
-        trust: c.trust, stock: c.stock, kill: c.kill, news: c.news,
-        gamble: c.gamble, letter: c.letter, bullet: c.bullet, next: c.next || sc.next
-      });
-    }
-
-    function selectBullet(i) {
-      if (i < 0 || i >= state.belt.length) return;
-      state.sel = i;
-      sfx("click");
-      document.querySelectorAll(".shell").forEach((el, idx) => el.classList.toggle("on", idx === i));
-    }
-
-    function fireBullet() {
-      if (handOf(state.scene) !== "bullet" || state.busy) return;
-      if (state.sel < 0) { toast("先选一枚言弹"); return; }
-      const d = DEBATES[state.scene];
-      const b = state.belt[state.sel];
-      if (!d || !b) return;
-      sfx("shoot");
-      const hit = d.hit.indexOf(b.id) >= 0;
-      if (hit) {
-        settle({
-          trust: 13, stock: 4.6, kill: 2,
-          news: "言弹命中「" + d.weak + "」· 用的是" + b.name
-        });
-      } else {
-        settle({
-          trust: -6, stock: -3.1, kill: 0,
-          news: b.name + "没打在破绽上，对方把话圆了回去"
-        });
-      }
-    }
-
-    function fireTiming() {
-      if (handOf(state.scene) !== "timing" || state.busy) return;
-      const z = state.zone;
-      const hit = state.needleX >= z.left && state.needleX <= z.left + z.width;
-      if (hit) {
-        sfx("shoot");
-        settle({
-          trust: 8, stock: 6.2, kill: 1,
-          news: "开口打在绿区，盘口先收了一截",
-          bullet: { id: "pulse", name: "低点开口", text: "你在绿区把话甩了出去" }
-        });
-        return;
-      }
-      state.timingTries += 1;
-      sfx("down");
-      if (state.timingTries < 2) {
-        toast("没打中，还有一次");
-        return;
-      }
-      settle({
-        trust: 1, stock: -4.4, kill: 0,
-        news: "开口落在红区，市场把这当成心虚",
-        bullet: { id: "silence", name: "开口落空", text: "你两次都没打进绿区" }
-      });
-    }
-
-    function gradeSpeech(text, scene) {
-      const raw = text.replace(/\s+/g, "");
-      if (raw.length < 6) {
-        return { trust: -5, stock: -1.6, kill: 0, news: "发言太短，现场没当回事", comment: "写太短了。董事会只听到空白。" };
-      }
-      const packs = {
-        tech: {
-          good: ["系统", "供应", "生态", "开发者", "CUDA", "cuda", "护城河", "开源", "迁移", "硬件", "软件", "栈", "替代", "第一周", "交付", "算力"],
-          bad: ["不可能", "随便", "不知道", "躺"],
-          stockW: ["算力", "需求", "交付", "供应"]
-        },
-        board: {
-          good: ["扩产", "算力", "现金流", "几年", "缺口", "加码", "纪律", "坐实", "产线"],
-          bad: ["随便", "不知道"],
-          stockW: ["现金流", "扩产", "加码", "坐实"]
-        },
-        final: {
-          good: ["开发者", "加速器", "股东", "利润", "纪律", "员工", "团队", "扛", "生态", "现金流", "GPU", "一起", "加速"],
-          bad: ["随便", "不知道"],
-          stockW: ["利润", "纪律", "股东", "现金流"]
-        },
-        hr: {
-          good: ["周期", "接班", "活下来", "坐实", "董事会"],
-          bad: ["随便"],
-          stockW: ["周期", "坐实"]
-        }
+    function startDanmaku() {
+      const arena = $("arena"); if (!arena) return;
+      state.dm = { items: [], raf: 0, t0: performance.now(), hits: 0, miss: 0, running: true, spawn: 0 };
+      const q = QUOTES.find((x) => x.id === state.quote) || QUOTES[0];
+      const spawn = () => {
+        if (!state.dm.running) return;
+        const src = DANMAKU[(Math.random() * DANMAKU.length) | 0];
+        const beat = q.beats.indexOf(src.type) >= 0;
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "dm" + (beat ? "" : " trap");
+        el.textContent = src.text;
+        el.style.top = (8 + Math.random() * 120) + "px";
+        el.style.left = "100%";
+        el.dataset.beat = beat ? "1" : "0";
+        el.addEventListener("click", (ev) => { ev.stopPropagation(); tapDm(el); });
+        arena.appendChild(el);
+        state.dm.items.push({ el, x: arena.clientWidth, spd: 1.1 + Math.random() * 0.7, beat });
       };
-      const pack = packs[scene] || packs.tech;
-      const t = text;
-      const g = pack.good.filter((w) => t.indexOf(w) >= 0).length;
-      const b = pack.bad.filter((w) => t.indexOf(w) >= 0).length;
-      const sk = pack.stockW.filter((w) => t.indexOf(w) >= 0).length;
-      const trust = clamp(3 + g * 4 - b * 8 + (raw.length > 36 ? 2 : 0), -12, 16);
-      const stock = clamp(sk * 2.1 - b * 3 + (g >= 2 ? 1.4 : 0), -6, 8);
-      const kill = g >= 3 ? 2 : g >= 1 ? 1 : 0;
-      let comment = g >= 3 ? "这句话有骨头，现场有人在记。" : g >= 1 ? "说到点上了，但还薄。" : "听得见声音，抓不住路线。";
-      if (b) comment = "有些话把空气弄僵了。";
-      let letter = "";
-      if (scene === "final") {
-        if (t.indexOf("开发者") >= 0 || t.indexOf("加速") >= 0) letter = "dev";
-        else if (t.indexOf("股东") >= 0 || t.indexOf("利润") >= 0) letter = "share";
-        else if (t.indexOf("员工") >= 0 || t.indexOf("扛") >= 0) letter = "staff";
-      }
-      return { trust, stock, kill, news: comment, comment, letter };
+      spawn();
+      const loop = (now) => {
+        if (!state.dm.running) return;
+        if (now - state.dm.spawn > 700) { state.dm.spawn = now; spawn(); }
+        const w = arena.clientWidth;
+        state.dm.items = state.dm.items.filter((it) => {
+          it.x -= it.spd * 1.6;
+          it.el.style.left = it.x + "px";
+          if (it.x < -it.el.offsetWidth - 8) { it.el.remove(); return false; }
+          return true;
+        });
+        if (now - state.dm.t0 > 12000) { finishDanmaku(); return; }
+        state.dm.raf = requestAnimationFrame(loop);
+      };
+      state.dm.raf = requestAnimationFrame(loop);
+    }
+    function tapDm(el) {
+      if (!state.dm.running || el.dataset.done) return;
+      el.dataset.done = "1";
+      const beat = el.dataset.beat === "1";
+      if (beat) { el.classList.add("hit"); state.dm.hits++; sfx("hit"); bumpTrust(2); bumpStock(0.8, null, true); }
+      else { el.classList.add("miss"); state.dm.miss++; sfx("down"); bumpTrust(-2); bumpStock(-1.4, null, true); }
+      paintHud();
+      setTimeout(() => el.remove(), 180);
+    }
+    function fireNearest() {
+      const arena = $("arena"); if (!arena) return;
+      const left = [...arena.querySelectorAll(".dm")].sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left)[0];
+      if (left) tapDm(left);
+    }
+    function finishDanmaku() {
+      if (!state.dm.running) return;
+      state.dm.running = false;
+      const h = state.dm.hits, m = state.dm.miss;
+      settle({
+        trust: Math.min(10, h * 2) - m, stock: h * 1.2 - m * 1.6, kill: h >= 4 ? 2 : h >= 2 ? 1 : 0,
+        news: "海选弹幕 命中" + h + " 点错" + m
+      }, "hr");
     }
 
-    function submitTalk() {
-      if (handOf(state.scene) !== "talk" || state.busy) return;
-      const box = $("talk");
-      const text = box ? box.value : "";
-      sfx("click");
-      const g = gradeSpeech(text, state.scene);
-      toast("阅卷中…");
-      state.busy = true;
-      setTimeout(() => {
-        state.busy = false;
+    function startTiming() {
+      state.time = { raf: 0, x: 0, t: Math.random() * 2, n: 0, hits: 0, tries: 0, zone: { left: 0.32, width: 0.3 }, locked: false };
+      const zone = $("zone"), needle = $("needle");
+      if (zone) { zone.style.left = (state.time.zone.left * 100) + "%"; zone.style.width = (state.time.zone.width * 100) + "%"; }
+      const loop = () => {
+        if (state.scene !== "hr") return;
+        state.time.t += 0.022;
+        const x = (Math.sin(state.time.t * 1.7) + 1) / 2;
+        state.time.x = x;
+        if (needle) needle.style.left = (x * 97) + "%";
+        state.time.raf = requestAnimationFrame(loop);
+      };
+      state.time.raf = requestAnimationFrame(loop);
+      updateHrHint();
+    }
+    function updateHrHint() {
+      const el = $("hrHint");
+      if (el) el.textContent = "第 " + (state.time.n + 1) + " / 3 次 · 空格或点开口";
+    }
+    function fireOpen() {
+      if (state.scene !== "hr" || state.time.locked) return;
+      const z = state.time.zone;
+      const hit = state.time.x >= z.left && state.time.x <= z.left + z.width;
+      state.time.locked = true;
+      if (hit) { state.time.hits++; sfx("hit"); toast("开口打在绿区"); }
+      else { sfx("down"); toast("开口偏了"); }
+      state.time.n += 1;
+      if (state.time.n >= 3) {
+        const h = state.time.hits;
         settle({
-          trust: g.trust, stock: g.stock, kill: g.kill, news: g.news, letter: g.letter,
-          bullet: text.replace(/\s+/g, "").length >= 12 ? { id: "speech-" + state.scene, name: "亲口说的", text: text.slice(0, 28) } : null
+          trust: h * 5 - (3 - h) * 2, stock: h * 2.2 - (3 - h) * 1.8, kill: h === 3 ? 2 : h >= 2 ? 1 : 0,
+          news: "初面开口 " + h + "/3"
+        }, "tech");
+        return;
+      }
+      setTimeout(() => { state.time.locked = false; updateHrHint(); }, 280);
+    }
+
+    function startMemory() {
+      const pool = MEM_POOL.slice();
+      const seq = [];
+      for (let i = 0; i < 3; i++) seq.push(pool.splice((Math.random() * pool.length) | 0, 1)[0]);
+      state.mem = { seq, step: 0, phase: "show" };
+      const seqEl = $("seq"), grid = $("memGrid");
+      let i = 0;
+      const show = () => {
+        if (state.scene !== "tech") return;
+        if (i >= seq.length) {
+          seqEl.textContent = "按顺序点";
+          state.mem.phase = "tap";
+          const opts = seq.slice();
+          MEM_POOL.forEach((w) => { if (opts.indexOf(w) < 0 && opts.length < 4) opts.push(w); });
+          opts.sort(() => Math.random() - 0.5);
+          grid.innerHTML = opts.map((w) => '<button class="mem" data-act="mem" data-w="' + w + '" type="button">' + w + "</button>").join("");
+          return;
+        }
+        seqEl.textContent = seq[i];
+        i += 1;
+        setTimeout(show, 700);
+      };
+      setTimeout(show, 400);
+    }
+    function tapMem(w) {
+      if (state.mem.phase !== "tap") return;
+      const need = state.mem.seq[state.mem.step];
+      if (w === need) {
+        sfx("hit"); state.mem.step += 1;
+        if (state.mem.step >= state.mem.seq.length) {
+          settle({ trust: 12, stock: 3.4, kill: 2, news: "二面顺序全对，Arch 点了头" }, "campus");
+        }
+      } else {
+        sfx("down");
+        settle({ trust: -4, stock: -2.2, kill: 0, news: "二面顺序乱了，Arch 把杯子放下" }, "campus");
+      }
+    }
+
+    function gossipAct(catchIt) {
+      const g = GOSSIP[state.gossip.i];
+      const ok = catchIt === g.catch;
+      if (ok) { state.gossip.ok++; sfx("hit"); }
+      else sfx("down");
+      state.gossip.i += 1;
+      if (state.gossip.i >= GOSSIP.length) {
+        const h = state.gossip.ok;
+        settle({
+          trust: h * 3 - (GOSSIP.length - h) * 3, stock: (h - 2) * 1.4, kill: h >= 4 ? 2 : h >= 3 ? 1 : 0,
+          news: "职场拆谣 " + h + "/" + GOSSIP.length
+        }, "defend");
+      } else render();
+    }
+
+    function startDefend() {
+      const box = $("candles"); if (!box) return;
+      state.boardg = { raf: 0, items: [], t0: performance.now(), smash: 0, leak: 0, running: true, spawn: 0 };
+      const spawn = () => {
+        const red = Math.random() > 0.32;
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "cndl " + (red ? "red" : "green");
+        el.style.left = (8 + Math.random() * 78) + "%";
+        el.style.top = "-30px";
+        el.style.height = (18 + Math.random() * 28) + "px";
+        el.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          if (!state.boardg.running) return;
+          if (red) { state.boardg.smash++; sfx("hit"); bumpStock(1.1, null, true); }
+          else { state.boardg.leak++; sfx("down"); bumpStock(-1.6, null, true); }
+          paintHud(); el.remove();
         });
-      }, 480);
+        box.appendChild(el);
+        state.boardg.items.push({ el, y: -30, spd: 1.4 + Math.random(), red });
+      };
+      const loop = (now) => {
+        if (!state.boardg.running) return;
+        if (now - state.boardg.spawn > 480) { state.boardg.spawn = now; spawn(); }
+        const h = box.clientHeight;
+        state.boardg.items = state.boardg.items.filter((it) => {
+          it.y += it.spd * 1.8;
+          it.el.style.top = it.y + "px";
+          if (it.y > h) {
+            if (it.red) { state.boardg.leak++; bumpStock(-1.2, null, true); paintHud(); }
+            it.el.remove(); return false;
+          }
+          return true;
+        });
+        if (now - state.boardg.t0 > 8000) { finishDefend(); return; }
+        state.boardg.raf = requestAnimationFrame(loop);
+      };
+      state.boardg.raf = requestAnimationFrame(loop);
+    }
+    function finishDefend() {
+      if (!state.boardg.running) return;
+      state.boardg.running = false;
+      const s = state.boardg.smash, l = state.boardg.leak;
+      settle({
+        trust: Math.min(8, s) - Math.min(6, l), stock: s * 0.6, kill: s >= 6 ? 1 : 0,
+        news: "护盘 拍红" + s + " 漏" + l
+      }, "vote");
     }
 
     function restart() {
-      stopTiming();
-      state.scene = "title";
-      state.stock = OPEN;
-      state.hist = [OPEN, OPEN + 0.2, OPEN];
-      state.rivals = NAMES.map((n) => ({ n, out: false }));
-      state.trust = 50;
-      state.sentiment = 0;
-      state.crisis = false;
-      state.letter = "";
-      state.news = "盘前等待开盘 · 海选通道已打开";
-      state.lastDelta = 0;
-      state.belt = [];
-      state.slots = {};
-      state.sel = -1;
-      state.forceChoice = false;
-      state.busy = false;
+      stopLoops();
+      hidePay();
+      Object.assign(state, {
+        scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
+        rivals: NAMES.map((n) => ({ n, out: false })), trust: 50, sentiment: 0,
+        news: "盘前等待开盘", quote: null, busy: false, pay: "idle", votes: {}, quit: false
+      });
+      state.gossip = { i: 0, ok: 0 };
       render();
-    }
-
-    function beginRun() {
-      state.slots = planSlots();
     }
 
     $("choices").addEventListener("click", (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      const act = btn.dataset.act;
+      const b = e.target.closest("button"); if (!b) return;
+      const act = b.dataset.act;
       if (act === "restart") { sfx("click"); restart(); return; }
-      if (act === "pick") { selectBullet(+btn.dataset.i); return; }
-      if (act === "fire") { fireBullet(); return; }
-      if (act === "timing") { fireTiming(); return; }
-      if (act === "talk") { submitTalk(); return; }
-      if (act === "fallback") { sfx("click"); state.forceChoice = true; render(); return; }
-      if (btn.dataset.next) {
-        const sc = STORY[state.scene];
-        const c = sc && sc.choices && sc.choices.find((x) => x.key === btn.dataset.next);
-        if ((state.scene === "title" || state.scene === "help") && c && c.next === "resume") beginRun();
-        choose(btn.dataset.next);
+      if (act === "apply" || act === "help") { sfx("click"); state.scene = act === "apply" ? "apply" : "help"; render(); return; }
+      if (act === "send") { sfx("click"); state.scene = "sending"; render(); return; }
+      if (act === "quitask") {
+        sfx("click");
+        $("choices").innerHTML = '<button class="go" data-act="apply" type="button">还是投递</button>' +
+          '<button class="choice ghost" data-act="quit" type="button">确定放弃</button>';
+        toast("放弃将直接结束竞选");
+        return;
+      }
+      if (act === "quit") { sfx("lose"); state.quit = true; state.scene = "quitend"; render(); return; }
+      if (act === "quote") { sfx("click"); state.quote = b.dataset.id; state.scene = "danmaku"; render(); return; }
+      if (act === "skipdm") { finishDanmaku(); return; }
+      if (act === "open") { fireOpen(); return; }
+      if (act === "mem") { tapMem(b.dataset.w); return; }
+      if (act === "catch") { gossipAct(true); return; }
+      if (act === "pass") { gossipAct(false); return; }
+      if (act === "vote") {
+        const id = b.dataset.id; const info = BOARD.find((x) => x.id === id);
+        if (!info || info.locked || state.votes[id]) return;
+        sfx("hit"); state.votes[id] = true; bumpTrust(4); bumpStock(1.2, "说动了" + info.name); paintHud(); render();
+        return;
+      }
+      if (act === "pay") {
+        if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "没有弱点"); return; }
+        sfx("click"); state.pay = "offer"; showPay(); return;
+      }
+      if (act === "buynow") { sfx("click"); state.pay = "buying"; showPay(); return; }
+      if (act === "nopay") { sfx("click"); state.pay = "retain"; showPay(); return; }
+      if (act === "giveup") { sfx("down"); state.pay = "lost"; bumpTrust(-2); bumpStock(-2.4, "你失去了价值百亿的机会"); showPay(); return; }
+      if (act === "prankok") { state.pay = "pranked"; bumpTrust(1); hidePay(); paintHud(); toast("没有扣款"); if (state.scene === "vote") render(); return; }
+      if (act === "lostok") { hidePay(); paintHud(); if (state.scene === "vote") render(); return; }
+      if (act === "finish") {
+        const n = Object.keys(state.votes).length;
+        settle({ trust: n * 2, stock: n * 1.1, kill: n >= 2 ? 1 : 0, news: "表决 说动" + n + " 席" }, "end");
       }
     });
     $("stage").addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-act]");
-      if (!btn) return;
-      if (btn.dataset.act === "fire") fireBullet();
+      const b = e.target.closest("button"); if (!b) return;
+      const act = b.dataset.act;
+      if (act === "mem") tapMem(b.dataset.w);
+      if (act === "vote" || act === "pay") {
+        const ev = new Event("click", { bubbles: true });
+        /* reuse choices handler by dispatching through cloning act on choices is messy; call same */
+      }
+      if (act === "vote") {
+        const id = b.dataset.id; const info = BOARD.find((x) => x.id === id);
+        if (!info || info.locked || state.votes[id]) return;
+        sfx("hit"); state.votes[id] = true; bumpTrust(4); bumpStock(1.2, "说动了" + info.name); render();
+      }
+      if (act === "pay") {
+        if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "没有弱点"); return; }
+        sfx("click"); state.pay = "offer"; showPay();
+      }
     });
     document.addEventListener("keydown", (e) => {
       if (e.repeat) return;
-      const tag = e.target && e.target.tagName;
-      if (tag === "TEXTAREA" || tag === "INPUT") {
-        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submitTalk();
-        return;
+      if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT")) return;
+      if ((state.scene === "end" || state.scene === "quitend") && (e.key === "Enter" || e.key === "r")) { restart(); return; }
+      if (state.scene === "title" && e.key === "1") { state.scene = "apply"; render(); return; }
+      if (state.scene === "title" && e.key === "2") { state.scene = "help"; render(); return; }
+      if (state.scene === "apply" && e.key === "1") { state.scene = "sending"; render(); return; }
+      if (state.scene === "apply" && e.key === "2") { document.querySelector("[data-act=quitask]")?.click(); return; }
+      if (state.scene === "quote" && "123".indexOf(e.key) >= 0) {
+        state.quote = QUOTES[+e.key - 1].id; state.scene = "danmaku"; render(); return;
       }
-      if (state.scene === "end" && (e.key === "Enter" || e.key === "r" || e.key === "R")) { restart(); return; }
-      const hand = handOf(state.scene);
-      if (hand === "timing") {
-        if (e.key === " " || e.key === "Enter") { e.preventDefault(); fireTiming(); }
-        return;
-      }
-      if (hand === "bullet") {
-        if ("123456789".indexOf(e.key) >= 0) { selectBullet(+e.key - 1); return; }
-        if (e.key === "Enter") { fireBullet(); return; }
-        return;
-      }
-      if (hand === "talk") return;
-      if (["1", "2", "3"].indexOf(e.key) >= 0) {
-        const sc = STORY[state.scene];
-        const c = sc && sc.choices && sc.choices.find((x) => x.key === e.key);
-        if ((state.scene === "title" || state.scene === "help") && c && c.next === "resume") beginRun();
-        choose(e.key);
-      }
-      if (e.key === "Enter") {
-        const first = document.querySelector("#choices button");
-        if (first && first.dataset.next) {
-          const sc = STORY[state.scene];
-          const c = sc && sc.choices && sc.choices.find((x) => x.key === first.dataset.next);
-          if ((state.scene === "title" || state.scene === "help") && c && c.next === "resume") beginRun();
-          choose(first.dataset.next);
-        }
-        if (first && first.dataset.act === "restart") restart();
-      }
+      if (state.scene === "danmaku" && (e.key === " " || e.key === "Enter")) { e.preventDefault(); fireNearest(); return; }
+      if (state.scene === "hr" && (e.key === " " || e.key === "Enter")) { e.preventDefault(); fireOpen(); return; }
+      if (state.scene === "campus" && e.key === "1") { gossipAct(true); return; }
+      if (state.scene === "campus" && e.key === "2") { gossipAct(false); return; }
     });
     $("muteBtn").addEventListener("click", () => {
-      state.muted = !state.muted;
-      $("muteBtn").textContent = state.muted ? "静音" : "音效";
-      if (!state.muted) sfx("click");
+      state.muted = !state.muted; $("muteBtn").textContent = state.muted ? "静音" : "音效"; if (!state.muted) sfx("click");
+    });
+    $("lockBtn").addEventListener("click", () => {
+      if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "没有弱点"); return; }
+      sfx("click"); state.pay = "offer"; showPay();
+    });
+    $("overlay").addEventListener("click", (e) => {
+      const b = e.target.closest("button"); if (!b) return;
+      const act = b.dataset.act;
+      if (act === "buynow") { sfx("click"); state.pay = "buying"; showPay(); return; }
+      if (act === "nopay") { sfx("click"); state.pay = "retain"; showPay(); return; }
+      if (act === "giveup") { sfx("down"); state.pay = "lost"; bumpTrust(-2); bumpStock(-2.4, "你失去了价值百亿的机会"); showPay(); return; }
+      if (act === "prankok") { state.pay = "pranked"; bumpTrust(1); hidePay(); paintHud(); toast("没有扣款"); if (state.scene === "vote") render(); return; }
+      if (act === "lostok") { hidePay(); paintHud(); if (state.scene === "vote") render(); return; }
     });
 
     setInterval(() => {
-      if (!state.playing) return;
-      if (state.scene === "end" || state.scene === "title" || state.scene === "help") {
-        bumpStock((Math.random() - 0.48) * 0.35, null, true);
-        paintHud();
-        return;
+      if (state.scene === "end" || state.scene === "quitend" || state.scene === "title" || state.scene === "help" || state.scene === "apply" || state.scene === "sending") {
+        bumpStock((Math.random() - 0.48) * 0.3, null, true); paintHud(); return;
       }
-      let drift = (Math.random() - 0.5) * 0.7 + (state.sentiment || 0);
-      if (state.crisis) drift -= 0.85 + Math.random() * 0.5;
-      bumpStock(drift, state.crisis ? "盘前继续往下 · 你还没出手" : null, !state.crisis);
-      paintHud();
+      bumpStock((Math.random() - 0.5) * 0.55 + state.sentiment, null, true); paintHud();
     }, 1600);
 
-    try {
-      render();
-      window.asteamPreview && window.asteamPreview.ready && window.asteamPreview.ready();
-    } catch (err) {
-      window.asteamPreview && window.asteamPreview.fail && window.asteamPreview.fail(String(err && err.message || err));
-    }
+    try { render(); window.asteamPreview && window.asteamPreview.ready && window.asteamPreview.ready(); }
+    catch (err) { window.asteamPreview && window.asteamPreview.fail && window.asteamPreview.fail(String(err && err.message || err)); }
   })();
   </script>
 </body>
