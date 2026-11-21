@@ -211,18 +211,22 @@
       border-color: var(--line);
       color: var(--dim);
     }
+    .news-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
     .mute {
-      position: absolute;
-      top: calc(10px + env(safe-area-inset-top));
-      right: 16px;
-      z-index: 9;
-      width: 40px;
-      height: 40px;
+      flex: 0 0 auto;
+      min-width: 44px;
+      min-height: 32px;
       border: 2px solid var(--line);
       background: #061108;
       color: var(--dim);
       font-size: 11px;
       cursor: pointer;
+      padding: 4px 8px;
     }
     .floaters { pointer-events: none; position: fixed; left: 0; top: 0; right: 0; z-index: 12; }
     .floater {
@@ -261,7 +265,8 @@
     .end-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 2px solid var(--line); }
     .score-pop { font-size: 28px; color: var(--gold); font-weight: 800; margin: 8px 0; }
     .news {
-      margin-top: 6px;
+      flex: 1;
+      min-width: 0;
       font-size: 11px;
       color: var(--nv);
       white-space: nowrap;
@@ -298,7 +303,6 @@
 </head>
 <body>
   <div id="frame">
-    <button class="mute" id="muteBtn" type="button" aria-label="静音">音效</button>
     <header class="hud" id="hud">
       <div class="hud-top">
         <div class="price-block">
@@ -312,7 +316,10 @@
         <div class="stat">董事会印象<b id="trust">50</b><div class="bar"><i id="trustBar"></i></div></div>
         <div class="stat">进度<b id="round">开局</b></div>
       </div>
-      <div class="news" id="news">盘前等待开盘 · 海选通道已打开</div>
+      <div class="news-row">
+        <div class="news" id="news">盘前等待开盘 · 海选通道已打开</div>
+        <button class="mute" id="muteBtn" type="button" aria-label="音效开关">音效</button>
+      </div>
     </header>
     <main id="stage"></main>
     <div id="choices"></div>
