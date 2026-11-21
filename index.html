@@ -18,7 +18,6 @@
       --gold: #e6c35c;
       --line: #1d3a18;
       --btn: #132816;
-      --danger: #3a1512;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
@@ -34,7 +33,7 @@
         repeating-linear-gradient(90deg, #0a1c0c 0 12px, #081609 12px 24px),
         repeating-linear-gradient(0deg, transparent 0 7px, rgba(118,185,0,.05) 7px 8px);
     }
-    button { font-family: inherit; }
+    button, textarea { font-family: inherit; }
     #frame {
       height: 100dvh;
       height: 100svh;
@@ -61,217 +60,125 @@
       padding: 8px 10px 7px;
       box-shadow: 4px 4px 0 #031006;
     }
-    .hud-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .hud-top { display: flex; align-items: center; gap: 8px; }
     .price-block { min-width: 0; flex: 1; }
-    .price-label {
-      font-size: 10px;
-      letter-spacing: .14em;
-      color: var(--nv);
-    }
+    .price-label { font-size: 10px; letter-spacing: .14em; color: var(--nv); }
     .price {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: .04em;
-      line-height: 1.1;
-      white-space: nowrap;
+      font-size: 22px; font-weight: 800; letter-spacing: .04em;
+      line-height: 1.1; white-space: nowrap;
     }
     .price.up { color: var(--up); }
     .price.down { color: var(--down); }
     .price.flash { animation: pulse .35s steps(2); }
-    .delta {
-      font-size: 12px;
-      margin-left: 4px;
-    }
+    .delta { font-size: 12px; margin-left: 4px; }
     #spark {
-      width: 108px;
-      height: 36px;
-      flex: 0 0 auto;
-      image-rendering: pixelated;
-      background: #040a05;
-      border: 2px solid var(--line);
+      width: 108px; height: 36px; flex: 0 0 auto;
+      image-rendering: pixelated; background: #040a05; border: 2px solid var(--line);
     }
     .hud-bot {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 6px;
       margin-top: 7px;
       font-size: 11px;
       color: var(--dim);
     }
-    .stat b {
-      display: block;
-      color: var(--ink);
-      font-size: 14px;
-      letter-spacing: .03em;
-    }
-    .bar {
-      height: 6px;
-      background: #12210f;
-      border: 1px solid var(--line);
-      margin-top: 3px;
-    }
-    .bar > i {
-      display: block;
-      height: 100%;
-      width: 50%;
-      background: var(--nv);
-      box-shadow: 4px 0 0 var(--nv2);
-    }
+    .stat b { display: block; color: var(--ink); font-size: 14px; letter-spacing: .03em; }
+    .bar { height: 6px; background: #12210f; border: 1px solid var(--line); margin-top: 3px; }
+    .bar > i { display: block; height: 100%; width: 50%; background: var(--nv); box-shadow: 4px 0 0 var(--nv2); }
     #stage {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      margin: 10px 0 8px;
-      border: 3px solid var(--line);
-      background: var(--panel);
-      padding: 12px 12px 10px;
-      position: relative;
+      flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;
+      margin: 10px 0 8px; border: 3px solid var(--line); background: var(--panel);
+      padding: 12px 12px 10px; position: relative;
     }
-    .scene-kicker {
-      font-size: 10px;
-      letter-spacing: .16em;
-      color: var(--gold);
-      text-transform: uppercase;
-    }
+    .scene-kicker { font-size: 10px; letter-spacing: .16em; color: var(--gold); text-transform: uppercase; }
     h1, h2 { margin: 6px 0 8px; line-height: 1.25; }
     h1 { font-size: 26px; color: var(--nv); letter-spacing: .06em; text-shadow: 3px 3px 0 #102406; }
     h2 { font-size: 18px; }
-    .who {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin: 8px 0 10px;
-    }
+    .who { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0 10px; }
     .portrait {
-      width: 72px;
-      height: 72px;
-      flex: 0 0 72px;
-      image-rendering: pixelated;
-      background: #08150b;
-      border: 3px solid var(--nv2);
+      width: 72px; height: 72px; flex: 0 0 72px;
+      image-rendering: pixelated; background: #08150b; border: 3px solid var(--nv2);
     }
-    .body {
-      font-size: 15px;
-      line-height: 1.55;
-      color: var(--ink);
-    }
-    .hint {
-      margin-top: 10px;
-      color: var(--dim);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-    .crisis #stage {
-      border-color: var(--down);
-      animation: warn 1s steps(2) infinite;
-    }
-    #choices {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .body { font-size: 15px; line-height: 1.55; color: var(--ink); }
+    .hint { margin-top: 10px; color: var(--dim); font-size: 12px; line-height: 1.5; }
+    .crisis #stage { border-color: var(--down); animation: warn 1s steps(2) infinite; }
+    #choices { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .choice, .go, .shell, .mute {
+      appearance: none; touch-action: manipulation; cursor: pointer;
     }
     .choice, .go {
-      appearance: none;
-      width: 100%;
-      text-align: left;
-      background: var(--btn);
-      color: var(--ink);
-      border: 3px solid var(--nv);
-      padding: 12px 12px;
-      min-height: 48px;
-      font-size: 14px;
-      line-height: 1.4;
-      cursor: pointer;
-      box-shadow: 3px 3px 0 #031006;
+      width: 100%; text-align: left; background: var(--btn); color: var(--ink);
+      border: 3px solid var(--nv); padding: 12px; min-height: 48px;
+      font-size: 14px; line-height: 1.4; box-shadow: 3px 3px 0 #031006;
       overflow-wrap: anywhere;
     }
     .go { text-align: center; background: #16380c; font-size: 16px; letter-spacing: .08em; }
-    .choice:active, .go:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #031006; }
-    .choice:focus-visible, .go:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
-    .key {
-      display: inline-block;
-      min-width: 18px;
-      margin-right: 8px;
-      color: var(--nv);
-      font-weight: 800;
+    .choice:active, .go:active, .shell:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #031006; }
+    .choice:focus-visible, .go:focus-visible, .shell:focus-visible, .weak:focus-visible {
+      outline: 3px solid var(--gold); outline-offset: 2px;
     }
-    .row {
-      display: flex;
-      gap: 8px;
-    }
-    .row .go { flex: 1; }
-    .ghost {
-      background: #0a160c;
-      border-color: var(--line);
-      color: var(--dim);
-    }
-    .news-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 6px;
-    }
+    .key { display: inline-block; min-width: 18px; margin-right: 8px; color: var(--nv); font-weight: 800; }
+    .ghost { background: #0a160c; border-color: var(--line); color: var(--dim); }
+    .news-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
     .mute {
-      flex: 0 0 auto;
-      min-width: 44px;
-      min-height: 32px;
-      border: 2px solid var(--line);
-      background: #061108;
-      color: var(--dim);
-      font-size: 11px;
-      cursor: pointer;
-      padding: 4px 8px;
+      flex: 0 0 auto; min-width: 44px; min-height: 32px; border: 2px solid var(--line);
+      background: #061108; color: var(--dim); font-size: 11px; padding: 4px 8px;
+    }
+    .news {
+      flex: 1; min-width: 0; font-size: 11px; color: var(--nv);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .floaters { pointer-events: none; position: fixed; left: 0; top: 0; right: 0; z-index: 12; }
     .floater {
-      position: absolute;
-      font-weight: 800;
-      font-size: 16px;
-      animation: rise .9s steps(8) forwards;
-      text-shadow: 2px 2px 0 #000;
+      position: absolute; font-weight: 800; font-size: 16px;
+      animation: rise .9s steps(8) forwards; text-shadow: 2px 2px 0 #000;
     }
     .floater.up { color: var(--up); }
     .floater.down { color: var(--down); }
     .toast {
-      position: absolute;
-      left: 10px; right: 10px; bottom: 10px;
-      background: #10240c;
-      border: 2px solid var(--gold);
-      padding: 8px 10px;
-      font-size: 12px;
-      color: var(--gold);
-      animation: in .2s steps(2);
+      position: absolute; left: 10px; right: 10px; bottom: 10px;
+      background: #10240c; border: 2px solid var(--gold); padding: 8px 10px;
+      font-size: 12px; color: var(--gold); animation: in .2s steps(2);
     }
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 8px;
-    }
-    .chip {
-      font-size: 10px;
-      border: 2px solid var(--line);
-      padding: 3px 6px;
-      color: var(--dim);
-    }
+    .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .chip { font-size: 10px; border: 2px solid var(--line); padding: 3px 6px; color: var(--dim); }
     .chip.out { opacity: .35; text-decoration: line-through; }
     .end-box { margin-top: 8px; }
     .end-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 2px solid var(--line); }
     .score-pop { font-size: 28px; color: var(--gold); font-weight: 800; margin: 8px 0; }
-    .news {
-      flex: 1;
-      min-width: 0;
-      font-size: 11px;
-      color: var(--nv);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .weak {
+      display: inline; padding: 0 4px; margin: 0 2px; background: #3a2a00;
+      color: var(--gold); border: 2px solid var(--gold); font: inherit; cursor: pointer;
+      animation: pulse 1s steps(2) infinite;
+    }
+    .shell {
+      width: 100%; text-align: left; background: #13200c; color: var(--ink);
+      border: 3px solid var(--line); padding: 10px 12px; min-height: 44px;
+      font-size: 13px; line-height: 1.35; box-shadow: 3px 3px 0 #031006;
+    }
+    .shell.on { border-color: var(--gold); background: #2a2408; }
+    .shell b { color: var(--gold); display: block; font-size: 12px; margin-bottom: 2px; }
+    .track {
+      position: relative; height: 36px; background: #08150b;
+      border: 3px solid var(--line); overflow: hidden; margin: 12px 0 8px;
+    }
+    .zone {
+      position: absolute; top: 0; bottom: 0;
+      background: rgba(118, 185, 0, .38);
+    }
+    .needle {
+      position: absolute; top: 0; bottom: 0; width: 4px; background: var(--gold);
+      box-shadow: 2px 0 0 #000;
+    }
+    .talkbox {
+      width: 100%; min-height: 88px; resize: none; margin-top: 8px;
+      background: #08150b; color: var(--ink); border: 3px solid var(--line);
+      padding: 10px; font-size: 16px; line-height: 1.45;
+    }
+    .mark {
+      display: inline-block; margin-top: 8px; padding: 2px 6px;
+      border: 2px solid var(--gold); color: var(--gold); font-size: 10px; letter-spacing: .12em;
     }
     @keyframes pulse { 50% { transform: scale(1.06); } }
     @keyframes rise { to { transform: translateY(-46px); opacity: 0; } }
@@ -279,13 +186,15 @@
     @keyframes in { from { transform: scale(.96); opacity: 0; } }
     @media (min-width: 800px) {
       #frame {
-        margin-top: 18px;
-        height: calc(100dvh - 36px);
-        border: 4px solid #1a3d12;
-        background: #07140a;
+        margin-top: 18px; height: calc(100dvh - 36px);
+        border: 4px solid #1a3d12; background: #07140a;
         box-shadow: 0 0 0 8px #040a05, 12px 12px 0 #031006;
       }
       h1 { font-size: 30px; }
+    }
+    @media (max-width: 430px) {
+      .hud-bot { grid-template-columns: 1fr 1fr; }
+      .price { font-size: 18px; }
     }
     @media (max-height: 700px) {
       .portrait { width: 56px; height: 56px; flex-basis: 56px; }
@@ -294,10 +203,11 @@
       .body { font-size: 14px; }
       .price { font-size: 18px; }
       #spark { width: 88px; height: 30px; }
-      .choice, .go { padding: 10px 10px; }
+      .choice, .go { padding: 10px; }
+      .talkbox { min-height: 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .price.flash, .crisis #stage, .floater, .toast { animation: none; }
+      .price.flash, .crisis #stage, .floater, .toast, .weak { animation: none; }
     }
   </style>
 </head>
@@ -314,6 +224,7 @@
       <div class="hud-bot">
         <div class="stat">对手剩余<b id="rivals">9</b></div>
         <div class="stat">董事会印象<b id="trust">50</b><div class="bar"><i id="trustBar"></i></div></div>
+        <div class="stat">言弹<b id="ammo">0</b></div>
         <div class="stat">进度<b id="round">开局</b></div>
       </div>
       <div class="news-row">
@@ -347,8 +258,8 @@
         title: "英伟达CEO竞选计",
         who: "xun",
         name: "xunxun",
-        body: "你是 xunxun。英伟达正在海选下一任 CEO。你要从投简历走到任命，途中会遇见面试、职场局，还有一只不肯停的股价。",
-        hint: "选项会同时改三样东西：面试印象、还剩几名对手、头顶这只股价。键盘 1 2 3 或直接点。",
+        body: "你是 xunxun。英伟达正在海选下一任 CEO。每一轮会抽一种打法：选项、言弹对决、开口时机、或自己打字。三条账一起算：印象、对手、股价。",
+        hint: "点选项或按 1 2 3。言弹先选再射高亮那句。开口时机按空格或点按钮。打字也可用现成选项。",
         choices: [
           { key: "1", text: "投递简历", next: "resume" },
           { key: "2", text: "先看怎么玩", next: "help" }
@@ -356,142 +267,116 @@
       },
       help: {
         kicker: "怎么玩",
-        title: "两条线一起跑",
+        title: "两条线，四种打法",
         who: "gpu",
         name: "规则",
-        body: "叙事线：投简历、五轮关卡、关键选择。股价线：数字一直挂在头顶，会自己晃，也会被你的话打上去或打下来。结局看印象、对手、收盘价一起算，不是最后才结算。",
-        hint: "遇到红色边框的盘前风暴时，你越晚出手，股价掉得越狠。",
+        body: "叙事和股价一直同时跑。选项会改账；言弹是用前面攒下的证据射对方的破绽；开口时机要在绿区把话甩出去；自己打字由现场阅卷打分。不想打字，随时改用选项。",
+        hint: "盘前风暴那轮优先抽开口时机。越晚出手，股价掉得越狠。",
         choices: [{ key: "1", text: "知道了，去投简历", next: "resume" }]
       },
       resume: {
-        round: "简历",
-        kicker: "第 0 关 · 投递",
-        title: "把名字扔进海选",
-        who: "xun",
-        name: "投递页",
-        body: "凌晨 2:17。屏幕上还挂着 9 个公开竞争者。投递键在闪，NVDA 也在闪。第一封简历，决定别人怎么读你。",
+        round: "简历", kicker: "投递", title: "把名字扔进海选", who: "xun", name: "投递页", next: "hr",
+        body: "凌晨 2:17。屏幕上还挂着 9 个公开竞争者。第一封简历会变成后面能射的言弹。",
         choices: [
-          { key: "1", text: "写成「我能让每颗 GPU 自己讲故事」", trust: 8, stock: 2.2, kill: 0, news: "市场听到一个会讲故事的新名字", next: "hr" },
-          { key: "2", text: "只附 CUDA 优化实录，不写形容词", trust: 12, stock: 0.6, kill: 1, news: "技术派被一份冷冰冰的内核记录震了一下", next: "hr" },
-          { key: "3", text: "只丢一句：我想当 CEO", trust: -4, stock: -1.8, kill: 0, news: "一句空话进了海选箱，盘口轻轻晃了一下", next: "hr" }
+          { key: "1", text: "写成「我能让每颗 GPU 自己讲故事」", trust: 8, stock: 2.2, kill: 0, news: "市场听到一个会讲故事的新名字", bullet: { id: "story", name: "会讲故事", text: "你把简历写成 GPU 会自己讲故事" } },
+          { key: "2", text: "只附 CUDA 优化实录，不写形容词", trust: 12, stock: 0.6, kill: 1, news: "技术派被一份冷冰冰的内核记录震了一下", bullet: { id: "cuda", name: "CUDA 实录", text: "你只附了 CUDA 优化记录，没有形容词" } },
+          { key: "3", text: "只丢一句：我想当 CEO", trust: -4, stock: -1.8, kill: 0, news: "一句空话进了海选箱，盘口轻轻晃了一下", bullet: { id: "ambition", name: "我想当 CEO", text: "简历上只有一句：我想当 CEO" } }
         ]
       },
       hr: {
-        round: "初面",
-        kicker: "第 1 关 · HR",
-        title: "你为什么现在来",
-        who: "npc",
-        name: "陈招 · HR",
+        round: "初面", kicker: "第 1 关 · HR", title: "你为什么现在来", who: "npc", name: "陈招 · HR", next: "crisis",
         body: "陈招隔着玻璃问：老黄还在位。你这个时候出现，董事会会把你读成接班，还是读成抢班？",
         choices: [
-          { key: "1", text: "我来让公司在下一轮周期活下来", trust: 11, stock: 3.4, kill: 1, news: "「周期」两个字传到买方，买盘抬了一下", next: "crisis" },
-          { key: "2", text: "股价太高了，我想先把它坐实", trust: 7, stock: -2.4, kill: 1, news: "有人把「坐实」听成了降温，股价先怯一步", next: "crisis" },
-          { key: "3", text: "我就是来赢的", trust: 2, stock: 0.9, kill: 0, news: "气势有了，对手一动不动", next: "crisis" }
+          { key: "1", text: "我来让公司在下一轮周期活下来", trust: 11, stock: 3.4, kill: 1, news: "「周期」两个字传到买方，买盘抬了一下", bullet: { id: "cycle", name: "下一轮周期", text: "你说自己来让公司活过下一轮周期" } },
+          { key: "2", text: "股价太高了，我想先把它坐实", trust: 7, stock: -2.4, kill: 1, news: "有人把「坐实」听成了降温，股价先怯一步", bullet: { id: "sit", name: "把股价坐实", text: "你说股价太高，要先坐实" } },
+          { key: "3", text: "我就是来赢的", trust: 2, stock: 0.9, kill: 0, news: "气势有了，对手一动不动", bullet: { id: "win", name: "我来赢", text: "你当着 HR 说：我就是来赢的" } }
         ]
       },
       crisis: {
-        round: "风暴",
-        kicker: "盘前 · 股价压力",
-        title: "收入可能不及预期",
-        who: "gpu",
-        name: "交易台",
-        crisis: true,
-        body: "有人放风：数据中心收入可能不及预期。股价正在往下掉。你还没进技术面，但市场已经在给海选打分。越晚出手，掉得越狠。",
-        hint: "这不是过场。你现在的选择会直接改股价，也会改后面怎么看你。",
+        round: "风暴", kicker: "盘前 · 股价压力", title: "收入可能不及预期", who: "gpu", name: "交易台", next: "tech", crisis: true,
+        body: "有人放风：数据中心收入可能不及预期。股价正在往下掉。绿区开口，你把话甩进市场；红区开口，越描越黑。",
+        hint: "针走进绿色窗口时点「开口」。键盘空格或回车也能开口。",
         choices: [
-          { key: "1", text: "发备忘：需求还在，只是交付在排队", trust: 5, stock: 5.6, kill: 1, news: "备忘流出，空头先收了一截", next: "tech" },
-          { key: "2", text: "不说话，让市场自己消化", trust: 3, stock: -3.2, kill: 0, news: "沉默被读成心虚，盘口继续软", next: "tech" },
-          { key: "3", text: "对外说我们会超预期", trust: 1, stock: 0, kill: 1, news: "豪言出口，市场先愣住", next: "tech", gamble: true }
+          { key: "1", text: "发备忘：需求还在，只是交付在排队", trust: 5, stock: 5.6, kill: 1, news: "备忘流出，空头先收了一截", bullet: { id: "backlog", name: "交付在排队", text: "你说需求还在，只是交付在排队" } },
+          { key: "2", text: "不说话，让市场自己消化", trust: 3, stock: -3.2, kill: 0, news: "沉默被读成心虚，盘口继续软", bullet: { id: "silence", name: "现场沉默", text: "风暴里你选择不说话" } },
+          { key: "3", text: "对外说我们会超预期", trust: 1, stock: 0, kill: 1, news: "豪言出口，市场先愣住", gamble: true, bullet: { id: "beat", name: "会超预期", text: "你对外说我们会超预期" } }
         ]
       },
       tech: {
-        round: "深潜",
-        kicker: "第 2 关 · 技术",
-        title: "如果 CUDA 被替代",
-        who: "npc",
-        name: "Arch · 技术面",
+        round: "深潜", kicker: "第 2 关 · 技术", title: "如果 CUDA 被替代", who: "npc", name: "Arch · 技术面", next: "campus",
         body: "Arch 把一杯冷掉的咖啡推开：如果开源栈真把 CUDA 咬出缺口，你当上的第一周做什么？",
+        talkHint: "用自己的话写第一周。写完点阅卷。也可以改用下面的现成选项。",
         choices: [
-          { key: "1", text: "把护城河转到系统和供应", trust: 14, stock: 5.1, kill: 2, news: "系统叙事让两名纯软件派提前出局", next: "campus" },
-          { key: "2", text: "加倍投入开发者，把生态再焊死", trust: 9, stock: 1.8, kill: 1, news: "开发者路线稳，一名空降被比下去", next: "campus" },
-          { key: "3", text: "那不可能发生", trust: -8, stock: -4.2, kill: 0, news: "傲慢被记了一笔，盘口不喜欢这种口气", next: "campus" }
+          { key: "1", text: "把护城河转到系统和供应", trust: 14, stock: 5.1, kill: 2, news: "系统叙事让两名纯软件派提前出局", bullet: { id: "moat", name: "系统护城河", text: "你要把护城河转到系统和供应" } },
+          { key: "2", text: "加倍投入开发者，把生态再焊死", trust: 9, stock: 1.8, kill: 1, news: "开发者路线稳，一名空降被比下去", bullet: { id: "devrel", name: "焊死生态", text: "你要加倍投入开发者" } },
+          { key: "3", text: "那不可能发生", trust: -8, stock: -4.2, kill: 0, news: "傲慢被记了一笔，盘口不喜欢这种口气", bullet: { id: "deny", name: "不可能发生", text: "你说 CUDA 被替代不可能发生" } }
         ]
       },
       campus: {
-        round: "职场",
-        kicker: "第 3 关 · 食堂",
-        title: "Lisa 找你联手",
-        who: "npc",
-        name: "Lisa · 内部派",
-        body: "食堂角落。Lisa 说：华尔街空降 Kai 在买董事。我们联手把他挤掉，你公开挺我的路线。这是局，也是考题。",
+        round: "职场", kicker: "第 3 关 · 食堂", title: "Lisa 找你联手", who: "npc", name: "Lisa · 内部派", next: "board",
+        body: "食堂角落。Lisa 刚才还说华尔街空降 Kai 在买董事，转头又改口。这是局，也是考题。",
         choices: [
-          { key: "1", text: "联手，先清掉空降", trust: -2, stock: 1.2, kill: 2, news: "派系传闻让两个人消失，印象却脏了一点", next: "board" },
-          { key: "2", text: "拒绝，当场讲自己的路线", trust: 10, stock: 2.9, kill: 1, news: "独立叙事传出，Lisa 自己也开始晃", next: "board" },
-          { key: "3", text: "当面答应，回头拆台", trust: -11, stock: -3.6, kill: 3, news: "三个人出局，丑闻味也出来了", next: "board" }
+          { key: "1", text: "联手，先清掉空降", trust: -2, stock: 1.2, kill: 2, news: "派系传闻让两个人消失，印象却脏了一点", bullet: { id: "ally", name: "联手清场", text: "你答应和 Lisa 联手" } },
+          { key: "2", text: "拒绝，当场讲自己的路线", trust: 10, stock: 2.9, kill: 1, news: "独立叙事传出，Lisa 自己也开始晃", bullet: { id: "own", name: "自己的路线", text: "你拒绝联手，走自己的路线" } },
+          { key: "3", text: "当面答应，回头拆台", trust: -11, stock: -3.6, kill: 3, news: "三个人出局，丑闻味也出来了", bullet: { id: "backstab", name: "当面一套", text: "你当面答应 Lisa，回头拆台" } }
         ]
       },
       board: {
-        round: "董事会",
-        kicker: "第 4 关 · 路演",
-        title: "再跌两成，还扩产吗",
-        who: "npc",
-        name: "周衡 · 独立董事",
+        round: "董事会", kicker: "第 4 关 · 路演", title: "再跌两成，还扩产吗", who: "npc", name: "周衡 · 独立董事", next: "final",
         body: "没有窗户的会议室。周衡敲了敲桌子：如果股价从这里再跌两成，你还要不要把产线往前推？",
+        talkHint: "用自己的话回答扩产还是坐实。也可以改用选项。",
         choices: [
-          { key: "1", text: "扩。算力缺口是几年的事", trust: 11, stock: -3.8, kill: 1, news: "资本开支担忧压了一下股价，董事会却记下了胆色", next: "final" },
-          { key: "2", text: "先慢一点，把现金流坐实", trust: 7, stock: 6.4, kill: 1, news: "稳健派鼓掌，股价先松一口气", next: "final" },
-          { key: "3", text: "跌两成正好加码", trust: 4, stock: 8.1, kill: 1, news: "这句被当成口号传出，短线资金涌进来", next: "final" }
+          { key: "1", text: "扩。算力缺口是几年的事", trust: 11, stock: -3.8, kill: 1, news: "资本开支担忧压了一下股价，董事会却记下了胆色", bullet: { id: "build", name: "继续扩产", text: "你说算力缺口是几年的事，要扩" } },
+          { key: "2", text: "先慢一点，把现金流坐实", trust: 7, stock: 6.4, kill: 1, news: "稳健派鼓掌，股价先松一口气", bullet: { id: "cash", name: "现金流优先", text: "你要先把现金流坐实" } },
+          { key: "3", text: "跌两成正好加码", trust: 4, stock: 8.1, kill: 1, news: "这句被当成口号传出，短线资金涌进来", bullet: { id: "double", name: "跌了加码", text: "你说跌两成正好加码" } }
         ]
       },
       final: {
-        round: "终局",
-        kicker: "第 5 关 · 公开信",
-        title: "第一封信写给谁",
-        who: "xun",
-        name: "xunxun",
-        body: "剩下的人被叫进同一间房。屏幕上只有一句：若你出任，第一封公开信写给谁。写完，任命就会被算出来。",
+        round: "终局", kicker: "第 5 关 · 公开信", title: "第一封信写给谁", who: "xun", name: "xunxun", next: "end",
+        body: "剩下的人被叫进同一间房。屏幕上只有一句：若你出任，第一封公开信写给谁。可以自己写，也可以用现成的三封。",
+        talkHint: "写给开发者、股东或员工都行。阅卷看你写到没有，以及像不像一封任命信。",
         choices: [
-          { key: "1", text: "写给开发者：继续做全世界的加速器", trust: 8, stock: 2.4, kill: 1, news: "开发者信流出，生态溢价回来一截", next: "end", letter: "dev" },
-          { key: "2", text: "写给股东：利润与纪律", trust: 5, stock: 7.2, kill: 1, news: "纪律两个字让资金先站上你这边", next: "end", letter: "share" },
-          { key: "3", text: "写给员工：下一站更难，我先扛", trust: 10, stock: 0.8, kill: 1, news: "内部士气抬了一下，对手少了一个", next: "end", letter: "staff" }
+          { key: "1", text: "写给开发者：继续做全世界的加速器", trust: 8, stock: 2.4, kill: 1, news: "开发者信流出，生态溢价回来一截", letter: "dev" },
+          { key: "2", text: "写给股东：利润与纪律", trust: 5, stock: 7.2, kill: 1, news: "纪律两个字让资金先站上你这边", letter: "share" },
+          { key: "3", text: "写给员工：下一站更难，我先扛", trust: 10, stock: 0.8, kill: 1, news: "内部士气抬了一下，对手少了一个", letter: "staff" }
         ]
       }
     };
 
-    const ENDINGS = {
-      ceo: {
-        title: "你出任 CEO",
-        body: "董事会把钥匙交给 xunxun。对手清场，股价还站得住，第一封信被放上了首页。"
+    const DEBATES = {
+      tech: {
+        speaker: "Arch",
+        line: "CUDA 不可能被替代。我们什么都不用改，开发者会永远留在这。",
+        weak: "什么都不用改",
+        hit: ["cuda", "cycle", "backlog", "moat", "devrel"]
       },
-      crisis_ceo: {
-        title: "临危受命",
-        body: "股价不好看，但你是唯一还敢把话说完的人。他们把危机交给你，不是把红毯交给你。"
+      campus: {
+        speaker: "Lisa",
+        line: "空降不可怕。Kai 没有在买任何人，他只是来把股价做上去。",
+        weak: "没有在买任何人",
+        hit: ["kai-buy", "win", "own"],
+        grant: { id: "kai-buy", name: "买董事", text: "Lisa 亲口说过：Kai 在买董事" }
       },
-      bubble: {
-        title: "泡沫上的加冕",
-        body: "你坐上了位子，可收盘价高得吓人。门外已经有人在问：下一根阴线算谁的。"
-      },
-      stolen: {
-        title: "被对手截胡",
-        body: "名字还在名单上的人太多。董事会说再看看。海选没有结束，只是你这一轮到此为止。"
-      },
-      crash: {
-        title: "任命冻结",
-        body: "股价先把房间清空了。没有人敢在暴跌里宣布新 CEO。你的面试分数被收进抽屉。"
-      },
-      fail: {
-        title: "印象没过线",
-        body: "对手可以少，股价可以晃，但董事会对你的印象没有过线。海选还在，位子不在你这。"
-      },
-      almost: {
-        title: "有争议的任命",
-        body: "你出任了，可房间里一半人在鼓掌，一半人在看股价。这是一把坐不稳的椅子。"
-      },
-      advisor: {
-        title: "顾问席",
-        body: "他们留了你，但把 CEO 给了别人。你拿到一张靠近权力的椅子，和一张看盘的屏幕。"
+      board: {
+        speaker: "周衡",
+        line: "扩产会毁了现金流。算力需求到今年就见顶了，现在加码是把公司推进坑里。",
+        weak: "到今年就见顶了",
+        hit: ["cycle", "cuda", "backlog", "build", "moat"]
       }
     };
+
+    const ENDINGS = {
+      ceo: { title: "你出任 CEO", body: "董事会把钥匙交给 xunxun。对手清场，股价还站得住，第一封信被放上了首页。" },
+      crisis_ceo: { title: "临危受命", body: "股价不好看，但你是唯一还敢把话说完的人。他们把危机交给你。" },
+      bubble: { title: "泡沫上的加冕", body: "你坐上了位子，可收盘价高得吓人。门外已经有人在问下一根阴线算谁的。" },
+      stolen: { title: "被对手截胡", body: "名字还在名单上的人太多。董事会说再看看。海选没有结束，只是你这一轮到此为止。" },
+      crash: { title: "任命冻结", body: "股价先把房间清空了。没有人敢在暴跌里宣布新 CEO。" },
+      fail: { title: "印象没过线", body: "对手可以少，股价可以晃，但董事会对你的印象没有过线。" },
+      almost: { title: "有争议的任命", body: "你出任了，可房间里一半人在鼓掌，一半人在看股价。" },
+      advisor: { title: "顾问席", body: "他们留了你，但把 CEO 给了别人。你拿到一张靠近权力的椅子，和一张看盘的屏幕。" }
+    };
+
+    const HAND_LABEL = { choice: "选项", bullet: "言弹对决", timing: "开口时机", talk: "自己表述" };
 
     const state = {
       scene: "title",
@@ -505,7 +390,17 @@
       playing: true,
       letter: "",
       news: "盘前等待开盘 · 海选通道已打开",
-      lastDelta: 0
+      lastDelta: 0,
+      belt: [],
+      slots: {},
+      sel: -1,
+      forceChoice: false,
+      busy: false,
+      needleX: 0,
+      zone: { left: 0.38, width: 0.24 },
+      timingRaf: 0,
+      timingT: 0,
+      timingTries: 0
     };
 
     let audioCtx = null;
@@ -535,6 +430,7 @@
       if (kind === "kill") { tone(196, 0.12, "sawtooth", 0.03); setTimeout(() => tone(98, 0.18, "square", 0.04), 90); }
       if (kind === "win") { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.12), i * 90)); }
       if (kind === "lose") { tone(174, 0.2, "triangle", 0.05); setTimeout(() => tone(110, 0.28), 120); }
+      if (kind === "shoot") { tone(988, 0.05); setTimeout(() => tone(1320, 0.08), 50); }
     }
 
     function drawSprite(kind) {
@@ -563,6 +459,31 @@
     function alive() { return state.rivals.filter((r) => !r.out); }
     function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
     function fmt(n) { return "$" + n.toFixed(2); }
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function planSlots() {
+      const s = { hr: "choice", crisis: "timing", tech: "choice", campus: "choice", board: "choice", final: "talk" };
+      const spots = ["tech", "campus", "board"];
+      const a = spots[(Math.random() * 3) | 0];
+      s[a] = "bullet";
+      if (Math.random() < 0.34) {
+        if (a === "tech") s.board = "bullet";
+        else if (a === "board") s.tech = "bullet";
+      }
+      if (s.tech === "choice" && Math.random() < 0.42) s.tech = "talk";
+      if (s.board === "choice" && Math.random() < 0.4) s.board = "timing";
+      if (Math.random() < 0.22) s.final = "choice";
+      return s;
+    }
+
+    function handOf(scene) {
+      if (state.forceChoice) return "choice";
+      const h = state.slots[scene] || "choice";
+      if (h === "bullet" && (!DEBATES[scene] || state.belt.length === 0)) return "choice";
+      return h;
+    }
 
     function drawSpark() {
       const c = $("spark");
@@ -614,7 +535,7 @@
       if (!d) return;
       state.trust = clamp(state.trust + d, 0, 100);
       const hud = $("hud").getBoundingClientRect();
-      floatAt((d >= 0 ? "印象+" : "印象") + d, d >= 0, hud.left + 160, hud.top + 58);
+      floatAt((d >= 0 ? "印象+" : "印象") + d, d >= 0, hud.left + 140, hud.top + 58);
     }
 
     function kill(n) {
@@ -636,6 +557,14 @@
       return gone;
     }
 
+    function grantBullet(b) {
+      if (!b || state.belt.some((x) => x.id === b.id)) return;
+      if (state.belt.length >= 6) state.belt.shift();
+      state.belt.push(b);
+      const hud = $("hud").getBoundingClientRect();
+      floatAt("言弹 " + b.name, true, hud.left + 220, hud.top + 70);
+    }
+
     function paintHud() {
       const p = $("price");
       const d = state.stock - OPEN;
@@ -645,6 +574,7 @@
       $("rivals").textContent = String(alive().length);
       $("trust").textContent = String(state.trust);
       $("trustBar").style.width = state.trust + "%";
+      $("ammo").textContent = String(state.belt.length);
       $("news").textContent = state.news;
       drawSpark();
     }
@@ -655,10 +585,57 @@
       ).join("") + "</div>";
     }
 
+    function toast(msg) {
+      const old = $("stage").querySelector(".toast");
+      if (old) old.remove();
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = msg;
+      $("stage").appendChild(el);
+      setTimeout(() => el.remove(), 1100);
+    }
+
+    function stopTiming() {
+      if (state.timingRaf) cancelAnimationFrame(state.timingRaf);
+      state.timingRaf = 0;
+    }
+
+    function startTiming() {
+      stopTiming();
+      state.timingT = Math.random() * 3;
+      state.timingTries = 0;
+      state.zone = { left: 0.30 + Math.random() * 0.28, width: 0.18 + Math.random() * 0.08 };
+      const zone = document.querySelector(".zone");
+      const needle = document.querySelector(".needle");
+      if (zone) {
+        zone.style.left = (state.zone.left * 100) + "%";
+        zone.style.width = (state.zone.width * 100) + "%";
+      }
+      const step = () => {
+        if (handOf(state.scene) !== "timing") return;
+        state.timingT += 0.05;
+        const x = (Math.sin(state.timingT * 2.6) + 1) / 2;
+        state.needleX = x;
+        if (needle) needle.style.left = (x * 97) + "%";
+        state.timingRaf = requestAnimationFrame(step);
+      };
+      state.timingRaf = requestAnimationFrame(step);
+    }
+
+    function storyHead(sc, extraKicker) {
+      const kicker = extraKicker || sc.kicker;
+      return '<div class="scene-kicker">' + kicker + "</div>" +
+        (state.scene === "title" ? "<h1>" + sc.title + "</h1>" : "<h2>" + sc.title + "</h2>") +
+        '<div class="who"><img class="portrait" alt="" width="72" height="72" src="' + SPR_URL[sc.who] + '" />' +
+        '<div><div class="scene-kicker">' + sc.name + '</div><div class="body">' + sc.body + "</div></div></div>";
+    }
+
     function render() {
+      stopTiming();
       const sc = STORY[state.scene];
       const stage = $("stage");
       const box = $("choices");
+      const hand = handOf(state.scene);
       document.getElementById("frame").classList.toggle("crisis", !!(sc && sc.crisis) || state.crisis);
       if (state.scene === "end") {
         const e = judge();
@@ -672,6 +649,7 @@
           '<div class="end-line"><span>收盘价</span><b>' + fmt(state.stock) + "</b></div>" +
           '<div class="end-line"><span>剩余对手</span><b>' + alive().length + "</b></div>" +
           '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
+          '<div class="end-line"><span>言弹</span><b>' + state.belt.length + "</b></div>" +
           '<div class="score-pop" id="scorePop">0</div></div>' + chipsHtml();
         box.innerHTML = '<button class="go" data-act="restart" type="button">再竞选一次</button>';
         animateScore(e.score);
@@ -680,27 +658,57 @@
         return;
       }
       $("round").textContent = sc.round || "开局";
-      stage.innerHTML =
-        '<div class="scene-kicker">' + sc.kicker + "</div>" +
-        "<h2>" + (state.scene === "title" ? "" : sc.title) + "</h2>" +
-        (state.scene === "title" ? "<h1>" + sc.title + "</h1>" : "") +
-        '<div class="who"><img class="portrait" alt="" width="72" height="72" src="' + SPR_URL[sc.who] + '" />' +
-        '<div><div class="scene-kicker">' + sc.name + '</div><div class="body">' + sc.body + "</div></div></div>" +
-        (sc.hint ? '<div class="hint">' + sc.hint + "</div>" : "") +
-        (state.scene === "title" || state.scene === "campus" || state.scene === "final" ? chipsHtml() : "");
-      if (state.scene === "title") {
-        const h2 = stage.querySelector("h2");
-        if (h2) h2.remove();
+      if (state.scene === "title" || state.scene === "help" || hand === "choice") {
+        stage.innerHTML = storyHead(sc) +
+          (sc.hint ? '<div class="hint">' + sc.hint + "</div>" : "") +
+          (state.scene === "title" || state.scene === "campus" || state.scene === "final" ? chipsHtml() : "");
+        box.innerHTML = sc.choices.map((c) =>
+          '<button class="choice" data-next="' + c.key + '" type="button"><span class="key">' + c.key + "</span>" + c.text + "</button>"
+        ).join("");
+        paintHud();
+        return;
       }
-      box.innerHTML = sc.choices.map((c) =>
-        '<button class="choice" data-next="' + c.key + '" type="button"><span class="key">' + c.key + "</span>" + c.text + "</button>"
-      ).join("");
-      paintHud();
+      if (hand === "bullet") {
+        const d = DEBATES[state.scene];
+        if (d && d.grant) grantBullet(d.grant);
+        const line = d.line.replace(d.weak, '<button type="button" class="weak" data-act="fire">' + esc(d.weak) + "</button>");
+        stage.innerHTML = storyHead(sc, sc.kicker + " · 言弹") +
+          '<div class="mark">言弹对决</div>' +
+          '<div class="body" style="margin-top:8px">' + d.speaker + "：「" + line + "」</div>" +
+          '<div class="hint">先点一枚言弹，再点金色那句或按发射。键盘 1 到 ' + Math.min(9, state.belt.length) + " 选，回车发射。</div>";
+        box.innerHTML = state.belt.map((b, i) =>
+          '<button class="shell' + (state.sel === i ? " on" : "") + '" data-act="pick" data-i="' + i + '" type="button"><b>' + (i + 1) + " · " + esc(b.name) + "</b>" + esc(b.text) + "</button>"
+        ).join("") + '<button class="go" data-act="fire" type="button">发射</button>';
+        paintHud();
+        return;
+      }
+      if (hand === "timing") {
+        stage.innerHTML = storyHead(sc, sc.kicker + " · 开口") +
+          '<div class="mark">开口时机</div>' +
+          '<div class="track"><div class="zone"></div><div class="needle"></div></div>' +
+          '<div class="hint">针走进绿色窗口时开口。空格或回车也能开口。两次机会。</div>';
+        box.innerHTML = '<button class="go" data-act="timing" type="button">开口</button>';
+        paintHud();
+        startTiming();
+        return;
+      }
+      if (hand === "talk") {
+        stage.innerHTML = storyHead(sc, sc.kicker + " · 自己写") +
+          '<div class="mark">现场阅卷</div>' +
+          '<textarea class="talkbox" id="talk" maxlength="280" placeholder="写你的回答…"></textarea>' +
+          '<div class="hint">' + (sc.talkHint || "写完点阅卷。也可以改用现成选项。") + "</div>";
+        box.innerHTML =
+          '<button class="go" data-act="talk" type="button">提交阅卷</button>' +
+          '<button class="choice ghost" data-act="fallback" type="button">改用现成选项</button>';
+        paintHud();
+        setTimeout(() => { const t = $("talk"); if (t) t.focus(); }, 50);
+        return;
+      }
     }
 
     function judge() {
       const s = state.stock, t = state.trust, c = alive().length;
-      const score = Math.round(t * 12 + Math.max(0, s - 90) * 2.2 + (9 - c) * 18);
+      const score = Math.round(t * 12 + Math.max(0, s - 90) * 2.2 + (9 - c) * 18 + state.belt.length * 6);
       if (s < 96) return { id: "crash", score, good: false };
       if (t < 42) return { id: "fail", score, good: false };
       if (c >= 5) return { id: "stolen", score, good: false };
@@ -723,33 +731,162 @@
       requestAnimationFrame(step);
     }
 
+    function settle(opts) {
+      if (state.busy) return;
+      state.busy = true;
+      stopTiming();
+      state.crisis = false;
+      state.forceChoice = false;
+      state.sel = -1;
+      if (opts.trust) bumpTrust(opts.trust);
+      let stock = opts.stock || 0;
+      if (opts.gamble) stock = Math.random() < 0.5 ? 9.4 : -9.8;
+      if (stock) bumpStock(stock, opts.news);
+      else if (opts.news) state.news = opts.news;
+      const gone = kill(opts.kill || 0);
+      if (opts.letter) state.letter = opts.letter;
+      if (opts.bullet) grantBullet(opts.bullet);
+      if (gone.length) state.news = (opts.news || state.news) + " · " + gone.join("、") + " 出局";
+      state.sentiment = clamp((state.sentiment || 0) + (stock > 0 ? 0.12 : -0.08), -0.4, 0.35);
+      toast(state.news);
+      const sc = STORY[state.scene];
+      state.scene = opts.next || (sc && sc.next) || "end";
+      if (STORY[state.scene] && STORY[state.scene].crisis) state.crisis = true;
+      setTimeout(() => { state.busy = false; render(); }, 320);
+    }
+
     function choose(key) {
       const sc = STORY[state.scene];
-      if (!sc) return;
+      if (!sc || !sc.choices) return;
+      if (state.scene !== "title" && state.scene !== "help" && handOf(state.scene) !== "choice") return;
       const c = sc.choices.find((x) => x.key === key);
       if (!c) return;
       sfx("click");
-      state.crisis = false;
-      if (c.trust) bumpTrust(c.trust);
-      let stock = c.stock || 0;
-      if (c.gamble) stock = Math.random() < 0.5 ? 9.4 : -9.8;
-      if (stock) bumpStock(stock, c.news);
-      else if (c.news) state.news = c.news;
-      const gone = kill(c.kill || 0);
-      if (c.letter) state.letter = c.letter;
-      if (gone.length) state.news = (c.news || state.news) + " · " + gone.join("、") + " 出局";
-      state.sentiment = clamp((state.sentiment || 0) + (stock > 0 ? 0.12 : -0.08), -0.4, 0.35);
-      const toast = document.createElement("div");
-      toast.className = "toast";
-      toast.textContent = state.news;
-      $("stage").appendChild(toast);
-      setTimeout(() => toast.remove(), 900);
-      state.scene = c.next;
-      if (STORY[state.scene] && STORY[state.scene].crisis) state.crisis = true;
-      setTimeout(render, 280);
+      settle({
+        trust: c.trust, stock: c.stock, kill: c.kill, news: c.news,
+        gamble: c.gamble, letter: c.letter, bullet: c.bullet, next: c.next || sc.next
+      });
+    }
+
+    function selectBullet(i) {
+      if (i < 0 || i >= state.belt.length) return;
+      state.sel = i;
+      sfx("click");
+      document.querySelectorAll(".shell").forEach((el, idx) => el.classList.toggle("on", idx === i));
+    }
+
+    function fireBullet() {
+      if (handOf(state.scene) !== "bullet" || state.busy) return;
+      if (state.sel < 0) { toast("先选一枚言弹"); return; }
+      const d = DEBATES[state.scene];
+      const b = state.belt[state.sel];
+      if (!d || !b) return;
+      sfx("shoot");
+      const hit = d.hit.indexOf(b.id) >= 0;
+      if (hit) {
+        settle({
+          trust: 13, stock: 4.6, kill: 2,
+          news: "言弹命中「" + d.weak + "」· 用的是" + b.name
+        });
+      } else {
+        settle({
+          trust: -6, stock: -3.1, kill: 0,
+          news: b.name + "没打在破绽上，对方把话圆了回去"
+        });
+      }
+    }
+
+    function fireTiming() {
+      if (handOf(state.scene) !== "timing" || state.busy) return;
+      const z = state.zone;
+      const hit = state.needleX >= z.left && state.needleX <= z.left + z.width;
+      if (hit) {
+        sfx("shoot");
+        settle({
+          trust: 8, stock: 6.2, kill: 1,
+          news: "开口打在绿区，盘口先收了一截",
+          bullet: { id: "pulse", name: "低点开口", text: "你在绿区把话甩了出去" }
+        });
+        return;
+      }
+      state.timingTries += 1;
+      sfx("down");
+      if (state.timingTries < 2) {
+        toast("没打中，还有一次");
+        return;
+      }
+      settle({
+        trust: 1, stock: -4.4, kill: 0,
+        news: "开口落在红区，市场把这当成心虚",
+        bullet: { id: "silence", name: "开口落空", text: "你两次都没打进绿区" }
+      });
+    }
+
+    function gradeSpeech(text, scene) {
+      const raw = text.replace(/\s+/g, "");
+      if (raw.length < 6) {
+        return { trust: -5, stock: -1.6, kill: 0, news: "发言太短，现场没当回事", comment: "写太短了。董事会只听到空白。" };
+      }
+      const packs = {
+        tech: {
+          good: ["系统", "供应", "生态", "开发者", "CUDA", "cuda", "护城河", "开源", "迁移", "硬件", "软件", "栈", "替代", "第一周", "交付", "算力"],
+          bad: ["不可能", "随便", "不知道", "躺"],
+          stockW: ["算力", "需求", "交付", "供应"]
+        },
+        board: {
+          good: ["扩产", "算力", "现金流", "几年", "缺口", "加码", "纪律", "坐实", "产线"],
+          bad: ["随便", "不知道"],
+          stockW: ["现金流", "扩产", "加码", "坐实"]
+        },
+        final: {
+          good: ["开发者", "加速器", "股东", "利润", "纪律", "员工", "团队", "扛", "生态", "现金流", "GPU", "一起", "加速"],
+          bad: ["随便", "不知道"],
+          stockW: ["利润", "纪律", "股东", "现金流"]
+        },
+        hr: {
+          good: ["周期", "接班", "活下来", "坐实", "董事会"],
+          bad: ["随便"],
+          stockW: ["周期", "坐实"]
+        }
+      };
+      const pack = packs[scene] || packs.tech;
+      const t = text;
+      const g = pack.good.filter((w) => t.indexOf(w) >= 0).length;
+      const b = pack.bad.filter((w) => t.indexOf(w) >= 0).length;
+      const sk = pack.stockW.filter((w) => t.indexOf(w) >= 0).length;
+      const trust = clamp(3 + g * 4 - b * 8 + (raw.length > 36 ? 2 : 0), -12, 16);
+      const stock = clamp(sk * 2.1 - b * 3 + (g >= 2 ? 1.4 : 0), -6, 8);
+      const kill = g >= 3 ? 2 : g >= 1 ? 1 : 0;
+      let comment = g >= 3 ? "这句话有骨头，现场有人在记。" : g >= 1 ? "说到点上了，但还薄。" : "听得见声音，抓不住路线。";
+      if (b) comment = "有些话把空气弄僵了。";
+      let letter = "";
+      if (scene === "final") {
+        if (t.indexOf("开发者") >= 0 || t.indexOf("加速") >= 0) letter = "dev";
+        else if (t.indexOf("股东") >= 0 || t.indexOf("利润") >= 0) letter = "share";
+        else if (t.indexOf("员工") >= 0 || t.indexOf("扛") >= 0) letter = "staff";
+      }
+      return { trust, stock, kill, news: comment, comment, letter };
+    }
+
+    function submitTalk() {
+      if (handOf(state.scene) !== "talk" || state.busy) return;
+      const box = $("talk");
+      const text = box ? box.value : "";
+      sfx("click");
+      const g = gradeSpeech(text, state.scene);
+      toast("阅卷中…");
+      state.busy = true;
+      setTimeout(() => {
+        state.busy = false;
+        settle({
+          trust: g.trust, stock: g.stock, kill: g.kill, news: g.news, letter: g.letter,
+          bullet: text.replace(/\s+/g, "").length >= 12 ? { id: "speech-" + state.scene, name: "亲口说的", text: text.slice(0, 28) } : null
+        });
+      }, 480);
     }
 
     function restart() {
+      stopTiming();
       state.scene = "title";
       state.stock = OPEN;
       state.hist = [OPEN, OPEN + 0.2, OPEN];
@@ -760,22 +897,73 @@
       state.letter = "";
       state.news = "盘前等待开盘 · 海选通道已打开";
       state.lastDelta = 0;
+      state.belt = [];
+      state.slots = {};
+      state.sel = -1;
+      state.forceChoice = false;
+      state.busy = false;
       render();
+    }
+
+    function beginRun() {
+      state.slots = planSlots();
     }
 
     $("choices").addEventListener("click", (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
-      if (btn.dataset.act === "restart") { sfx("click"); restart(); return; }
-      if (btn.dataset.next) choose(btn.dataset.next);
+      const act = btn.dataset.act;
+      if (act === "restart") { sfx("click"); restart(); return; }
+      if (act === "pick") { selectBullet(+btn.dataset.i); return; }
+      if (act === "fire") { fireBullet(); return; }
+      if (act === "timing") { fireTiming(); return; }
+      if (act === "talk") { submitTalk(); return; }
+      if (act === "fallback") { sfx("click"); state.forceChoice = true; render(); return; }
+      if (btn.dataset.next) {
+        const sc = STORY[state.scene];
+        const c = sc && sc.choices && sc.choices.find((x) => x.key === btn.dataset.next);
+        if ((state.scene === "title" || state.scene === "help") && c && c.next === "resume") beginRun();
+        choose(btn.dataset.next);
+      }
+    });
+    $("stage").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-act]");
+      if (!btn) return;
+      if (btn.dataset.act === "fire") fireBullet();
     });
     document.addEventListener("keydown", (e) => {
       if (e.repeat) return;
+      const tag = e.target && e.target.tagName;
+      if (tag === "TEXTAREA" || tag === "INPUT") {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submitTalk();
+        return;
+      }
       if (state.scene === "end" && (e.key === "Enter" || e.key === "r" || e.key === "R")) { restart(); return; }
-      if (["1", "2", "3"].indexOf(e.key) >= 0) choose(e.key);
+      const hand = handOf(state.scene);
+      if (hand === "timing") {
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); fireTiming(); }
+        return;
+      }
+      if (hand === "bullet") {
+        if ("123456789".indexOf(e.key) >= 0) { selectBullet(+e.key - 1); return; }
+        if (e.key === "Enter") { fireBullet(); return; }
+        return;
+      }
+      if (hand === "talk") return;
+      if (["1", "2", "3"].indexOf(e.key) >= 0) {
+        const sc = STORY[state.scene];
+        const c = sc && sc.choices && sc.choices.find((x) => x.key === e.key);
+        if ((state.scene === "title" || state.scene === "help") && c && c.next === "resume") beginRun();
+        choose(e.key);
+      }
       if (e.key === "Enter") {
         const first = document.querySelector("#choices button");
-        if (first && first.dataset.next) choose(first.dataset.next);
+        if (first && first.dataset.next) {
+          const sc = STORY[state.scene];
+          const c = sc && sc.choices && sc.choices.find((x) => x.key === first.dataset.next);
+          if ((state.scene === "title" || state.scene === "help") && c && c.next === "resume") beginRun();
+          choose(first.dataset.next);
+        }
         if (first && first.dataset.act === "restart") restart();
       }
     });
@@ -795,8 +983,7 @@
       let drift = (Math.random() - 0.5) * 0.7 + (state.sentiment || 0);
       if (state.crisis) drift -= 0.85 + Math.random() * 0.5;
       bumpStock(drift, state.crisis ? "盘前继续往下 · 你还没出手" : null, !state.crisis);
-      if (state.crisis) paintHud();
-      else paintHud();
+      paintHud();
     }, 1600);
 
     try {
