@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#07140a" />
-  <title>翠核CEO竞选计</title>
+  <title>绿色芯片CEO竞选计</title>
   <style>
     :root {
       --bg: #07140a; --panel: #0c1f10; --ink: #def5c8; --dim: #7fa36a;
@@ -190,7 +190,7 @@
     <header class="hud" id="hud">
       <div class="hud-top">
         <div class="price-block">
-          <div class="price-label">CUHX 现价</div>
+          <div class="price-label">ADVN 现价</div>
           <div class="price" id="price">$138.40 <span class="delta" id="delta">+0.00</span></div>
         </div>
         <canvas id="spark" width="108" height="36" aria-hidden="true"></canvas>
@@ -437,7 +437,7 @@
       return '<div class="scene-kicker">阶段性结算</div><h2>' + title + "</h2>" +
         '<div class="hero-wrap">' + heroHtml() + '<div class="body">' + extra + "</div></div>" +
         '<div class="end-line"><span>当前分值</span><b>' + liveScore() + "</b></div>" +
-        '<div class="end-line"><span>翠核现价</span><b>' + fmt(state.stock) + "</b></div>" +
+        '<div class="end-line"><span>ADVN 现价</span><b>' + fmt(state.stock) + "</b></div>" +
         '<div class="end-line"><span>本段出局</span><b>' + Math.max(0, state.waveStart - state.rivals) + "</b></div>" +
         '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
         '<div class="end-line"><span>还剩候选人</span><b>' + state.rivals + "</b></div>";
@@ -513,8 +513,8 @@
       }
 
       if (sc === "title") {
-        stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>翠核CEO竞选计</h1>' +
-          '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神人。近期由于一些众人皆知的原因，万众瞩目的翠核公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
+        stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>绿色芯片CEO竞选计</h1>' +
+          '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神人。近期由于一些众人皆知的原因，万众瞩目的绿色芯片公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
         box.innerHTML = '<button class="go" data-act="intel" type="button">投递简历</button>';
         return;
       }
@@ -527,15 +527,15 @@
         return;
       }
       if (sc === "apply") {
-        stage.innerHTML = '<div class="apply"><div class="brand">CUIHE CAREERS</div>' +
+        stage.innerHTML = '<div class="apply"><div class="brand">ADVN CAREERS</div>' +
           '<div class="hero-wrap">' + heroHtml() + '<div><div class="job">首席执行官</div>' +
-          '<div class="meta">翠谷 · 海选进行中<br/>申请人 xunxun<br/>状态：待提交</div></div></div></div>';
+          '<div class="meta">总部 · 海选进行中<br/>申请人 xunxun<br/>状态：待提交</div></div></div></div>';
         box.innerHTML = '<button class="go" data-act="send" type="button">提交申请</button>';
         return;
       }
       if (sc === "sending") {
         stage.innerHTML = '<div class="ok-anim"><div class="check">OK</div><h2>投递成功</h2>' +
-          '<div class="body">翠核已收到 xunxun 的申请。</div>' +
+          '<div class="body">绿色芯片已收到 xunxun 的申请。</div>' +
           '<div class="hint"><span class="spin"></span> 正在筛选候选人…</div></div>';
         box.innerHTML = "";
         sfx("ok");
@@ -630,7 +630,7 @@
       }
       if (sc === "intro4") {
         stage.innerHTML = '<div class="scene-kicker">董事会引入</div><h2>护住盘</h2>' +
-          '<div class="hero-wrap">' + heroHtml() + '<div class="body">谣言场走完，你被叫进没有窗户的会议室。翠核的盘在跳，红蜡烛往下砸。拍掉红的，护住现价。绿的是买盘，别乱拍。</div></div>';
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">谣言场走完，你被叫进没有窗户的会议室。绿色芯片的盘在跳，红蜡烛往下砸。拍掉红的，护住现价。绿的是买盘，别乱拍。</div></div>';
         box.innerHTML = '<button class="go" data-act="to" data-next="defend" type="button">开始护盘</button>';
         return;
       }
