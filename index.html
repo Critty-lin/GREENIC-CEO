@@ -117,11 +117,13 @@
       border: 3px solid var(--line); margin-top: 8px;
     }
     .dm {
-      position: absolute; white-space: nowrap; font-size: 12px; padding: 5px 8px;
-      border: 2px solid var(--nv); background: #10240c; color: var(--ink); cursor: pointer;
-      max-width: 86%; overflow: hidden; text-overflow: ellipsis;
+      position: absolute; white-space: nowrap; font-size: 13px; padding: 8px 10px;
+      border: 3px solid var(--down); background: #2a1210; color: var(--ink); cursor: pointer;
+      max-width: 88%; overflow: hidden; text-overflow: ellipsis;
+      appearance: none; min-height: 40px; z-index: 1; text-align: left;
+      box-shadow: 3px 3px 0 #031006;
     }
-    .dm.trap { border-color: var(--down); color: #ffc8c0; }
+    .dm.trap { border-color: var(--nv); background: #10240c; color: #c8f090; }
     .dm.hit { background: var(--nv); color: #08150b; }
     .dm.miss { background: var(--down); color: #fff; }
     .quote-bar { margin-top: 8px; font-size: 12px; color: var(--gold); }
@@ -242,34 +244,36 @@
     const HPAL = ["#0000", "#141414", "#f0c090", "#3a2418", "#3d6a00", "#76b900"];
 
     const QUOTES = [
-      { id: "story", text: "让每颗加速芯自己讲故事" },
-      { id: "tech", text: "只交核芯栈优化实录" },
-      { id: "ambition", text: "我就来当 CEO" }
+      { id: "story", text: "我对绿色芯片的爱，仅次于我对皮衣的爱" },
+      { id: "tech", text: "请把核芯栈优化实录，视为我的人格证明" },
+      { id: "ambition", text: "我不是来面试的。我是来上任的。" }
     ];
     const DANMAKU = [
-      { text: "支持xun喵！故事能赢", camp: "story" },
-      { text: "皮衣才是领导力", camp: "story" },
-      { text: "讲故事的人该坐上头", camp: "story" },
-      { text: "核芯栈才是护城河", camp: "tech" },
-      { text: "优化实录说话", camp: "tech" },
-      { text: "把加速栈焊死", camp: "tech" },
-      { text: "位子本来就是我的", camp: "ambition" },
-      { text: "我就是来当 CEO", camp: "ambition" },
-      { text: "自信比报表管用", camp: "ambition" },
+      { text: "请支持 xun喵", camp: "story" },
+      { text: "皮衣即战力，神人请先走", camp: "story" },
+      { text: "他不是来海选的，他是来报到的", camp: "ambition" },
+      { text: "核芯栈不会骗人", camp: "tech" },
+      { text: "优化实录比口号干净", camp: "tech" },
+      { text: "请把芯片留给会写内核的人", camp: "tech" },
+      { text: "位子空着就是给他的", camp: "ambition" },
+      { text: "CEO 两个字他练过", camp: "ambition" },
+      { text: "故事讲赢了，盘自己会涨", camp: "story" },
+      { text: "xunxun 只会穿皮衣不会看财报", camp: "tech" },
+      { text: "zhaozhao：这届我一个都不招", camp: "ambition" },
+      { text: "anan：你还没准备好被挑战", camp: "ambition" },
       { text: "Lisa：内部的人才能碰芯片", camp: "tech" },
-      { text: "Kai：纪律比梦想重要", camp: "ambition" },
-      { text: "林博：论文才是护城河", camp: "tech" },
-      { text: "Rex：堆料就能赢", camp: "story" },
-      { text: "Nova：我上过封面", camp: "story" },
-      { text: "钱总：先裁员再谈梦想", camp: "ambition" },
-      { text: "有人：需求已经见顶", camp: "tech" }
+      { text: "gooola 搜不到他的业绩", camp: "story" },
+      { text: "皮衣不能当护城河", camp: "story" },
+      { text: "董事会要纪律，不要梦想", camp: "tech" },
+      { text: "这届候选人里没有神人", camp: "ambition" },
+      { text: "海选水分比芯片还大", camp: "tech" }
     ];
     const GOSSIP = [
-      { t: "Lisa 说 Kai 在买董事", catch: true },
-      { t: "有人夸你简历写得好", catch: false },
-      { t: "匿名在散你空降的谣", catch: true },
-      { t: "咖啡洒了，纯意外", catch: false },
-      { t: "Rex 说你不懂硬件", catch: true }
+      { t: "Lisa 说 Kai 在买董事，发票还没贴完", catch: true },
+      { t: "有人夸你皮衣和简历一样整齐", catch: false },
+      { t: "匿名在群里散你是空降的谣", catch: true },
+      { t: "咖啡洒了，纯意外，不是 PUA", catch: false },
+      { t: "Rex 说你不懂硬件，只懂皮衣", catch: true }
     ];
     const MEM_POOL = ["核芯栈", "供应", "生态", "极光芯", "交付", "开源"];
     const BOARD = [
@@ -521,16 +525,16 @@
       if (sc === "intel") {
         stage.innerHTML = '<div class="scene-kicker">gooola 调研</div><h2>没有硝烟的斗争</h2>' +
           '<div class="hero-wrap">' + heroHtml() + '<div class="body">你依据 gooola 搜索，充分地调研了自己的竞争对手，发现他们包含' + RIVAL_BLURB + '。你深知他们都是可敬的对手，看来这是一场没有硝烟的实际斗争！</div></div>';
-        box.innerHTML = '<button class="go" data-act="goapply" type="button"><span class="key">1</span>迎难而上</button>' +
-          '<button class="choice" data-act="buyweak" type="button"><span class="key">2</span>花钱买对手的弱点</button>' +
-          '<button class="choice ghost" data-act="quit" type="button"><span class="key">3</span>放弃机会</button>';
+        box.innerHTML = '<button class="go" data-act="goapply" type="button"><span class="key">1</span>迎难而上，皮衣已备好</button>' +
+          '<button class="choice" data-act="buyweak" type="button"><span class="key">2</span>花钱买对手的弱点（限时）</button>' +
+          '<button class="choice ghost" data-act="quit" type="button"><span class="key">3</span>放弃机会，去别的公司</button>';
         return;
       }
       if (sc === "apply") {
         stage.innerHTML = '<div class="apply"><div class="brand">ADVN CAREERS</div>' +
           '<div class="hero-wrap">' + heroHtml() + '<div><div class="job">首席执行官</div>' +
           '<div class="meta">总部 · 海选进行中<br/>申请人 xunxun<br/>状态：待提交</div></div></div></div>';
-        box.innerHTML = '<button class="go" data-act="send" type="button">提交申请</button>';
+        box.innerHTML = '<button class="go" data-act="send" type="button">提交申请，正式搅局</button>';
         return;
       }
       if (sc === "sending") {
@@ -553,10 +557,10 @@
       if (sc === "danmaku") {
         beginWave();
         stage.innerHTML = '<div class="scene-kicker">海选</div><h2>不好的言论我会删</h2>' +
-          '<div class="quote-bar">请支持 xun喵</div>' +
+          '<div class="quote-bar">请支持 xun喵　·　红框是反对，绿框是自己人</div>' +
           '<div class="arena" id="arena"></div>' +
-          '<div class="hint">点反对你的言论加分，点到支持者会扣分。</div>';
-        box.innerHTML = '<button class="go ghost" data-act="skipdm" type="button">提前结束这波</button>';
+          '<div class="hint" id="dmHint">点红框删掉反对的声音。绿框是支持者，点到会扣分。</div>';
+        box.innerHTML = '<button class="go ghost" data-act="skipdm" type="button">先这样，进入结算</button>';
         startDanmaku();
         return;
       }
@@ -727,38 +731,54 @@
 
     function startDanmaku() {
       const arena = $("arena"); if (!arena) return;
-      state.dm = { items: [], raf: 0, t0: performance.now(), hits: 0, miss: 0, running: true, spawn: 0 };
       const q = QUOTES.find((x) => x.id === state.quote) || QUOTES[0];
+      state.dm = { items: [], raf: 0, t0: 0, hits: 0, miss: 0, running: true, spawn: 0 };
+      const paintDm = () => {
+        const el = $("dmHint");
+        if (el) el.textContent = "已删反对 " + state.dm.hits + "　误伤支持者 " + state.dm.miss + "　·　点红框，别点绿框";
+      };
       const spawn = () => {
-        if (!state.dm.running) return;
+        if (!state.dm.running || !arena.isConnected) return;
+        const w = arena.clientWidth || arena.offsetWidth || 320;
+        if (w < 40) return;
         const src = DANMAKU[(Math.random() * DANMAKU.length) | 0];
         const same = src.camp === q.id;
         const el = document.createElement("button");
         el.type = "button";
         el.className = "dm" + (same ? " trap" : "");
-        el.textContent = src.text;
-        el.style.top = (8 + Math.random() * 120) + "px";
-        el.style.left = "100%";
+        el.textContent = (same ? "粉：" : "删：") + src.text;
+        el.style.top = (6 + Math.random() * Math.max(24, arena.clientHeight - 48)) + "px";
+        const x = Math.round(w * 0.28 + Math.random() * w * 0.36);
+        el.style.left = x + "px";
         el.dataset.beat = same ? "0" : "1";
-        el.addEventListener("click", (ev) => { ev.stopPropagation(); tapDm(el); });
+        el.addEventListener("pointerdown", (ev) => { ev.preventDefault(); ev.stopPropagation(); tapDm(el); });
         arena.appendChild(el);
-        state.dm.items.push({ el, x: arena.clientWidth, spd: 1.1 + Math.random() * 0.7, beat });
+        state.dm.items.push({ el, x: x, spd: 0.55 + Math.random() * 0.35 });
       };
-      spawn();
       const loop = (now) => {
         if (!state.dm.running) return;
+        if (!state.dm.t0) { state.dm.t0 = now; state.dm.last = now; }
+        const dt = Math.min(48, now - (state.dm.last || now));
+        state.dm.last = now;
         if (now - state.dm.spawn > 700) { state.dm.spawn = now; spawn(); }
-        const w = arena.clientWidth;
         state.dm.items = state.dm.items.filter((it) => {
-          it.x -= it.spd * 1.6;
+          if (it.el.dataset.done) return false;
+          it.x -= (52 * it.spd) * (dt / 1000);
           it.el.style.left = it.x + "px";
-          if (it.x < -it.el.offsetWidth - 8) { it.el.remove(); return false; }
+          if (it.x < -(it.el.offsetWidth || 80) - 12) { it.el.remove(); return false; }
           return true;
         });
-        if (now - state.dm.t0 > 12000) { finishDanmaku(); return; }
+        if (now - state.dm.t0 > 18000) { finishDanmaku(); return; }
         state.dm.raf = requestAnimationFrame(loop);
       };
-      state.dm.raf = requestAnimationFrame(loop);
+      paintDm();
+      requestAnimationFrame(() => {
+        spawn();
+        spawn();
+        paintDm();
+        state.dm.raf = requestAnimationFrame(loop);
+      });
+      state.dm.paint = paintDm;
     }
     function tapDm(el) {
       if (!state.dm.running || el.dataset.done) return;
@@ -767,7 +787,8 @@
       if (beat) { el.classList.add("hit"); state.dm.hits++; sfx("hit"); bumpTrust(2); bumpStock(0.8, null, true); kill(8); }
       else { el.classList.add("miss"); state.dm.miss++; sfx("down"); bumpTrust(-2); bumpStock(-1.4, null, true); }
       paintHud();
-      setTimeout(() => el.remove(), 180);
+      if (state.dm.paint) state.dm.paint();
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 160);
     }
     function fireNearest() {
       const arena = $("arena"); if (!arena) return;
