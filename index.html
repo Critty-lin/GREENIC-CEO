@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07140a" />
+  <title>英伟达CEO竞选计</title>
+  <style>
+    :root {
+      --bg: #07140a;
+      --panel: #0c1f10;
+      --ink: #def5c8;
+      --dim: #7fa36a;
+      --nv: #76b900;
+      --nv2: #4e7c00;
+      --up: #8dff4a;
+      --down: #ff6b57;
+      --gold: #e6c35c;
+      --line: #1d3a18;
+      --btn: #132816;
+      --danger: #3a1512;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+      overflow: hidden;
+    }
+    body {
+      background-image:
+        linear-gradient(rgba(7,20,10,.92), rgba(7,20,10,.92)),
+        repeating-linear-gradient(90deg, #0a1c0c 0 12px, #081609 12px 24px),
+        repeating-linear-gradient(0deg, transparent 0 7px, rgba(118,185,0,.05) 7px 8px);
+    }
+    button { font-family: inherit; }
+    #frame {
+      height: 100dvh;
+      height: 100svh;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding: calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));
+      position: relative;
+      overflow: hidden;
+    }
+    #frame::after {
+      content: "";
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.12) 3px 4px);
+      z-index: 8;
+    }
+    .hud {
+      flex: 0 0 auto;
+      border: 3px solid var(--nv);
+      background: #061108;
+      padding: 8px 10px 7px;
+      box-shadow: 4px 4px 0 #031006;
+    }
+    .hud-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .price-block { min-width: 0; flex: 1; }
+    .price-label {
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--nv);
+    }
+    .price {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .price.up { color: var(--up); }
+    .price.down { color: var(--down); }
+    .price.flash { animation: pulse .35s steps(2); }
+    .delta {
+      font-size: 12px;
+      margin-left: 4px;
+    }
+    #spark {
+      width: 108px;
+      height: 36px;
+      flex: 0 0 auto;
+      image-rendering: pixelated;
+      background: #040a05;
+      border: 2px solid var(--line);
+    }
+    .hud-bot {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-top: 7px;
+      font-size: 11px;
+      color: var(--dim);
+    }
+    .stat b {
+      display: block;
+      color: var(--ink);
+      font-size: 14px;
+      letter-spacing: .03em;
+    }
+    .bar {
+      height: 6px;
+      background: #12210f;
+      border: 1px solid var(--line);
+      margin-top: 3px;
+    }
+    .bar > i {
+      display: block;
+      height: 100%;
+      width: 50%;
+      background: var(--nv);
+      box-shadow: 4px 0 0 var(--nv2);
+    }
+    #stage {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 10px 0 8px;
+      border: 3px solid var(--line);
+      background: var(--panel);
+      padding: 12px 12px 10px;
+      position: relative;
+    }
+    .scene-kicker {
+      font-size: 10px;
+      letter-spacing: .16em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    h1, h2 { margin: 6px 0 8px; line-height: 1.25; }
+    h1 { font-size: 26px; color: var(--nv); letter-spacing: .06em; text-shadow: 3px 3px 0 #102406; }
+    h2 { font-size: 18px; }
+    .who {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 8px 0 10px;
+    }
+    .portrait {
+      width: 72px;
+      height: 72px;
+      flex: 0 0 72px;
+      image-rendering: pixelated;
+      background: #08150b;
+      border: 3px solid var(--nv2);
+    }
+    .body {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .hint {
+      margin-top: 10px;
+      color: var(--dim);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .crisis #stage {
+      border-color: var(--down);
+      animation: warn 1s steps(2) infinite;
+    }
+    #choices {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .choice, .go {
+      appearance: none;
+      width: 100%;
+      text-align: left;
+      background: var(--btn);
+      color: var(--ink);
+      border: 3px solid var(--nv);
+      padding: 12px 12px;
+      min-height: 48px;
+      font-size: 14px;
+      line-height: 1.4;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 #031006;
+      overflow-wrap: anywhere;
+    }
+    .go { text-align: center; background: #16380c; font-size: 16px; letter-spacing: .08em; }
+    .choice:active, .go:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #031006; }
+    .choice:focus-visible, .go:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .key {
+      display: inline-block;
+      min-width: 18px;
+      margin-right: 8px;
+      color: var(--nv);
+      font-weight: 800;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+    .row .go { flex: 1; }
+    .ghost {
+      background: #0a160c;
+      border-color: var(--line);
+      color: var(--dim);
+    }
+    .mute {
+      position: absolute;
+      top: calc(10px + env(safe-area-inset-top));
+      right: 16px;
+      z-index: 9;
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--line);
+      background: #061108;
+      color: var(--dim);
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .floaters { pointer-events: none; position: fixed; left: 0; top: 0; right: 0; z-index: 12; }
+    .floater {
+      position: absolute;
+      font-weight: 800;
+      font-size: 16px;
+      animation: rise .9s steps(8) forwards;
+      text-shadow: 2px 2px 0 #000;
+    }
+    .floater.up { color: var(--up); }
+    .floater.down { color: var(--down); }
+    .toast {
+      position: absolute;
+      left: 10px; right: 10px; bottom: 10px;
+      background: #10240c;
+      border: 2px solid var(--gold);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--gold);
+      animation: in .2s steps(2);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .chip {
+      font-size: 10px;
+      border: 2px solid var(--line);
+      padding: 3px 6px;
+      color: var(--dim);
+    }
+    .chip.out { opacity: .35; text-decoration: line-through; }
+    .end-box { margin-top: 8px; }
+    .end-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 2px solid var(--line); }
+    .score-pop { font-size: 28px; color: var(--gold); font-weight: 800; margin: 8px 0; }
+    .news {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--nv);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    @keyframes pulse { 50% { transform: scale(1.06); } }
+    @keyframes rise { to { transform: translateY(-46px); opacity: 0; } }
+    @keyframes warn { 50% { box-shadow: inset 0 0 0 2px var(--down); } }
+    @keyframes in { from { transform: scale(.96); opacity: 0; } }
+    @media (min-width: 800px) {
+      #frame {
+        margin-top: 18px;
+        height: calc(100dvh - 36px);
+        border: 4px solid #1a3d12;
+        background: #07140a;
+        box-shadow: 0 0 0 8px #040a05, 12px 12px 0 #031006;
+      }
+      h1 { font-size: 30px; }
+    }
+    @media (max-height: 700px) {
+      .portrait { width: 56px; height: 56px; flex-basis: 56px; }
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      .body { font-size: 14px; }
+      .price { font-size: 18px; }
+      #spark { width: 88px; height: 30px; }
+      .choice, .go { padding: 10px 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .price.flash, .crisis #stage, .floater, .toast { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="frame">
+    <button class="mute" id="muteBtn" type="button" aria-label="静音">音效</button>
+    <header class="hud" id="hud">
+      <div class="hud-top">
+        <div class="price-block">
+          <div class="price-label">NVDA 现价</div>
+          <div class="price" id="price">$138.40 <span class="delta" id="delta">+0.00</span></div>
+        </div>
+        <canvas id="spark" width="108" height="36" aria-hidden="true"></canvas>
+      </div>
+      <div class="hud-bot">
+        <div class="stat">对手剩余<b id="rivals">9</b></div>
+        <div class="stat">董事会印象<b id="trust">50</b><div class="bar"><i id="trustBar"></i></div></div>
+        <div class="stat">进度<b id="round">开局</b></div>
+      </div>
+      <div class="news" id="news">盘前等待开盘 · 海选通道已打开</div>
+    </header>
+    <main id="stage"></main>
+    <div id="choices"></div>
+  </div>
+  <div class="floaters" id="floaters"></div>
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const OPEN = 138.4;
+    const NAMES = ["Max", "Lisa", "Kai", "林博", "Rex", "Nova", "钱总", "Cloud", "匿名"];
+    const SPRITE = {
+      xun: "0001111000000112221100012333321001234443210123444431012344443101232223210012111121001111111100110100100",
+      npc: "00011110000012222110012333321001235553210123555321012355532101232222310012111121001111111100110100100",
+      gpu: "111111111111444444411144000044114404404411440000441144444444114400004411440440441144000044111111111111"
+    };
+    const PAL = {
+      xun: ["#0000", "#1b1b1b", "#f0c090", "#3a2418", "#76b900", "#c8f090"],
+      npc: ["#0000", "#222", "#e8d2b0", "#5a3a22", "#76b900", "#3d6ad6"],
+      gpu: ["#0000", "#14330a", "#76b900", "#9ae03a", "#0b1a0c"]
+    };
+
+    const STORY = {
+      title: {
+        kicker: "PIXEL CAMPAIGN",
+        title: "英伟达CEO竞选计",
+        who: "xun",
+        name: "xunxun",
+        body: "你是 xunxun。英伟达正在海选下一任 CEO。你要从投简历走到任命，途中会遇见面试、职场局，还有一只不肯停的股价。",
+        hint: "选项会同时改三样东西：面试印象、还剩几名对手、头顶这只股价。键盘 1 2 3 或直接点。",
+        choices: [
+          { key: "1", text: "投递简历", next: "resume" },
+          { key: "2", text: "先看怎么玩", next: "help" }
+        ]
+      },
+      help: {
+        kicker: "怎么玩",
+        title: "两条线一起跑",
+        who: "gpu",
+        name: "规则",
+        body: "叙事线：投简历、五轮关卡、关键选择。股价线：数字一直挂在头顶，会自己晃，也会被你的话打上去或打下来。结局看印象、对手、收盘价一起算，不是最后才结算。",
+        hint: "遇到红色边框的盘前风暴时，你越晚出手，股价掉得越狠。",
+        choices: [{ key: "1", text: "知道了，去投简历", next: "resume" }]
+      },
+      resume: {
+        round: "简历",
+        kicker: "第 0 关 · 投递",
+        title: "把名字扔进海选",
+        who: "xun",
+        name: "投递页",
+        body: "凌晨 2:17。屏幕上还挂着 9 个公开竞争者。投递键在闪，NVDA 也在闪。第一封简历，决定别人怎么读你。",
+        choices: [
+          { key: "1", text: "写成「我能让每颗 GPU 自己讲故事」", trust: 8, stock: 2.2, kill: 0, news: "市场听到一个会讲故事的新名字", next: "hr" },
+          { key: "2", text: "只附 CUDA 优化实录，不写形容词", trust: 12, stock: 0.6, kill: 1, news: "技术派被一份冷冰冰的内核记录震了一下", next: "hr" },
+          { key: "3", text: "只丢一句：我想当 CEO", trust: -4, stock: -1.8, kill: 0, news: "一句空话进了海选箱，盘口轻轻晃了一下", next: "hr" }
+        ]
+      },
+      hr: {
+        round: "初面",
+        kicker: "第 1 关 · HR",
+        title: "你为什么现在来",
+        who: "npc",
+        name: "陈招 · HR",
+        body: "陈招隔着玻璃问：老黄还在位。你这个时候出现，董事会会把你读成接班，还是读成抢班？",
+        choices: [
+          { key: "1", text: "我来让公司在下一轮周期活下来", trust: 11, stock: 3.4, kill: 1, news: "「周期」两个字传到买方，买盘抬了一下", next: "crisis" },
+          { key: "2", text: "股价太高了，我想先把它坐实", trust: 7, stock: -2.4, kill: 1, news: "有人把「坐实」听成了降温，股价先怯一步", next: "crisis" },
+          { key: "3", text: "我就是来赢的", trust: 2, stock: 0.9, kill: 0, news: "气势有了，对手一动不动", next: "crisis" }
+        ]
+      },
+      crisis: {
+        round: "风暴",
+        kicker: "盘前 · 股价压力",
+        title: "收入可能不及预期",
+        who: "gpu",
+        name: "交易台",
+        crisis: true,
+        body: "有人放风：数据中心收入可能不及预期。股价正在往下掉。你还没进技术面，但市场已经在给海选打分。越晚出手，掉得越狠。",
+        hint: "这不是过场。你现在的选择会直接改股价，也会改后面怎么看你。",
+        choices: [
+          { key: "1", text: "发备忘：需求还在，只是交付在排队", trust: 5, stock: 5.6, kill: 1, news: "备忘流出，空头先收了一截", next: "tech" },
+          { key: "2", text: "不说话，让市场自己消化", trust: 3, stock: -3.2, kill: 0, news: "沉默被读成心虚，盘口继续软", next: "tech" },
+          { key: "3", text: "对外说我们会超预期", trust: 1, stock: 0, kill: 1, news: "豪言出口，市场先愣住", next: "tech", gamble: true }
+        ]
+      },
+      tech: {
+        round: "深潜",
+        kicker: "第 2 关 · 技术",
+        title: "如果 CUDA 被替代",
+        who: "npc",
+        name: "Arch · 技术面",
+        body: "Arch 把一杯冷掉的咖啡推开：如果开源栈真把 CUDA 咬出缺口，你当上的第一周做什么？",
+        choices: [
+          { key: "1", text: "把护城河转到系统和供应", trust: 14, stock: 5.1, kill: 2, news: "系统叙事让两名纯软件派提前出局", next: "campus" },
+          { key: "2", text: "加倍投入开发者，把生态再焊死", trust: 9, stock: 1.8, kill: 1, news: "开发者路线稳，一名空降被比下去", next: "campus" },
+          { key: "3", text: "那不可能发生", trust: -8, stock: -4.2, kill: 0, news: "傲慢被记了一笔，盘口不喜欢这种口气", next: "campus" }
+        ]
+      },
+      campus: {
+        round: "职场",
+        kicker: "第 3 关 · 食堂",
+        title: "Lisa 找你联手",
+        who: "npc",
+        name: "Lisa · 内部派",
+        body: "食堂角落。Lisa 说：华尔街空降 Kai 在买董事。我们联手把他挤掉，你公开挺我的路线。这是局，也是考题。",
+        choices: [
+          { key: "1", text: "联手，先清掉空降", trust: -2, stock: 1.2, kill: 2, news: "派系传闻让两个人消失，印象却脏了一点", next: "board" },
+          { key: "2", text: "拒绝，当场讲自己的路线", trust: 10, stock: 2.9, kill: 1, news: "独立叙事传出，Lisa 自己也开始晃", next: "board" },
+          { key: "3", text: "当面答应，回头拆台", trust: -11, stock: -3.6, kill: 3, news: "三个人出局，丑闻味也出来了", next: "board" }
+        ]
+      },
+      board: {
+        round: "董事会",
+        kicker: "第 4 关 · 路演",
+        title: "再跌两成，还扩产吗",
+        who: "npc",
+        name: "周衡 · 独立董事",
+        body: "没有窗户的会议室。周衡敲了敲桌子：如果股价从这里再跌两成，你还要不要把产线往前推？",
+        choices: [
+          { key: "1", text: "扩。算力缺口是几年的事", trust: 11, stock: -3.8, kill: 1, news: "资本开支担忧压了一下股价，董事会却记下了胆色", next: "final" },
+          { key: "2", text: "先慢一点，把现金流坐实", trust: 7, stock: 6.4, kill: 1, news: "稳健派鼓掌，股价先松一口气", next: "final" },
+          { key: "3", text: "跌两成正好加码", trust: 4, stock: 8.1, kill: 1, news: "这句被当成口号传出，短线资金涌进来", next: "final" }
+        ]
+      },
+      final: {
+        round: "终局",
+        kicker: "第 5 关 · 公开信",
+        title: "第一封信写给谁",
+        who: "xun",
+        name: "xunxun",
+        body: "剩下的人被叫进同一间房。屏幕上只有一句：若你出任，第一封公开信写给谁。写完，任命就会被算出来。",
+        choices: [
+          { key: "1", text: "写给开发者：继续做全世界的加速器", trust: 8, stock: 2.4, kill: 1, news: "开发者信流出，生态溢价回来一截", next: "end", letter: "dev" },
+          { key: "2", text: "写给股东：利润与纪律", trust: 5, stock: 7.2, kill: 1, news: "纪律两个字让资金先站上你这边", next: "end", letter: "share" },
+          { key: "3", text: "写给员工：下一站更难，我先扛", trust: 10, stock: 0.8, kill: 1, news: "内部士气抬了一下，对手少了一个", next: "end", letter: "staff" }
+        ]
+      }
+    };
+
+    const ENDINGS = {
+      ceo: {
+        title: "你出任 CEO",
+        body: "董事会把钥匙交给 xunxun。对手清场，股价还站得住，第一封信被放上了首页。"
+      },
+      crisis_ceo: {
+        title: "临危受命",
+        body: "股价不好看，但你是唯一还敢把话说完的人。他们把危机交给你，不是把红毯交给你。"
+      },
+      bubble: {
+        title: "泡沫上的加冕",
+        body: "你坐上了位子，可收盘价高得吓人。门外已经有人在问：下一根阴线算谁的。"
+      },
+      stolen: {
+        title: "被对手截胡",
+        body: "名字还在名单上的人太多。董事会说再看看。海选没有结束，只是你这一轮到此为止。"
+      },
+      crash: {
+        title: "任命冻结",
+        body: "股价先把房间清空了。没有人敢在暴跌里宣布新 CEO。你的面试分数被收进抽屉。"
+      },
+      fail: {
+        title: "印象没过线",
+        body: "对手可以少，股价可以晃，但董事会对你的印象没有过线。海选还在，位子不在你这。"
+      },
+      almost: {
+        title: "有争议的任命",
+        body: "你出任了，可房间里一半人在鼓掌，一半人在看股价。这是一把坐不稳的椅子。"
+      },
+      advisor: {
+        title: "顾问席",
+        body: "他们留了你，但把 CEO 给了别人。你拿到一张靠近权力的椅子，和一张看盘的屏幕。"
+      }
+    };
+
+    const state = {
+      scene: "title",
+      stock: OPEN,
+      hist: [OPEN, OPEN + 0.3, OPEN - 0.2, OPEN + 0.5, OPEN],
+      rivals: NAMES.map((n) => ({ n, out: false })),
+      trust: 50,
+      sentiment: 0,
+      crisis: false,
+      muted: false,
+      playing: true,
+      letter: "",
+      news: "盘前等待开盘 · 海选通道已打开",
+      lastDelta: 0
+    };
+
+    let audioCtx = null;
+    function ctx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
+    function tone(freq, dur, type, vol) {
+      if (state.muted) return;
+      try {
+        const a = ctx();
+        const o = a.createOscillator();
+        const g = a.createGain();
+        o.type = type || "square";
+        o.frequency.value = freq;
+        g.gain.value = vol || 0.045;
+        g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
+        o.connect(g); g.connect(a.destination);
+        o.start(); o.stop(a.currentTime + dur);
+      } catch (_) {}
+    }
+    function sfx(kind) {
+      if (kind === "click") tone(880, 0.06);
+      if (kind === "up") { tone(440, 0.08); setTimeout(() => tone(554, 0.08), 70); setTimeout(() => tone(659, 0.1), 140); }
+      if (kind === "down") { tone(330, 0.08); setTimeout(() => tone(247, 0.1), 80); }
+      if (kind === "kill") { tone(196, 0.12, "sawtooth", 0.03); setTimeout(() => tone(98, 0.18, "square", 0.04), 90); }
+      if (kind === "win") { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.12), i * 90)); }
+      if (kind === "lose") { tone(174, 0.2, "triangle", 0.05); setTimeout(() => tone(110, 0.28), 120); }
+    }
+
+    function drawSprite(kind) {
+      const map = SPRITE[kind] || SPRITE.xun;
+      const pal = PAL[kind] || PAL.xun;
+      const c = document.createElement("canvas");
+      c.width = 11; c.height = 14;
+      const g = c.getContext("2d");
+      for (let i = 0; i < map.length; i++) {
+        const ch = map[i];
+        if (ch === "0") continue;
+        g.fillStyle = pal[Number(ch)] || pal[1];
+        g.fillRect(i % 11, (i / 11) | 0, 1, 1);
+      }
+      const out = document.createElement("canvas");
+      out.width = 72; out.height = 72;
+      const og = out.getContext("2d");
+      og.imageSmoothingEnabled = false;
+      og.fillStyle = "#08150b";
+      og.fillRect(0, 0, 72, 72);
+      og.drawImage(c, 8, 6, 55, 60);
+      return out.toDataURL();
+    }
+    const SPR_URL = { xun: drawSprite("xun"), npc: drawSprite("npc"), gpu: drawSprite("gpu") };
+
+    function alive() { return state.rivals.filter((r) => !r.out); }
+    function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+    function fmt(n) { return "$" + n.toFixed(2); }
+
+    function drawSpark() {
+      const c = $("spark");
+      const g = c.getContext("2d");
+      const w = c.width, h = c.height;
+      g.fillStyle = "#040a05";
+      g.fillRect(0, 0, w, h);
+      const data = state.hist.slice(-18);
+      const min = Math.min.apply(null, data) - 1;
+      const max = Math.max.apply(null, data) + 1;
+      g.beginPath();
+      data.forEach((v, i) => {
+        const x = (i / Math.max(1, data.length - 1)) * (w - 4) + 2;
+        const y = h - 3 - ((v - min) / (max - min)) * (h - 6);
+        if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+      });
+      g.strokeStyle = state.stock >= OPEN ? "#76b900" : "#ff6b57";
+      g.lineWidth = 2;
+      g.stroke();
+    }
+
+    function floatAt(text, up, x, y) {
+      const el = document.createElement("div");
+      el.className = "floater " + (up ? "up" : "down");
+      el.textContent = text;
+      el.style.left = (x || 40) + "px";
+      el.style.top = (y || 70) + "px";
+      $("floaters").appendChild(el);
+      setTimeout(() => el.remove(), 950);
+    }
+
+    function bumpStock(d, news, silent) {
+      const prev = state.stock;
+      state.stock = clamp(state.stock + d, 42, 260);
+      state.lastDelta = state.stock - prev;
+      state.hist.push(state.stock);
+      if (state.hist.length > 40) state.hist.shift();
+      if (news) state.news = news;
+      if (!silent && Math.abs(d) >= 0.4) {
+        const hud = $("hud").getBoundingClientRect();
+        floatAt((d >= 0 ? "+" : "") + d.toFixed(1), d >= 0, hud.left + 24, hud.top + 28);
+        sfx(d >= 0 ? "up" : "down");
+        $("price").classList.add("flash");
+        setTimeout(() => $("price").classList.remove("flash"), 360);
+      }
+    }
+
+    function bumpTrust(d) {
+      if (!d) return;
+      state.trust = clamp(state.trust + d, 0, 100);
+      const hud = $("hud").getBoundingClientRect();
+      floatAt((d >= 0 ? "印象+" : "印象") + d, d >= 0, hud.left + 160, hud.top + 58);
+    }
+
+    function kill(n) {
+      if (n <= 0) return [];
+      const pool = alive();
+      const gone = [];
+      const count = Math.min(n, Math.max(0, pool.length - (state.scene === "end" ? 0 : 1)));
+      for (let i = 0; i < count; i++) {
+        const pick = pool.splice((Math.random() * pool.length) | 0, 1)[0];
+        if (!pick) break;
+        pick.out = true;
+        gone.push(pick.n);
+      }
+      if (gone.length) {
+        sfx("kill");
+        const hud = $("hud").getBoundingClientRect();
+        floatAt("对手-" + gone.length, true, hud.right - 90, hud.top + 58);
+      }
+      return gone;
+    }
+
+    function paintHud() {
+      const p = $("price");
+      const d = state.stock - OPEN;
+      p.className = "price " + (d >= 0 ? "up" : "down");
+      $("delta").textContent = (d >= 0 ? "+" : "") + d.toFixed(2);
+      $("price").childNodes[0].textContent = fmt(state.stock) + " ";
+      $("rivals").textContent = String(alive().length);
+      $("trust").textContent = String(state.trust);
+      $("trustBar").style.width = state.trust + "%";
+      $("news").textContent = state.news;
+      drawSpark();
+    }
+
+    function chipsHtml() {
+      return '<div class="chips">' + state.rivals.map((r) =>
+        '<span class="chip' + (r.out ? " out" : "") + '">' + r.n + "</span>"
+      ).join("") + "</div>";
+    }
+
+    function render() {
+      const sc = STORY[state.scene];
+      const stage = $("stage");
+      const box = $("choices");
+      document.getElementById("frame").classList.toggle("crisis", !!(sc && sc.crisis) || state.crisis);
+      if (state.scene === "end") {
+        const e = judge();
+        $("round").textContent = "结局";
+        const info = ENDINGS[e.id];
+        stage.innerHTML =
+          '<div class="scene-kicker">任命结果</div><h2>' + info.title + "</h2>" +
+          '<div class="who"><img class="portrait" alt="" width="72" height="72" src="' + SPR_URL.xun + '" />' +
+          '<div class="body">' + info.body + "</div></div>" +
+          '<div class="end-box">' +
+          '<div class="end-line"><span>收盘价</span><b>' + fmt(state.stock) + "</b></div>" +
+          '<div class="end-line"><span>剩余对手</span><b>' + alive().length + "</b></div>" +
+          '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
+          '<div class="score-pop" id="scorePop">0</div></div>' + chipsHtml();
+        box.innerHTML = '<button class="go" data-act="restart" type="button">再竞选一次</button>';
+        animateScore(e.score);
+        sfx(e.good ? "win" : "lose");
+        paintHud();
+        return;
+      }
+      $("round").textContent = sc.round || "开局";
+      stage.innerHTML =
+        '<div class="scene-kicker">' + sc.kicker + "</div>" +
+        "<h2>" + (state.scene === "title" ? "" : sc.title) + "</h2>" +
+        (state.scene === "title" ? "<h1>" + sc.title + "</h1>" : "") +
+        '<div class="who"><img class="portrait" alt="" width="72" height="72" src="' + SPR_URL[sc.who] + '" />' +
+        '<div><div class="scene-kicker">' + sc.name + '</div><div class="body">' + sc.body + "</div></div></div>" +
+        (sc.hint ? '<div class="hint">' + sc.hint + "</div>" : "") +
+        (state.scene === "title" || state.scene === "campus" || state.scene === "final" ? chipsHtml() : "");
+      if (state.scene === "title") {
+        const h2 = stage.querySelector("h2");
+        if (h2) h2.remove();
+      }
+      box.innerHTML = sc.choices.map((c) =>
+        '<button class="choice" data-next="' + c.key + '" type="button"><span class="key">' + c.key + "</span>" + c.text + "</button>"
+      ).join("");
+      paintHud();
+    }
+
+    function judge() {
+      const s = state.stock, t = state.trust, c = alive().length;
+      const score = Math.round(t * 12 + Math.max(0, s - 90) * 2.2 + (9 - c) * 18);
+      if (s < 96) return { id: "crash", score, good: false };
+      if (t < 42) return { id: "fail", score, good: false };
+      if (c >= 5) return { id: "stolen", score, good: false };
+      if (t >= 74 && s >= 132 && c <= 2) return { id: "ceo", score, good: true };
+      if (s >= 168 && t >= 55) return { id: "bubble", score, good: true };
+      if (s < 120 && t >= 58 && c <= 3) return { id: "crisis_ceo", score, good: true };
+      if (t >= 56 && c <= 3) return { id: "almost", score, good: true };
+      return { id: "advisor", score, good: false };
+    }
+
+    function animateScore(target) {
+      const el = $("scorePop");
+      if (!el) return;
+      const t0 = performance.now();
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / 700);
+        el.textContent = "得分 " + Math.round(target * k);
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function choose(key) {
+      const sc = STORY[state.scene];
+      if (!sc) return;
+      const c = sc.choices.find((x) => x.key === key);
+      if (!c) return;
+      sfx("click");
+      state.crisis = false;
+      if (c.trust) bumpTrust(c.trust);
+      let stock = c.stock || 0;
+      if (c.gamble) stock = Math.random() < 0.5 ? 9.4 : -9.8;
+      if (stock) bumpStock(stock, c.news);
+      else if (c.news) state.news = c.news;
+      const gone = kill(c.kill || 0);
+      if (c.letter) state.letter = c.letter;
+      if (gone.length) state.news = (c.news || state.news) + " · " + gone.join("、") + " 出局";
+      state.sentiment = clamp((state.sentiment || 0) + (stock > 0 ? 0.12 : -0.08), -0.4, 0.35);
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = state.news;
+      $("stage").appendChild(toast);
+      setTimeout(() => toast.remove(), 900);
+      state.scene = c.next;
+      if (STORY[state.scene] && STORY[state.scene].crisis) state.crisis = true;
+      setTimeout(render, 280);
+    }
+
+    function restart() {
+      state.scene = "title";
+      state.stock = OPEN;
+      state.hist = [OPEN, OPEN + 0.2, OPEN];
+      state.rivals = NAMES.map((n) => ({ n, out: false }));
+      state.trust = 50;
+      state.sentiment = 0;
+      state.crisis = false;
+      state.letter = "";
+      state.news = "盘前等待开盘 · 海选通道已打开";
+      state.lastDelta = 0;
+      render();
+    }
+
+    $("choices").addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      if (btn.dataset.act === "restart") { sfx("click"); restart(); return; }
+      if (btn.dataset.next) choose(btn.dataset.next);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.repeat) return;
+      if (state.scene === "end" && (e.key === "Enter" || e.key === "r" || e.key === "R")) { restart(); return; }
+      if (["1", "2", "3"].indexOf(e.key) >= 0) choose(e.key);
+      if (e.key === "Enter") {
+        const first = document.querySelector("#choices button");
+        if (first && first.dataset.next) choose(first.dataset.next);
+        if (first && first.dataset.act === "restart") restart();
+      }
+    });
+    $("muteBtn").addEventListener("click", () => {
+      state.muted = !state.muted;
+      $("muteBtn").textContent = state.muted ? "静音" : "音效";
+      if (!state.muted) sfx("click");
+    });
+
+    setInterval(() => {
+      if (!state.playing) return;
+      if (state.scene === "end" || state.scene === "title" || state.scene === "help") {
+        bumpStock((Math.random() - 0.48) * 0.35, null, true);
+        paintHud();
+        return;
+      }
+      let drift = (Math.random() - 0.5) * 0.7 + (state.sentiment || 0);
+      if (state.crisis) drift -= 0.85 + Math.random() * 0.5;
+      bumpStock(drift, state.crisis ? "盘前继续往下 · 你还没出手" : null, !state.crisis);
+      if (state.crisis) paintHud();
+      else paintHud();
+    }, 1600);
+
+    try {
+      render();
+      window.asteamPreview && window.asteamPreview.ready && window.asteamPreview.ready();
+    } catch (err) {
+      window.asteamPreview && window.asteamPreview.fail && window.asteamPreview.fail(String(err && err.message || err));
+    }
+  })();
+  </script>
+</body>
+</html>
