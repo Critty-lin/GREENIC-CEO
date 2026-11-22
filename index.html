@@ -73,13 +73,12 @@
     h1, h2 { margin: 6px 0 8px; line-height: 1.25; }
     h1 { font-size: 24px; color: var(--nv); text-shadow: 3px 3px 0 #102406; }
     h2 { font-size: 18px; }
-    .hero-wrap { display: flex; gap: 12px; align-items: flex-end; margin: 8px 0 12px; }
-    .hero {
+    .hero-wrap { display: flex; gap: 12px; align-items: flex-start; margin: 8px 0 12px; }
+    .hero, .hero.lg {
       image-rendering: pixelated; image-rendering: crisp-edges;
-      width: 96px; height: 120px; flex: 0 0 96px;
-      background: #08150b; border: 3px solid var(--nv);
+      width: 84px; height: 105px; flex: 0 0 84px;
+      background: #08150b; border: 3px solid var(--nv); object-fit: fill;
     }
-    .hero.lg { width: 120px; height: 150px; flex-basis: 120px; }
     .body { font-size: 15px; line-height: 1.55; }
     .hint { margin-top: 8px; color: var(--dim); font-size: 12px; line-height: 1.5; }
     .choice, .go, .mem, .face {
@@ -89,6 +88,9 @@
       display: flex; align-items: center; justify-content: center; font-weight: 700;
     }
     .go { background: #16380c; }
+    #choices.many .choice, #choices.many .go, .faces .face, #overlay.many .choice, #overlay.many .go {
+      justify-content: flex-start; text-align: left;
+    }
     .ghost { background: #0a160c; border-color: var(--line); color: var(--dim); }
     .choice:active, .go:active { transform: translate(2px, 2px); }
     .choice:focus-visible, .go:focus-visible, .mem:focus-visible, .face:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
@@ -194,8 +196,7 @@
       }
     }
     @media (max-height: 700px) {
-      .hero { width: 72px; height: 90px; flex-basis: 72px; }
-      .hero.lg { width: 88px; height: 110px; flex-basis: 88px; }
+      .hero, .hero.lg { width: 84px; height: 105px; flex-basis: 84px; }
       h1 { font-size: 20px; }
       .body { font-size: 14px; }
       .arena, .candles { height: 132px; }
@@ -218,7 +219,7 @@
       </div>
       <div class="hud-bot">
         <div class="stat">对手剩余<b id="rivals">128</b></div>
-        <div class="stat">董事会印象<b id="trust">50</b><div class="bar"><i id="trustBar"></i></div></div>
+        <div class="stat">董事会印象<b id="trust">42</b><div class="bar"><i id="trustBar"></i></div></div>
         <div class="stat">进度<b id="round">开局</b></div>
       </div>
       <div class="news-row">
@@ -267,25 +268,40 @@
       { id: "tech", text: "核芯栈优化实录，这是我的人格证明" },
       { id: "ambition", text: "竞选CEO，你们才是挑战者" }
     ];
-    const DANMAKU = [
-      { text: "请支持 xunxun", camp: "story" },
-      { text: "皮衣即战力，神人请先走", camp: "story" },
-      { text: "他不是来海选的，他是来报到的", camp: "ambition" },
-      { text: "核芯栈不会骗人", camp: "tech" },
-      { text: "优化实录比口号干净", camp: "tech" },
-      { text: "请把芯片留给会写内核的人", camp: "tech" },
-      { text: "位子空着就是给他的", camp: "ambition" },
-      { text: "CEO 三个字他练过", camp: "ambition" },
-      { text: "故事讲赢了，盘自己会涨", camp: "story" },
-      { text: "xunxun 只会穿皮衣不会看财报", camp: "tech" },
-      { text: "zhaozhao：这届我一个都不招", camp: "ambition" },
-      { text: "anan：你还没准备好被挑战", camp: "ambition" },
-      { text: "Peekseed：内部的人才能碰芯片", camp: "tech" },
-      { text: "gooola 搜不到他的业绩", camp: "story" },
-      { text: "皮衣不能当护城河", camp: "story" },
-      { text: "董事会要纪律，不要梦想", camp: "tech" },
-      { text: "这届候选人里没有神人", camp: "ambition" },
-      { text: "海选水分比芯片还大", camp: "tech" }
+    const DANMAKU_GOOD = [
+      "请支持 xunxun",
+      "皮衣即战力，神人请先走",
+      "他不是来海选的，他是来报到的",
+      "核芯栈不会骗人",
+      "优化实录比口号干净",
+      "位子空着就是给他的",
+      "CEO 三个字他练过",
+      "故事讲赢了，盘自己会涨",
+      "逐梦者请出列",
+      "绿色芯片需要这一件皮衣",
+      "xunxun 来了，海选才像海选",
+      "这才叫正式搅局"
+    ];
+    const DANMAKU_BAD = [
+      "xunxun 只会穿皮衣不会看财报",
+      "zhaozhao：这届我一个都不招",
+      "anan：你还没准备好被挑战",
+      "Peekseed：内部的人才能碰芯片",
+      "gooola 搜不到他的业绩",
+      "皮衣不能当护城河",
+      "董事会要纪律，不要梦想",
+      "这届候选人里没有神人",
+      "海选水分比芯片还大",
+      "请把芯片留给会写内核的人",
+      "cobax：纪律比皮衣重要",
+      "caloud：硬件才是硬件",
+      "谁信简历上的神人",
+      "先把股价坐实再谈梦想"
+    ];
+    const WEAK_FILES = [
+      { id: "cobax", name: "cobax", body: "周一例会必迟到。董事会当没看见。这份情报卖不了百亿，但很好笑。" },
+      { id: "peekseed", name: "peekseed", body: "内部黑话写在手心，开会要低头看。很内部，也很累。" },
+      { id: "caloud", name: "caloud", body: "只怕有人比他更懂皮衣。你已经赢了一半。" }
     ];
     const GOSSIP = [
       { t: "peekseed 说 cobax 在买董事，发票还没贴完", catch: true },
@@ -315,12 +331,12 @@
 
     const state = {
       scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
-      rivals: START_RIVALS, waveStart: START_RIVALS, trust: 50, sentiment: 0,
+      rivals: START_RIVALS, waveStart: START_RIVALS, trust: 42, sentiment: 0, fileRead: "",
       muted: false, news: "盘前等待开盘", quote: null, busy: false,
       pay: "idle", votes: {}, quit: false,
       dm: { items: [], raf: 0, t0: 0, hits: 0, miss: 0, running: false },
       time: { raf: 0, x: 0, t: 0, n: 0, hits: 0, tries: 0, zone: { left: 0.34, width: 0.28 } },
-      mem: { seq: [], step: 0, phase: "show" },
+      mem: { seq: [], step: 0, phase: "show", go: false },
       gossip: { i: 0, ok: 0 },
       boardg: { raf: 0, items: [], t0: 0, smash: 0, leak: 0, running: false }
     };
@@ -553,12 +569,12 @@
       const s = state.stock, t = state.trust, c = state.rivals;
       const score = liveScore();
       if (s < 96) return { id: "crash", score, good: false };
-      if (t < 42) return { id: "fail", score, good: false };
+      if (t < 36) return { id: "fail", score, good: false };
       if (c > 48) return { id: "stolen", score, good: false };
-      if (t >= 74 && s >= 132 && c <= 18) return { id: "ceo", score, good: true };
-      if (s >= 168 && t >= 55) return { id: "bubble", score, good: true };
-      if (s < 120 && t >= 58 && c <= 28) return { id: "crisis_ceo", score, good: true };
-      if (t >= 56 && c <= 28) return { id: "almost", score, good: true };
+      if (t >= 68 && s >= 128 && c <= 22) return { id: "ceo", score, good: true };
+      if (s >= 168 && t >= 52) return { id: "bubble", score, good: true };
+      if (s < 120 && t >= 50 && c <= 30) return { id: "crisis_ceo", score, good: true };
+      if (t >= 52 && c <= 30) return { id: "almost", score, good: true };
       return { id: "advisor", score, good: false };
     }
 
@@ -576,6 +592,7 @@
       };
       $("round").textContent = roundMap[sc] || "开局";
       paintHud();
+      try {
 
       if (sc === "end" || sc === "quitend") {
         const e = judge();
@@ -678,10 +695,11 @@
         beginWave();
         stage.innerHTML = '<div class="scene-kicker">二面 · 请记住我的名字</div><h2>anan 的攻击！</h2>' +
           '<div class="body">看清闪过的顺序，再按同样顺序点出来。</div>' +
-          '<div class="seq" id="seq">看清</div>' +
+          '<div class="seq" id="seq">准备</div>' +
           '<div class="grid2" id="memGrid"></div>';
         box.innerHTML = "";
-        startMemory();
+        if (state.mem.go) startMemory();
+        else { state.pay = "ready"; showPay(); }
         return;
       }
       if (sc === "sum3") {
@@ -750,6 +768,10 @@
         box.innerHTML = '<button class="go" data-act="finish" type="button">提交表决</button>';
         return;
       }
+      } finally {
+        const n = $("choices").querySelectorAll("button").length;
+        $("choices").classList.toggle("many", n > 1);
+      }
     }
 
     function showPay() {
@@ -763,8 +785,20 @@
       } else if (state.pay === "buying") {
         inner = '<h3>正在连接收银台</h3><div class="progress"><i id="bar"></i></div><div class="hint">请稍候…</div>';
       } else if (state.pay === "prank") {
-        inner = '<h3>哈哈！</h3><div class="body">其实我们这个游戏没有做付费系统，所以很遗憾，没有扣费也没有弱点，诶嘿。</div>';
-        actions = '<button class="go" data-act="prankok" type="button">知道了</button>';
+        inner = '<h3>哈哈！</h3><div class="body">其实我们这个游戏没有做付费系统，所以很遗憾，没有扣费也没有弱点，诶嘿。不过系统还是吐出了三份「档案」。点开一份看看。</div>';
+        actions = '<button class="go" data-act="prankok" type="button">打开档案</button>';
+      } else if (state.pay === "files") {
+        inner = '<h3>三份加密档案</h3><div class="body">没有扣款。选一份「弱点」阅读。反正不值百亿，但比空白好看。</div>';
+        actions = WEAK_FILES.map((f) =>
+          '<button class="choice" data-act="file" data-id="' + f.id + '" type="button">' + f.name + " 的档案</button>"
+        ).join("");
+      } else if (state.pay === "file") {
+        const f = WEAK_FILES.find((x) => x.id === state.fileRead) || WEAK_FILES[0];
+        inner = "<h3>" + f.name + " 的弱点</h3><div class=\"body\">" + f.body + "</div>";
+        actions = '<button class="go" data-act="fileok" type="button">收下这份情报</button>';
+      } else if (state.pay === "ready") {
+        inner = '<h3>anan 的攻击规则</h3><div class="body">他会连着闪三个词。看清顺序，再按同样顺序点出来。点对了会变绿；点错了这一局就乱。看完再开始。</div>';
+        actions = '<button class="go" data-act="memgo" type="button">准备好了，开始</button>';
       } else if (state.pay === "retain") {
         inner = '<h3>真的放弃吗</h3><div class="body">这可是价值百亿的情报。再想想？</div>';
         actions = '<button class="go" data-act="buynow" type="button">还是解锁</button>' +
@@ -775,7 +809,7 @@
       } else {
         ov.className = ""; ov.innerHTML = ""; return;
       }
-      ov.className = "on";
+      ov.className = "on" + (state.pay === "files" ? " many" : "");
       $("choices").style.visibility = "hidden";
       ov.innerHTML = '<div class="sheet">' + inner + (actions ? '<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">' + actions + "</div>" : "") + "</div>";
       if (state.pay === "buying") {
@@ -810,7 +844,6 @@
 
     function startDanmaku() {
       const arena = $("arena"); if (!arena) return;
-      const q = QUOTES.find((x) => x.id === state.quote) || QUOTES[0];
       state.dm = { items: [], raf: 0, t0: 0, hits: 0, miss: 0, running: true, spawn: 0 };
       const paintDm = () => {
         const el = $("dmHint");
@@ -820,16 +853,17 @@
         if (!state.dm.running || !arena.isConnected) return;
         const w = arena.clientWidth || arena.offsetWidth || 320;
         if (w < 40) return;
-        const src = DANMAKU[(Math.random() * DANMAKU.length) | 0];
-        const same = src.camp === q.id;
+        const good = Math.random() < 0.42;
+        const pool = good ? DANMAKU_GOOD : DANMAKU_BAD;
+        const text = pool[(Math.random() * pool.length) | 0];
         const el = document.createElement("button");
         el.type = "button";
-        el.className = "dm" + (same ? " trap" : "");
-        el.textContent = src.text;
+        el.className = "dm" + (good ? " trap" : "");
+        el.textContent = text;
         el.style.top = (6 + Math.random() * Math.max(24, arena.clientHeight - 48)) + "px";
         const x = Math.round(w * 0.28 + Math.random() * w * 0.36);
         el.style.left = x + "px";
-        el.dataset.beat = same ? "0" : "1";
+        el.dataset.beat = good ? "0" : "1";
         el.addEventListener("pointerdown", (ev) => { ev.preventDefault(); ev.stopPropagation(); tapDm(el); });
         arena.appendChild(el);
         state.dm.items.push({ el, x: x, spd: 0.55 + Math.random() * 0.35 });
@@ -863,8 +897,8 @@
       if (!state.dm.running || el.dataset.done) return;
       el.dataset.done = "1";
       const beat = el.dataset.beat === "1";
-      if (beat) { el.classList.add("hit"); state.dm.hits++; sfx("hit"); bumpTrust(2); bumpStock(0.8, null, true); kill(8); }
-      else { el.classList.add("miss"); state.dm.miss++; sfx("down"); bumpTrust(-2); bumpStock(-1.4, null, true); }
+      if (beat) { el.classList.add("hit"); state.dm.hits++; sfx("hit"); bumpTrust(1); bumpStock(0.8, null, true); kill(8); }
+      else { el.classList.add("miss"); state.dm.miss++; sfx("down"); bumpTrust(-1); bumpStock(-1.4, null, true); }
       paintHud();
       if (state.dm.paint) state.dm.paint();
       setTimeout(() => { if (el.parentNode) el.remove(); }, 160);
@@ -879,7 +913,7 @@
       state.dm.running = false;
       const h = state.dm.hits, m = state.dm.miss;
       settle({
-        trust: Math.min(10, h * 2) - m, stock: h * 1.2 - m * 1.6, kill: 18 + h * 4,
+        trust: Math.min(5, h) - m, stock: h * 1.2 - m * 1.6, kill: 18 + h * 4,
         news: "海选 删掉反对 " + h + " 误伤 " + m
       }, "sum1");
     }
@@ -914,7 +948,7 @@
       if (state.time.n >= 3) {
         const h = state.time.hits;
         settle({
-          trust: h * 5 - (3 - h) * 2, stock: h * 2.2 - (3 - h) * 1.8,
+          trust: h * 4 - (3 - h) * 2, stock: h * 2.2 - (3 - h) * 1.8,
           news: "初面开口 " + h + "/3", kill: h === 3 ? 12 : h >= 2 ? 8 : 4
         }, "sum2");
         return;
@@ -959,7 +993,7 @@
         if (state.mem.step >= state.mem.seq.length) {
           state.mem.lock = true;
           toast("顺序全对！");
-          setTimeout(() => settle({ trust: 12, stock: 3.4, kill: 8, news: "二面顺序全对，anan 点了头" }, "sum3"), 520);
+          setTimeout(() => settle({ trust: 8, stock: 3.4, kill: 8, news: "二面顺序全对，anan 点了头" }, "sum3"), 520);
         }
       } else {
         sfx("down");
@@ -967,7 +1001,7 @@
         if (btn) btn.classList.add("bad");
         if (seqEl) { seqEl.className = "seq bad"; seqEl.textContent = "顺序错了"; }
         toast("顺序乱了");
-        setTimeout(() => settle({ trust: -4, stock: -2.2, kill: 2, news: "二面顺序乱了，anan 把杯子放下" }, "sum3"), 560);
+        setTimeout(() => settle({ trust: -3, stock: -2.2, kill: 2, news: "二面顺序乱了，anan 把杯子放下" }, "sum3"), 560);
       }
     }
 
@@ -980,7 +1014,7 @@
       if (state.gossip.i >= GOSSIP.length) {
         const h = state.gossip.ok;
         settle({
-          trust: h * 3 - (GOSSIP.length - h) * 3, stock: (h - 2) * 1.4, kill: h >= 4 ? 10 : h >= 3 ? 6 : 2,
+          trust: h * 2 - (GOSSIP.length - h) * 2, stock: (h - 2) * 1.4, kill: h >= 4 ? 10 : h >= 3 ? 6 : 2,
           news: "职场拆谣 " + h + "/" + GOSSIP.length
         }, "sum4");
       } else render();
@@ -1051,7 +1085,7 @@
       state.boardg.running = false;
       const s = state.boardg.smash, l = state.boardg.leak;
       settle({
-        trust: Math.min(8, s) - Math.min(6, l), stock: s * 0.6, kill: s >= 6 ? 8 : 3,
+        trust: Math.min(4, Math.floor(s / 2)) - Math.min(3, l), stock: s * 0.6, kill: s >= 6 ? 8 : 3,
         news: "护盘 拍红" + s + " 漏" + l
       }, "sum5");
     }
@@ -1061,10 +1095,11 @@
       hidePay();
       Object.assign(state, {
         scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
-        rivals: START_RIVALS, waveStart: START_RIVALS, trust: 50, sentiment: 0,
+        rivals: START_RIVALS, waveStart: START_RIVALS, trust: 42, sentiment: 0, fileRead: "",
         news: "盘前等待开盘", quote: null, busy: false, pay: "idle", votes: {}, quit: false
       });
       state.gossip = { i: 0, ok: 0 };
+      state.mem = { seq: [], step: 0, phase: "show", go: false, lock: false };
       render();
     }
 
@@ -1101,17 +1136,20 @@
       if (act === "vote") {
         const id = b.dataset.id; const info = BOARD.find((x) => x.id === id);
         if (!info || info.locked || state.votes[id]) return;
-        sfx("hit"); state.votes[id] = true; bumpTrust(4); bumpStock(1.2, "说动了" + info.name); paintHud(); render();
+        sfx("hit"); state.votes[id] = true; bumpTrust(2); bumpStock(1.2, "说动了" + info.name); paintHud(); render();
         return;
       }
       if (act === "pay") {
-        if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "没有弱点"); return; }
+        if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "档案已经读过了"); return; }
         sfx("click"); state.pay = "offer"; showPay(); return;
       }
       if (act === "buynow") { sfx("click"); state.pay = "buying"; showPay(); return; }
       if (act === "nopay") { sfx("click"); state.pay = "retain"; showPay(); return; }
       if (act === "giveup") { sfx("down"); state.pay = "lost"; bumpTrust(-2); bumpStock(-2.4, "你失去了价值百亿的机会"); showPay(); return; }
-      if (act === "prankok") { state.pay = "pranked"; bumpTrust(1); toast("没有扣款"); afterPayClose(); return; }
+      if (act === "prankok") { sfx("click"); state.pay = "files"; showPay(); return; }
+      if (act === "file") { sfx("click"); state.fileRead = b.dataset.id; state.pay = "file"; showPay(); return; }
+      if (act === "fileok") { sfx("ok"); state.pay = "pranked"; bumpTrust(2); toast("情报已阅，没什么用"); afterPayClose(); return; }
+      if (act === "memgo") { sfx("click"); hidePay(); state.mem.go = true; startMemory(); return; }
       if (act === "lostok") { afterPayClose(); return; }
       if (act === "finish") {
         const n = Object.keys(state.votes).length;
@@ -1129,10 +1167,10 @@
       if (act === "vote") {
         const id = b.dataset.id; const info = BOARD.find((x) => x.id === id);
         if (!info || info.locked || state.votes[id]) return;
-        sfx("hit"); state.votes[id] = true; bumpTrust(4); bumpStock(1.2, "说动了" + info.name); render();
+        sfx("hit"); state.votes[id] = true; bumpTrust(2); bumpStock(1.2, "说动了" + info.name); render();
       }
       if (act === "pay") {
-        if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "没有弱点"); return; }
+        if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "档案已经读过了"); return; }
         sfx("click"); state.pay = "offer"; showPay();
       }
     });
@@ -1159,7 +1197,7 @@
       state.muted = !state.muted; $("muteBtn").textContent = state.muted ? "静音" : "音效"; if (!state.muted) sfx("click");
     });
     $("lockBtn").addEventListener("click", () => {
-      if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "没有弱点"); return; }
+      if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "档案已经读过了"); return; }
       sfx("click"); state.pay = "offer"; showPay();
     });
     $("overlay").addEventListener("click", (e) => {
@@ -1168,7 +1206,10 @@
       if (act === "buynow") { sfx("click"); state.pay = "buying"; showPay(); return; }
       if (act === "nopay") { sfx("click"); state.pay = "retain"; showPay(); return; }
       if (act === "giveup") { sfx("down"); state.pay = "lost"; bumpTrust(-2); bumpStock(-2.4, "你失去了价值百亿的机会"); showPay(); return; }
-      if (act === "prankok") { state.pay = "pranked"; bumpTrust(1); toast("没有扣款"); afterPayClose(); return; }
+      if (act === "prankok") { sfx("click"); state.pay = "files"; showPay(); return; }
+      if (act === "file") { sfx("click"); state.fileRead = b.dataset.id; state.pay = "file"; showPay(); return; }
+      if (act === "fileok") { sfx("ok"); state.pay = "pranked"; bumpTrust(2); toast("情报已阅，没什么用"); afterPayClose(); return; }
+      if (act === "memgo") { sfx("click"); hidePay(); state.mem.go = true; startMemory(); return; }
       if (act === "lostok") { afterPayClose(); return; }
     });
 
