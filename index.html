@@ -78,7 +78,7 @@
       image-rendering: pixelated; image-rendering: crisp-edges;
       width: 84px; height: 105px; flex: 0 0 84px;
       background: #08150b; border: 3px solid var(--nv); object-fit: fill;
-      margin-top: 26px;
+      margin-top: 4px;
     }
     .album { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
     .cell {
@@ -332,10 +332,10 @@
     ];
     const MEM_POOL = ["核芯栈", "供应", "生态", "极光芯", "交付", "开源", "硬件"];
     const BOARD = [
-      { id: "zhou", name: "周衡", ok: true },
-      { id: "lin", name: "林席", ok: true },
-      { id: "cobax", name: "cobax", ok: false, locked: true },
-      { id: "old", name: "老兵席", ok: true }
+      { id: "peekseed", name: "peekseed", ask: "请 peekseed 站过来", done: "peekseed · 已经站过来了" },
+      { id: "gpl", name: "gpl", ask: "请 gpl 点个头", done: "gpl · 已经点头了" },
+      { id: "cobax", name: "cobax", locked: true, ask: "cobax · 钞能力试试？", done: "cobax · 已失去" },
+      { id: "kwan", name: "kwan", ask: "请 kwan 算一笔账", done: "kwan · 账已经偏向你" }
     ];
     const ENDINGS = {
       quit: { title: "另谋出路", body: "你关掉投递页，去别的公司投了一份普通简历。平平无奇，海选与你无关。", souvenir: "普通简历夹", hero: "quit" },
@@ -812,7 +812,7 @@
             const voted = state.votes[b.id];
             const cls = b.locked ? "face lock" : voted ? "face on dead" : "face";
             const act = b.locked ? "pay" : "vote";
-            const label = b.locked ? (state.pay === "lost" ? b.name + " · 已失去" : b.name + " · 弱点锁") : (voted ? b.name + " · 已说动" : b.name);
+            const label = b.locked ? (state.pay === "lost" ? "cobax · 情报黄了" : b.ask) : (voted ? b.done : b.ask);
             return '<button class="' + cls + '" data-act="' + act + '" data-id="' + b.id + '" type="button">' + label + "</button>";
           }).join("") + "</div>" +
           '<div class="hint">点击完能说动的人，再提交表决。</div>';
@@ -848,7 +848,7 @@
         inner = "<h3>" + f.name + " 的弱点</h3><div class=\"body\">" + f.body + "</div>";
         actions = '<button class="go" data-act="fileok" type="button">收下这份情报</button>';
       } else if (state.pay === "ready") {
-        inner = '<h3>anan 的攻击规则</h3><div class="body">他会连着闪三个词。看清顺序，再按同样顺序点出来。点对了会变绿；点错了这一局就乱。看完再开始。</div>';
+        inner = '<h3>anan 的攻击规则</h3><div class="body">接下来anan会如同炮弹一般吐出多个词，快记住它们的顺序，再以相同的顺序点击出来。</div><div class="hint">— “招你进来是对你有一定期望的，但是你现在的表现让我们很失望” 这是anan最爱说的话之一</div>';
         actions = '<button class="go" data-act="memgo" type="button">准备好了，开始</button>';
       } else if (state.pay === "roastpick") {
         inner = '<h3>gooola 匿名锐评</h3><div class="body">不花钱。选一个对手，用键盘输出一点没有硝烟的伤害。</div>';
