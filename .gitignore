@@ -1,1 +1,3 @@
 .asteam-product.log
+data/board.json
+data/*.tmp
