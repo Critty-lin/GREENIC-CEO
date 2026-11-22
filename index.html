@@ -22,7 +22,12 @@
         linear-gradient(rgba(7,20,10,.92), rgba(7,20,10,.92)),
         repeating-linear-gradient(90deg, #0a1c0c 0 12px, #081609 12px 24px);
     }
-    button { font-family: inherit; }
+    button {
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
     #frame {
       height: 100dvh; height: 100svh; max-width: 480px; margin: 0 auto;
       display: flex; flex-direction: column;
@@ -54,7 +59,8 @@
     .news { flex: 1; min-width: 0; font-size: 11px; color: var(--nv); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mute, .lock-btn {
       flex: 0 0 auto; min-height: 32px; min-width: 44px; border: 2px solid var(--line);
-      background: #061108; color: var(--dim); font-size: 11px; padding: 4px 8px; cursor: pointer;
+      background: #061108; color: var(--dim); font-size: 12px; font-weight: 700;
+      padding: 4px 8px; cursor: pointer; text-align: center;
     }
     .lock-btn { border-color: var(--gold); color: var(--gold); }
     #stage {
@@ -76,15 +82,16 @@
     .hero.lg { width: 120px; height: 150px; flex-basis: 120px; }
     .body { font-size: 15px; line-height: 1.55; }
     .hint { margin-top: 8px; color: var(--dim); font-size: 12px; line-height: 1.5; }
-    .choice, .go {
-      appearance: none; width: 100%; text-align: left; background: var(--btn); color: var(--ink);
-      border: 3px solid var(--nv); padding: 12px; min-height: 48px; font-size: 14px; line-height: 1.4;
+    .choice, .go, .mem, .face {
+      appearance: none; width: 100%; text-align: center; background: var(--btn); color: var(--ink);
+      border: 3px solid var(--nv); padding: 12px 10px; min-height: 48px; font-size: 15px; line-height: 1.35;
       cursor: pointer; box-shadow: 3px 3px 0 #031006; overflow-wrap: anywhere; touch-action: manipulation;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
     }
-    .go { text-align: center; background: #16380c; font-size: 16px; }
+    .go { background: #16380c; }
     .ghost { background: #0a160c; border-color: var(--line); color: var(--dim); }
     .choice:active, .go:active { transform: translate(2px, 2px); }
-    .choice:focus-visible, .go:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .choice:focus-visible, .go:focus-visible, .mem:focus-visible, .face:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
     .key { display: inline-block; min-width: 18px; margin-right: 8px; color: var(--nv); font-weight: 800; }
     .floaters { pointer-events: none; position: fixed; left: 0; top: 0; right: 0; z-index: 12; }
     .floater { position: absolute; font-weight: 800; font-size: 16px; animation: rise .9s steps(8) forwards; text-shadow: 2px 2px 0 #000; }
@@ -99,6 +106,11 @@
     .chip.out { opacity: .35; text-decoration: line-through; }
     .end-line { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 2px solid var(--line); }
     .score-pop { font-size: 28px; color: var(--gold); font-weight: 800; margin: 8px 0; }
+    .badge {
+      display: inline-block; margin: 8px 0 4px; padding: 6px 10px;
+      border: 3px solid var(--gold); color: var(--gold); font-size: 13px; font-weight: 700;
+      letter-spacing: .04em;
+    }
     .apply {
       background: #0a1408; border: 3px solid #76b900; padding: 12px;
     }
@@ -132,10 +144,6 @@
     .needle { position: absolute; top: 0; bottom: 0; width: 4px; background: var(--gold); }
     .seq { font-size: 22px; text-align: center; color: var(--nv); min-height: 40px; margin: 12px 0; letter-spacing: .08em; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .mem {
-      min-height: 48px; border: 3px solid var(--nv); background: var(--btn); color: var(--ink);
-      font-size: 14px; cursor: pointer; appearance: none;
-    }
     .mem.ok { background: var(--nv); color: #08150b; animation: pop .28s steps(3); }
     .mem.bad { background: var(--down); border-color: var(--down); color: #fff; animation: pulse .3s steps(2); }
     .seq.ok { color: var(--up); }
@@ -150,8 +158,7 @@
     .cndl.bad { outline: 3px solid #fff; }
     .faces { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .face {
-      border: 3px solid var(--line); background: #10240c; padding: 10px; min-height: 64px;
-      text-align: left; color: var(--ink); cursor: pointer; font-size: 13px;
+      border-color: var(--line); background: #10240c; min-height: 64px;
     }
     .face.on { border-color: var(--nv); }
     .face.lock { border-color: var(--gold); color: var(--gold); }
@@ -210,7 +217,7 @@
         <canvas id="spark" width="108" height="36" aria-hidden="true"></canvas>
       </div>
       <div class="hud-bot">
-        <div class="stat">对手剩余<b id="rivals">9</b></div>
+        <div class="stat">对手剩余<b id="rivals">128</b></div>
         <div class="stat">董事会印象<b id="trust">50</b><div class="bar"><i id="trustBar"></i></div></div>
         <div class="stat">进度<b id="round">开局</b></div>
       </div>
@@ -291,19 +298,19 @@
     const BOARD = [
       { id: "zhou", name: "周衡", ok: true },
       { id: "lin", name: "林席", ok: true },
-      { id: "kai", name: "Kai", ok: false, locked: true },
+      { id: "cobax", name: "cobax", ok: false, locked: true },
       { id: "old", name: "老兵席", ok: true }
     ];
     const ENDINGS = {
-      quit: { title: "另谋出路", body: "你关掉投递页，去别的公司投了一份普通简历。平平无奇，海选与你无关。" },
-      ceo: { title: "你出任 CEO", body: "董事会把钥匙交给 xunxun。对手清场，股价还站得住。" },
-      crisis_ceo: { title: "临危受命", body: "股价不好看，但你是还敢把小游戏打完的人。危机交给你。" },
-      bubble: { title: "泡沫上的加冕", body: "你坐上了位子，收盘价高得吓人。" },
-      stolen: { title: "被对手截胡", body: "名单上还剩太多人。董事会说再看看。" },
-      crash: { title: "任命冻结", body: "股价先把房间清空了。" },
-      fail: { title: "印象没过线", body: "小游戏打完了，董事会对你的印象没有过线。" },
-      almost: { title: "有争议的任命", body: "你出任了，房间里一半人在看股价。" },
-      advisor: { title: "顾问席", body: "他们留了你，把 CEO 给了别人。" }
+      quit: { title: "另谋出路", body: "你关掉投递页，去别的公司投了一份普通简历。平平无奇，海选与你无关。", souvenir: "普通简历夹", hero: "quit" },
+      ceo: { title: "你出任 CEO", body: "董事会把钥匙交给 xunxun。对手清场，股价还站得住。", souvenir: "皮衣一件（已穿上）", hero: "leather" },
+      crisis_ceo: { title: "临危受命", body: "股价不好看，但你是还敢把小游戏打完的人。危机交给你。", souvenir: "救火袖标", hero: "crisis" },
+      bubble: { title: "泡沫上的加冕", body: "你坐上了位子，收盘价高得吓人。", souvenir: "泡沫皇冠", hero: "bubble" },
+      stolen: { title: "被对手截胡", body: "名单上还剩太多人。董事会说再看看。", souvenir: "「再看看」便利贴", hero: "stolen" },
+      crash: { title: "任命冻结", body: "股价先把房间清空了。", souvenir: "跌停贴纸", hero: "crash" },
+      fail: { title: "印象没过线", body: "小游戏打完了，董事会对你的印象没有过线。", souvenir: "未过线工牌", hero: "fail" },
+      almost: { title: "有争议的任命", body: "你出任了，房间里一半人在看股价。", souvenir: "一半的钥匙", hero: "almost" },
+      advisor: { title: "顾问席", body: "他们留了你，把 CEO 给了别人。", souvenir: "顾问胸针", hero: "advisor" }
     };
 
     const state = {
@@ -348,7 +355,21 @@
       }
     }
 
-    function drawHero() {
+    function drawHero(kind) {
+      kind = kind || "default";
+      const pals = {
+        default: ["#0000", "#141414", "#f0c090", "#3a2418", "#3d6a00", "#76b900"],
+        leather: ["#0000", "#141414", "#f0c090", "#3a2418", "#1a120e", "#3d2a1c"],
+        crisis: ["#0000", "#141414", "#f0c090", "#3a2418", "#5a1812", "#c44538"],
+        bubble: ["#0000", "#141414", "#f0c090", "#3a2418", "#5a4a10", "#e6c35c"],
+        stolen: ["#0000", "#141414", "#f0c090", "#3a2418", "#2a2a2a", "#7a7a7a"],
+        crash: ["#0000", "#141414", "#f0c090", "#3a2418", "#3a1512", "#ff6b57"],
+        fail: ["#0000", "#141414", "#f0c090", "#3a2418", "#2a2a20", "#8a8a70"],
+        almost: ["#0000", "#141414", "#f0c090", "#3a2418", "#3d6a00", "#e6c35c"],
+        advisor: ["#0000", "#141414", "#f0c090", "#3a2418", "#1a3030", "#6aaaa0"],
+        quit: ["#0000", "#141414", "#f0c090", "#3a2418", "#3a3a3a", "#8a8a8a"]
+      };
+      const pal = pals[kind] || pals.default;
       const c = document.createElement("canvas");
       c.width = 16; c.height = 20;
       const g = c.getContext("2d");
@@ -356,10 +377,48 @@
         for (let x = 0; x < row.length; x++) {
           const ch = row[x];
           if (ch === ".") continue;
-          g.fillStyle = HPAL[Number(ch)] || HPAL[1];
+          g.fillStyle = pal[Number(ch)] || pal[1];
           g.fillRect(x, y, 1, 1);
         }
       });
+      if (kind === "leather") {
+        g.fillStyle = "#1a120e";
+        g.fillRect(3, 8, 10, 1);
+        g.fillStyle = "#c4a070";
+        for (let y = 9; y <= 15; y++) g.fillRect(8, y, 1, 1);
+      }
+      if (kind === "bubble") {
+        g.fillStyle = "#e6c35c";
+        g.fillRect(5, 0, 6, 1);
+        g.fillRect(4, 1, 8, 1);
+        g.fillRect(6, 0, 1, 2);
+        g.fillRect(9, 0, 1, 2);
+      }
+      if (kind === "crisis") {
+        g.fillStyle = "#ff6b57";
+        g.fillRect(2, 11, 4, 2);
+      }
+      if (kind === "advisor") {
+        g.fillStyle = "#e6c35c";
+        g.fillRect(10, 12, 2, 2);
+      }
+      if (kind === "stolen") {
+        g.fillStyle = "#e6c35c";
+        g.fillRect(6, 11, 4, 3);
+      }
+      if (kind === "crash") {
+        g.fillStyle = "#ff6b57";
+        g.fillRect(7, 11, 3, 1);
+        g.fillRect(8, 12, 1, 2);
+      }
+      if (kind === "fail") {
+        g.fillStyle = "#c8c8b0";
+        g.fillRect(5, 10, 6, 3);
+      }
+      if (kind === "almost") {
+        g.fillStyle = "#e6c35c";
+        g.fillRect(5, 8, 3, 2);
+      }
       const out = document.createElement("canvas");
       out.width = 120; out.height = 150;
       const og = out.getContext("2d");
@@ -369,7 +428,12 @@
       og.drawImage(c, 0, 0, 16, 16, 12, 12, 96, 126);
       return out.toDataURL();
     }
-    const HERO_URL = drawHero();
+    const HERO_URLS = {};
+    function heroUrl(kind) {
+      kind = kind || "default";
+      if (!HERO_URLS[kind]) HERO_URLS[kind] = drawHero(kind);
+      return HERO_URLS[kind];
+    }
 
     function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
     function fmt(n) { return "$" + n.toFixed(2); }
@@ -458,8 +522,8 @@
         '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
         '<div class="end-line"><span>还剩候选人</span><b>' + state.rivals + "</b></div>";
     }
-    function heroHtml(lg) {
-      return '<img class="hero' + (lg ? " lg" : "") + '" alt="xunxun" width="120" height="150" src="' + HERO_URL + '" />';
+    function heroHtml(lg, kind) {
+      return '<img class="hero' + (lg ? " lg" : "") + '" alt="xunxun" width="120" height="150" src="' + heroUrl(kind) + '" />';
     }
     function stopLoops() {
       if (state.dm.raf) cancelAnimationFrame(state.dm.raf);
@@ -517,7 +581,8 @@
         const e = judge();
         const info = ENDINGS[e.id];
         stage.innerHTML = '<div class="scene-kicker">任命结果</div><h2>' + info.title + "</h2>" +
-          '<div class="hero-wrap">' + heroHtml() + '<div class="body">' + info.body + "</div></div>" +
+          '<div class="hero-wrap">' + heroHtml(false, info.hero) + '<div class="body">' + info.body +
+          '</div></div><div class="badge">纪念品 · ' + esc(info.souvenir) + "</div>" +
           '<div class="end-line"><span>收盘价</span><b>' + fmt(state.stock) + "</b></div>" +
           '<div class="end-line"><span>剩余对手</span><b>' + state.rivals + "</b></div>" +
           '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
@@ -692,7 +757,7 @@
       let inner = "";
       let actions = "";
       if (state.pay === "offer") {
-        inner = '<h3>Kai 的弱点已加密</h3><div class="body">限时优惠。解锁后可让一名对手直接出局，并公开他的黑料。</div>';
+        inner = '<h3>cobax 的弱点已加密</h3><div class="body">限时优惠。解锁后可让一名对手直接出局，并公开他的黑料。</div>';
         actions = '<button class="go" data-act="buynow" type="button">立即解锁 ¥128</button>' +
           '<button class="choice ghost" data-act="nopay" type="button">算了</button>';
       } else if (state.pay === "buying") {
