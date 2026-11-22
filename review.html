@@ -24,6 +24,12 @@
     .empty { color: var(--dim); padding: 20px 0; }
     h2 { font-size: 14px; color: var(--gold); margin: 18px 0 4px; }
     .devid { color: var(--dim); font-size: 11px; margin: 0 0 8px; word-break: break-all; }
+    .bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+    .bar button {
+      appearance: none; font-family: inherit; font-size: 13px; font-weight: 700;
+      min-height: 40px; padding: 8px 12px; cursor: pointer;
+      background: #16380c; color: var(--ink); border: 3px solid var(--nv);
+    }
     @media (max-width: 640px) {
       .wide { display: none; }
     }
@@ -31,7 +37,11 @@
 </head>
 <body>
   <h1>数据复盘</h1>
-  <div class="sub">所有走完结局的对局都会记在这里。同一台设备归在一组。刷新本页看最新。不会出现在玩家首页。</div>
+  <div class="sub">所有走完结局的对局都会记在这里。同一台设备归在一组。刷新本页看最新。不会出现在玩家首页。<br/>表格可用 Excel / WPS 打开。备份是完整账本，你自己存着就能维护。</div>
+  <div class="bar">
+    <button type="button" id="btnCsv">导出表格</button>
+    <button type="button" id="btnJson">导出备份</button>
+  </div>
   <div class="cards" id="cards"></div>
   <div id="table"></div>
   <script>
@@ -49,8 +59,49 @@
       rows.forEach((r) => { const k = r[key] || "—"; m[k] = (m[k] || 0) + 1; });
       return Object.keys(m).sort((a, b) => m[b] - m[a]).map((k) => k + " " + m[k]).slice(0, 6).join(" · ") || "—";
     }
+    function stamp() {
+      const d = new Date();
+      const p = (n) => (n < 10 ? "0" : "") + n;
+      return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "-" + p(d.getHours()) + p(d.getMinutes());
+    }
+    function saveFile(name, text, type) {
+      const blob = new Blob([text], { type: type || "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 800);
+    }
+    function csvCell(v) {
+      const s = String(v == null ? "" : v);
+      if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+    let cached = [];
+    document.getElementById("btnCsv").onclick = function () {
+      const head = ["设备编号", "时间", "结局", "分", "印象", "股价", "剩余对手", "淘汰", "宣言"];
+      const lines = [head.join(",")];
+      cached.forEach((r) => {
+        lines.push([
+          r.device || "unknown",
+          when(r.at),
+          r.ending || "",
+          r.score || 0,
+          r.trust || 0,
+          r.stock || 0,
+          r.rivals || 0,
+          r.beaten || 0,
+          r.quote || ""
+        ].map(csvCell).join(","));
+      });
+      saveFile("绿色芯片对局-" + stamp() + ".csv", "\ufeff" + lines.join("\n"), "text/csv;charset=utf-8");
+    };
+    document.getElementById("btnJson").onclick = function () {
+      saveFile("绿色芯片对局备份-" + stamp() + ".json", JSON.stringify(cached, null, 2), "application/json");
+    };
     fetch("/api/runs").then((r) => r.json()).then((rows) => {
       if (!Array.isArray(rows)) rows = [];
+      cached = rows;
       const n = rows.length;
       const avg = (k) => n ? (rows.reduce((s, r) => s + Number(r[k] || 0), 0) / n) : 0;
       const maxs = n ? Math.max.apply(null, rows.map((r) => Number(r.score || 0))) : 0;
