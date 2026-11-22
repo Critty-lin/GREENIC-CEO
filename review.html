@@ -22,7 +22,8 @@
     th, td { text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--line); vertical-align: top; }
     th { color: var(--gold); font-weight: 700; }
     .empty { color: var(--dim); padding: 20px 0; }
-    h2 { font-size: 14px; color: var(--gold); margin: 18px 0 8px; }
+    h2 { font-size: 14px; color: var(--gold); margin: 18px 0 4px; }
+    .devid { color: var(--dim); font-size: 11px; margin: 0 0 8px; word-break: break-all; }
     @media (max-width: 640px) {
       .wide { display: none; }
     }
@@ -74,8 +75,9 @@
         return;
       }
       function shortDev(d) {
-        if (!d || d === "unknown") return "未知设备";
-        return "设备 " + d.slice(-6);
+        if (!d || d === "unknown") return { label: "未知设备", full: "", note: "这批对局记在加上编号之前，没法再拆开" };
+        if (d.length <= 10) return { label: "设备 " + d, full: d, note: "编号 " + d };
+        return { label: "设备 " + d.slice(0, 4) + "…" + d.slice(-4), full: d, note: "编号 " + d };
       }
       const ordered = devices.sort((a, b) => {
         const ta = Math.max.apply(null, groups[a].map((r) => r.at || 0));
@@ -96,7 +98,9 @@
       document.getElementById("table").innerHTML = dist + ordered.map((d) => {
         const list = groups[d];
         const best = Math.max.apply(null, list.map((r) => Number(r.score || 0)));
-        return "<h2>" + esc(shortDev(d)) + " · " + list.length + " 局 · 最好 " + best + "</h2>" + tableFor(list);
+        const info = shortDev(d);
+        return "<h2 title=\"" + esc(info.full || info.label) + "\">" + esc(info.label) + " · " + list.length + " 局 · 最好 " + best +
+          "</h2><div class=\"devid\">" + esc(info.note) + "</div>" + tableFor(list);
       }).join("");
     }).catch(() => {
       document.getElementById("table").innerHTML = '<div class="empty">数据暂时读不到。</div>';

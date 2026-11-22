@@ -502,8 +502,10 @@
     function deviceId() {
       try {
         let id = localStorage.getItem("advn-device");
-        if (!id) {
-          id = "d" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+        if (!id || id === "unknown") {
+          const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+          id = "";
+          for (let i = 0; i < 8; i++) id += chars[(Math.random() * chars.length) | 0];
           localStorage.setItem("advn-device", id);
         }
         return id;
