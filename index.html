@@ -134,8 +134,20 @@
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .mem {
       min-height: 48px; border: 3px solid var(--nv); background: var(--btn); color: var(--ink);
-      font-size: 14px; cursor: pointer;
+      font-size: 14px; cursor: pointer; appearance: none;
     }
+    .mem.ok { background: var(--nv); color: #08150b; animation: pop .28s steps(3); }
+    .mem.bad { background: var(--down); border-color: var(--down); color: #fff; animation: pulse .3s steps(2); }
+    .seq.ok { color: var(--up); }
+    .seq.bad { color: var(--down); }
+    .fx {
+      position: absolute; font-weight: 800; font-size: 14px; pointer-events: none;
+      animation: rise .65s steps(6) forwards; text-shadow: 2px 2px 0 #000; z-index: 3;
+    }
+    .fx.up { color: var(--up); }
+    .fx.down { color: var(--down); }
+    .cndl.ok { outline: 3px solid var(--up); }
+    .cndl.bad { outline: 3px solid #fff; }
     .faces { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .face {
       border: 3px solid var(--line); background: #10240c; padding: 10px; min-height: 64px;
@@ -643,7 +655,8 @@
         beginWave();
         stage.innerHTML = '<div class="scene-kicker">董事会 · 护盘</div><h2>护盘高手</h2>' +
           '<div class="body">红的砸下来就点掉，护住股价。绿的是买盘，别乱拍。</div>' +
-          '<div class="candles" id="candles"></div>';
+          '<div class="candles" id="candles"></div>' +
+          '<div class="hint" id="defHint">拍红 0　误点绿 0</div>';
         box.innerHTML = "";
         startDefend();
         return;
@@ -747,7 +760,7 @@
         const el = document.createElement("button");
         el.type = "button";
         el.className = "dm" + (same ? " trap" : "");
-        el.textContent = (same ? "粉：" : "删：") + src.text;
+        el.textContent = src.text;
         el.style.top = (6 + Math.random() * Math.max(24, arena.clientHeight - 48)) + "px";
         const x = Math.round(w * 0.28 + Math.random() * w * 0.36);
         el.style.left = x + "px";
@@ -848,7 +861,7 @@
       const pool = MEM_POOL.slice();
       const seq = [];
       for (let i = 0; i < 3; i++) seq.push(pool.splice((Math.random() * pool.length) | 0, 1)[0]);
-      state.mem = { seq, step: 0, phase: "show" };
+      state.mem = { seq, step: 0, phase: "show", lock: false };
       const seqEl = $("seq"), grid = $("memGrid");
       let i = 0;
       const show = () => {
@@ -869,16 +882,27 @@
       setTimeout(show, 400);
     }
     function tapMem(w) {
-      if (state.mem.phase !== "tap") return;
+      if (state.mem.phase !== "tap" || state.mem.lock) return;
       const need = state.mem.seq[state.mem.step];
+      const btn = document.querySelector('.mem[data-w="' + w + '"]');
+      const seqEl = $("seq");
       if (w === need) {
-        sfx("hit"); state.mem.step += 1;
+        sfx("hit");
+        state.mem.step += 1;
+        if (btn) { btn.classList.add("ok"); btn.disabled = true; }
+        if (seqEl) { seqEl.className = "seq ok"; seqEl.textContent = "对了 " + state.mem.step + " / " + state.mem.seq.length; }
         if (state.mem.step >= state.mem.seq.length) {
-          settle({ trust: 12, stock: 3.4, kill: 8, news: "二面顺序全对，anan 点了头" }, "sum3");
+          state.mem.lock = true;
+          toast("顺序全对！");
+          setTimeout(() => settle({ trust: 12, stock: 3.4, kill: 8, news: "二面顺序全对，anan 点了头" }, "sum3"), 520);
         }
       } else {
         sfx("down");
-        settle({ trust: -4, stock: -2.2, kill: 2, news: "二面顺序乱了，anan 把杯子放下" }, "sum3");
+        state.mem.lock = true;
+        if (btn) btn.classList.add("bad");
+        if (seqEl) { seqEl.className = "seq bad"; seqEl.textContent = "顺序错了"; }
+        toast("顺序乱了");
+        setTimeout(() => settle({ trust: -4, stock: -2.2, kill: 2, news: "二面顺序乱了，anan 把杯子放下" }, "sum3"), 560);
       }
     }
 
@@ -908,12 +932,26 @@
         el.style.left = (8 + Math.random() * 78) + "%";
         el.style.top = "-30px";
         el.style.height = (18 + Math.random() * 28) + "px";
-        el.addEventListener("click", (ev) => {
-          ev.stopPropagation();
-          if (!state.boardg.running) return;
-          if (red) { state.boardg.smash++; sfx("hit"); bumpStock(1.1, null, true); }
-          else { state.boardg.leak++; sfx("down"); bumpStock(-1.6, null, true); }
-          paintHud(); el.remove();
+        el.addEventListener("pointerdown", (ev) => {
+          ev.preventDefault(); ev.stopPropagation();
+          if (!state.boardg.running || el.dataset.done) return;
+          el.dataset.done = "1";
+          const boxEl = $("candles");
+          const r = el.getBoundingClientRect();
+          const br = boxEl ? boxEl.getBoundingClientRect() : r;
+          const fx = document.createElement("div");
+          fx.className = "fx " + (red ? "up" : "down");
+          fx.textContent = red ? "护住了" : "别点绿的";
+          fx.style.left = (r.left - br.left) + "px";
+          fx.style.top = (r.top - br.top) + "px";
+          if (boxEl) boxEl.appendChild(fx);
+          setTimeout(() => fx.remove(), 650);
+          if (red) { el.classList.add("ok"); state.boardg.smash++; sfx("hit"); bumpStock(1.1, null, true); }
+          else { el.classList.add("bad"); state.boardg.leak++; sfx("down"); bumpStock(-1.6, null, true); }
+          const hint = $("defHint");
+          if (hint) hint.textContent = "拍红 " + state.boardg.smash + "　误点绿 " + state.boardg.leak;
+          paintHud();
+          setTimeout(() => { if (el.parentNode) el.remove(); }, 120);
         });
         box.appendChild(el);
         state.boardg.items.push({ el, y: -30, spd: 1.4 + Math.random(), red });
@@ -923,10 +961,17 @@
         if (now - state.boardg.spawn > 480) { state.boardg.spawn = now; spawn(); }
         const h = box.clientHeight;
         state.boardg.items = state.boardg.items.filter((it) => {
+          if (it.el.dataset.done) return false;
           it.y += it.spd * 1.8;
           it.el.style.top = it.y + "px";
           if (it.y > h) {
-            if (it.red) { state.boardg.leak++; bumpStock(-1.2, null, true); paintHud(); }
+            if (it.red) {
+              state.boardg.leak++;
+              bumpStock(-1.2, null, true);
+              paintHud();
+              const hint = $("defHint");
+              if (hint) hint.textContent = "拍红 " + state.boardg.smash + "　漏掉红 " + state.boardg.leak;
+            }
             it.el.remove(); return false;
           }
           return true;
