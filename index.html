@@ -218,7 +218,7 @@
     const $ = (id) => document.getElementById(id);
     const OPEN = 138.4;
     const START_RIVALS = 128;
-    const RIVAL_BLURB = "内部派 Lisa、华尔街空降 Kai、学术派林博、硬件狂人 Rex、公关天才 Nova、成本杀手钱总、云厂商说客 Cloud，以及一百多名海选选手";
+    const RIVAL_BLURB = "内部派 peekseed、华尔街空降 cobax、学术派 gpl、硬件狂人 caloud、公关天才 mini、成本杀手 kwan、云厂商说客 bork，以及一百多名海选选手";
     const HERO = [
       "....111111......",
       "...11111111.....",
@@ -245,23 +245,23 @@
 
     const QUOTES = [
       { id: "story", text: "我对绿色芯片的爱，仅次于我对皮衣的爱" },
-      { id: "tech", text: "请把核芯栈优化实录，视为我的人格证明" },
-      { id: "ambition", text: "我不是来面试的。我是来上任的。" }
+      { id: "tech", text: "核芯栈优化实录，这是我的人格证明" },
+      { id: "ambition", text: "竞选CEO，你们才是挑战者" }
     ];
     const DANMAKU = [
-      { text: "请支持 xun喵", camp: "story" },
+      { text: "请支持 xunxun", camp: "story" },
       { text: "皮衣即战力，神人请先走", camp: "story" },
       { text: "他不是来海选的，他是来报到的", camp: "ambition" },
       { text: "核芯栈不会骗人", camp: "tech" },
       { text: "优化实录比口号干净", camp: "tech" },
       { text: "请把芯片留给会写内核的人", camp: "tech" },
       { text: "位子空着就是给他的", camp: "ambition" },
-      { text: "CEO 两个字他练过", camp: "ambition" },
+      { text: "CEO 三个字他练过", camp: "ambition" },
       { text: "故事讲赢了，盘自己会涨", camp: "story" },
       { text: "xunxun 只会穿皮衣不会看财报", camp: "tech" },
       { text: "zhaozhao：这届我一个都不招", camp: "ambition" },
       { text: "anan：你还没准备好被挑战", camp: "ambition" },
-      { text: "Lisa：内部的人才能碰芯片", camp: "tech" },
+      { text: "Peekseed：内部的人才能碰芯片", camp: "tech" },
       { text: "gooola 搜不到他的业绩", camp: "story" },
       { text: "皮衣不能当护城河", camp: "story" },
       { text: "董事会要纪律，不要梦想", camp: "tech" },
@@ -269,13 +269,13 @@
       { text: "海选水分比芯片还大", camp: "tech" }
     ];
     const GOSSIP = [
-      { t: "Lisa 说 Kai 在买董事，发票还没贴完", catch: true },
-      { t: "有人夸你皮衣和简历一样整齐", catch: false },
-      { t: "匿名在群里散你是空降的谣", catch: true },
-      { t: "咖啡洒了，纯意外，不是 PUA", catch: false },
-      { t: "Rex 说你不懂硬件，只懂皮衣", catch: true }
+      { t: "peekseed 说 cobax 在买董事，发票还没贴完", catch: true },
+      { t: "有人说你的皮衣和简历一样神秘", catch: false },
+      { t: "匿名在群里传播你是空降", catch: true },
+      { t: "有人撞到了你，咖啡洒了，但那只是个意外", catch: false },
+      { t: "Caloud 说你不懂硬件，只懂皮衣", catch: true }
     ];
-    const MEM_POOL = ["核芯栈", "供应", "生态", "极光芯", "交付", "开源"];
+    const MEM_POOL = ["核芯栈", "供应", "生态", "极光芯", "交付", "开源", "硬件"];
     const BOARD = [
       { id: "zhou", name: "周衡", ok: true },
       { id: "lin", name: "林席", ok: true },
@@ -518,21 +518,21 @@
 
       if (sc === "title") {
         stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>绿色芯片CEO竞选计</h1>' +
-          '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神人。近期由于一些众人皆知的原因，万众瞩目的绿色芯片公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
-        box.innerHTML = '<button class="go" data-act="intel" type="button">投递简历</button>';
+          '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神秘人士。近期由于一些众人皆知的原因，万众瞩目的绿色芯片公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
+        box.innerHTML = '<button class="go" data-act="intel" type="button">我要竞选CEO！</button>';
         return;
       }
       if (sc === "intel") {
         stage.innerHTML = '<div class="scene-kicker">gooola 调研</div><h2>没有硝烟的斗争</h2>' +
           '<div class="hero-wrap">' + heroHtml() + '<div class="body">你依据 gooola 搜索，充分地调研了自己的竞争对手，发现他们包含' + RIVAL_BLURB + '。你深知他们都是可敬的对手，看来这是一场没有硝烟的实际斗争！</div></div>';
-        box.innerHTML = '<button class="go" data-act="goapply" type="button"><span class="key">1</span>迎难而上，皮衣已备好</button>' +
+        box.innerHTML = '<button class="go" data-act="goapply" type="button"><span class="key">1</span>迎难而上，花落谁家拭目以待</button>' +
           '<button class="choice" data-act="buyweak" type="button"><span class="key">2</span>花钱买对手的弱点（限时）</button>' +
-          '<button class="choice ghost" data-act="quit" type="button"><span class="key">3</span>放弃机会，去别的公司</button>';
+          '<button class="choice ghost" data-act="quit" type="button"><span class="key">3</span>放弃机会，我终究还是做不到</button>';
         return;
       }
       if (sc === "apply") {
         stage.innerHTML = '<div class="apply"><div class="brand">ADVN CAREERS</div>' +
-          '<div class="hero-wrap">' + heroHtml() + '<div><div class="job">首席执行官</div>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div><div class="job">首席执行官·CEO</div>' +
           '<div class="meta">总部 · 海选进行中<br/>申请人 xunxun<br/>状态：待提交</div></div></div></div>';
         box.innerHTML = '<button class="go" data-act="send" type="button">提交申请，正式搅局</button>';
         return;
@@ -548,7 +548,7 @@
       }
       if (sc === "quote") {
         stage.innerHTML = '<div class="scene-kicker">海选</div><h2>请选择你的英雄</h2>' +
-          '<div class="hero-wrap">' + heroHtml() + '<div class="body">海选场里，言语就是武器！不好的言论你会删。你需要选择最适合自己的宣言，来干掉屏幕上反对的声音。加油吧梦想者，但也请小心，如果不小心误杀了支持者的言论，你会得到更少的分值。</div></div>';
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">海选场里，言语就是武器！不好的言论你会删。你需要选择最适合自己的宣言，来干掉屏幕上反对的声音。加油吧逐梦者，但也请小心，如果不小心误杀了支持者的言论，你会得到更少的分值。</div></div>';
         box.innerHTML = QUOTES.map((q, i) =>
           '<button class="choice" data-act="quote" data-id="' + q.id + '" type="button"><span class="key">' + (i + 1) + "</span>" + q.text + "</button>"
         ).join("");
@@ -557,7 +557,7 @@
       if (sc === "danmaku") {
         beginWave();
         stage.innerHTML = '<div class="scene-kicker">海选</div><h2>不好的言论我会删</h2>' +
-          '<div class="quote-bar">请支持 xun喵　·　红框是反对，绿框是自己人</div>' +
+          '<div class="quote-bar">请支持 xunxun　·　红框是反对，绿框是自己人</div>' +
           '<div class="arena" id="arena"></div>' +
           '<div class="hint" id="dmHint">点红框删掉反对的声音。绿框是支持者，点到会扣分。</div>';
         box.innerHTML = '<button class="go ghost" data-act="skipdm" type="button">先这样，进入结算</button>';
@@ -570,8 +570,8 @@
         return;
       }
       if (sc === "intro1") {
-        stage.innerHTML = '<div class="scene-kicker">一面引入</div><h2>真实的战场</h2>' +
-          '<div class="hero-wrap">' + heroHtml() + '<div class="body">经历一轮激烈的海选，你成功干掉了所有反对你的言论，你获得了无与伦比的自由的自信。接下来，你要走进真实的战场，这是残酷的淘汰。你将进入第一轮业务面试，直面人送外号「招不招」的绝世 mean 人 zhaozhao。</div></div>';
+        stage.innerHTML = '<div class="scene-kicker">一面导入</div><h2>真实的战场</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">经历一轮激烈的海选，你成功干掉了所有反对你的言论，你获得了无与伦比的自由的自信。接下来，你要走进真实的战场，这是残酷的淘汰。你将进入第一轮业务面试，直面人送外号「你招不招」的绝世 mean 人 zhaozhao。</div></div>';
         box.innerHTML = '<button class="go" data-act="to" data-next="hr" type="button">走进一面</button>';
         return;
       }
@@ -586,19 +586,20 @@
         return;
       }
       if (sc === "sum2") {
-        stage.innerHTML = recapHtml("一面结算", "zhaozhao 的围追堵截过去了。你还站着，分值还在跳。");
+        stage.innerHTML = recapHtml("一面结算", "zhaozhao 的围追堵截终于过去了。但你依旧屹立不倒，CEO的苗子冉冉升起！");
         box.innerHTML = '<button class="go" data-act="to" data-next="intro2" type="button">继续</button>';
         return;
       }
       if (sc === "intro2") {
-        stage.innerHTML = '<div class="scene-kicker">二面引入</div><h2>pua 高手 anan</h2>' +
-          '<div class="hero-wrap">' + heroHtml() + '<div class="body">你险而又险地避开了 zhaozhao 对你的围追堵截，真是不容小觑的对手！你一脸严肃地抹去脸上的汗水，全新地投入了二面。此时你需要面对的，是江湖中无人不知无人不晓的 pua 高手 anan。这局要如何应对呢，围观的群众都不由得为你捏了一把冷汗，但只有你知道，你已经做好了一切准备！</div></div>';
+        stage.innerHTML = '<div class="scene-kicker">二面导入</div><h2>pua 高手 anan</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">你险而又险地避开了 zhaozhao 对你的围追堵截，真是不容小觑的对手！你一脸严肃地抹去脸上的汗水，全新地投入了二面。此时你需要面对的，是江湖中无人不知无人不晓的 pua 高手 anan。这局要如何应对呢，围观的群众都不由得为你捏了一把冷汗，但只有你知道，你已经做好了一切准备！</div></div>' +
+          '<div class="hint">快记住接下来出现的文字顺序</div>';
         box.innerHTML = '<button class="go" data-act="to" data-next="tech" type="button">开始二面</button>';
         return;
       }
       if (sc === "tech") {
         beginWave();
-        stage.innerHTML = '<div class="scene-kicker">二面 · 记顺序</div><h2>anan 甩出一串词</h2>' +
+        stage.innerHTML = '<div class="scene-kicker">二面 · 请记住我的名字</div><h2>anan 的攻击！</h2>' +
           '<div class="body">看清闪过的顺序，再按同样顺序点出来。</div>' +
           '<div class="seq" id="seq">看清</div>' +
           '<div class="grid2" id="memGrid"></div>';
@@ -607,12 +608,12 @@
         return;
       }
       if (sc === "sum3") {
-        stage.innerHTML = recapHtml("二面结算", "anan 的词闪过去了。谣言场还在后面等你。");
+        stage.innerHTML = recapHtml("二面结算", "anan 的词宛如枪炮，但你不会认输，因为你清晰地知道自己就是那个独一无二的人！但真正的挑战还在后面，公司里的流言渐起。");
         box.innerHTML = '<button class="go" data-act="to" data-next="intro3" type="button">继续</button>';
         return;
       }
       if (sc === "intro3") {
-        stage.innerHTML = '<div class="scene-kicker">职场引入</div><h2>谣言开始缓解</h2>' +
+        stage.innerHTML = '<div class="scene-kicker">职场导入</div><h2>怎么还有一关</h2>' +
           '<div class="hero-wrap">' + heroHtml() + '<div class="body">二面的冷汗还没干，走廊里已经开始传话。有人夸你，有人挖你。下一局你要判断哪句是谣，哪句只是闲聊。拆错了会伤自己，放过真谣会让对手活得更久。</div></div>';
         box.innerHTML = '<button class="go" data-act="to" data-next="campus" type="button">开始拆谣</button>';
         return;
@@ -620,27 +621,27 @@
       if (sc === "campus") {
         if (state.gossip.i === 0) beginWave();
         const g = GOSSIP[state.gossip.i];
-        stage.innerHTML = '<div class="scene-kicker">职场 · 拆谣</div><h2>这句话要不要拆</h2>' +
+        stage.innerHTML = '<div class="scene-kicker">职场 · 一斤鸭梨！</div><h2>你说气话我不信</h2>' +
           '<div class="hero-wrap">' + heroHtml() + '<div class="body">' + esc(g.t) + "</div></div>" +
-          '<div class="hint">第 ' + (state.gossip.i + 1) + " / " + GOSSIP.length + " 句。谣言就拆，闲聊就放。</div>";
+          '<div class="hint">第 ' + (state.gossip.i + 1) + " / " + GOSSIP.length + " 句。如果是谣言就拆穿它们，如果是真相就放过他们。</div>";
         box.innerHTML = '<button class="go" data-act="catch" type="button"><span class="key">1</span>拆穿</button>' +
           '<button class="choice" data-act="pass" type="button"><span class="key">2</span>放过</button>';
         return;
       }
       if (sc === "sum4") {
-        stage.innerHTML = recapHtml("职场结算", "谣言这一波过去了。董事会的红蜡烛还在往下掉。");
+        stage.innerHTML = recapHtml("职场结算", "是谁敢说xunxun的谣言。你真是痛心疾首，世界针对我，任凭奚落。但是接下来是一场更大的战争，你将要站在董事会的面前，说出你的宣言！");
         box.innerHTML = '<button class="go" data-act="to" data-next="intro4" type="button">继续</button>';
         return;
       }
       if (sc === "intro4") {
-        stage.innerHTML = '<div class="scene-kicker">董事会引入</div><h2>护住盘</h2>' +
-          '<div class="hero-wrap">' + heroHtml() + '<div class="body">谣言场走完，你被叫进没有窗户的会议室。绿色芯片的盘在跳，红蜡烛往下砸。拍掉红的，护住现价。绿的是买盘，别乱拍。</div></div>';
+        stage.innerHTML = '<div class="scene-kicker">董事会导入</div><h2>护住盘</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">董事会的房间四面不透光，在这里你得知了一个惊人的秘密，那就是绿色芯片的股价惊人一直在跌，这不允许！你是来当CEO的，不是来当接盘侠的。接下来，请点走红盘，留下绿盘，加油你能做到。</div></div>';
         box.innerHTML = '<button class="go" data-act="to" data-next="defend" type="button">开始护盘</button>';
         return;
       }
       if (sc === "defend") {
         beginWave();
-        stage.innerHTML = '<div class="scene-kicker">董事会 · 护盘</div><h2>拍掉红蜡烛</h2>' +
+        stage.innerHTML = '<div class="scene-kicker">董事会 · 护盘</div><h2>护盘高手</h2>' +
           '<div class="body">红的砸下来就点掉，护住股价。绿的是买盘，别乱拍。</div>' +
           '<div class="candles" id="candles"></div>';
         box.innerHTML = "";
@@ -648,18 +649,18 @@
         return;
       }
       if (sc === "sum5") {
-        stage.innerHTML = recapHtml("董事会结算", "盘护住了一截。最后一关是拉票。");
+        stage.innerHTML = recapHtml("董事会结算", "盘护住了一截，你终于安下心来，终于，你干掉了无数的对手，走到了这里，真是不容易啊。");
         box.innerHTML = '<button class="go" data-act="to" data-next="intro5" type="button">继续</button>';
         return;
       }
       if (sc === "intro5") {
-        stage.innerHTML = '<div class="scene-kicker">终局引入</div><h2>最后的座位</h2>' +
-          '<div class="hero-wrap">' + heroHtml() + '<div class="body">护盘结束。剩下能说动的人坐在对面。点能说动的席，再提交表决。有一枚弱点看起来能买，点了就知道。</div></div>';
+        stage.innerHTML = '<div class="scene-kicker">终局导入</div><h2>最后的座位</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">护盘结束。剩下能说动的人坐在对面。点能说动的人们，再提交表决。说不定可以试一试钞能力，看起来有人的弱点是可以买的呢</div></div>';
         box.innerHTML = '<button class="go" data-act="to" data-next="vote" type="button">开始拉票</button>';
         return;
       }
       if (sc === "vote") {
-        stage.innerHTML = '<div class="scene-kicker">终局 · 拉票</div><h2>点能说动的人</h2>' +
+        stage.innerHTML = '<div class="scene-kicker">终局 · 拉票</div><h2>拉票的大手</h2>' +
           '<div class="faces">' + BOARD.map((b) => {
             const voted = state.votes[b.id];
             const cls = b.locked ? "face lock" : voted ? "face on dead" : "face";
@@ -667,7 +668,7 @@
             const label = b.locked ? (state.pay === "lost" ? b.name + " · 已失去" : b.name + " · 弱点锁") : (voted ? b.name + " · 已说动" : b.name);
             return '<button class="' + cls + '" data-act="' + act + '" data-id="' + b.id + '" type="button">' + label + "</button>";
           }).join("") + "</div>" +
-          '<div class="hint">有一张是糊弄人的付费锁。点完能说动的人，再提交表决。</div>';
+          '<div class="hint">点击完能说动的人，再提交表决。</div>';
         box.innerHTML = '<button class="go" data-act="finish" type="button">提交表决</button>';
         return;
       }
@@ -684,14 +685,14 @@
       } else if (state.pay === "buying") {
         inner = '<h3>正在连接收银台</h3><div class="progress"><i id="bar"></i></div><div class="hint">请稍候…</div>';
       } else if (state.pay === "prank") {
-        inner = '<h3>你被耍了</h3><div class="body">没有扣款，也没有弱点。董事会只记下：你愿意为情报掏钱。</div>';
+        inner = '<h3>哈哈！</h3><div class="body">其实我们这个游戏没有做付费系统，所以很遗憾，没有扣费也没有弱点，诶嘿。</div>';
         actions = '<button class="go" data-act="prankok" type="button">知道了</button>';
       } else if (state.pay === "retain") {
         inner = '<h3>真的放弃吗</h3><div class="body">这可是价值百亿的情报。再想想？</div>';
         actions = '<button class="go" data-act="buynow" type="button">还是解锁</button>' +
           '<button class="choice ghost" data-act="giveup" type="button">确认放弃</button>';
       } else if (state.pay === "lost") {
-        inner = '<h3>你失去了价值百亿的机会！</h3><div class="body">门关上了。Kai 还坐在房间里，只是你点不开了。</div>';
+        inner = '<h3>你失去了价值百亿的机会！</h3><div class="body">门关上了。对手们还坐在房间里，而你依旧做好了应做的一切。</div>';
         actions = '<button class="go" data-act="lostok" type="button">知道了</button>';
       } else {
         ov.className = ""; ov.innerHTML = ""; return;
@@ -856,7 +857,7 @@
           seqEl.textContent = "按顺序点";
           state.mem.phase = "tap";
           const opts = seq.slice();
-          MEM_POOL.forEach((w) => { if (opts.indexOf(w) < 0 && opts.length < 4) opts.push(w); });
+          MEM_POOL.forEach((w) => { if (opts.indexOf(w) < 0 && opts.length < 6) opts.push(w); });
           opts.sort(() => Math.random() - 0.5);
           grid.innerHTML = opts.map((w) => '<button class="mem" data-act="mem" data-w="' + w + '" type="button">' + w + "</button>").join("");
           return;
