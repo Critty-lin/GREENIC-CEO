@@ -78,7 +78,20 @@
       image-rendering: pixelated; image-rendering: crisp-edges;
       width: 84px; height: 105px; flex: 0 0 84px;
       background: #08150b; border: 3px solid var(--nv); object-fit: fill;
+      margin-top: 26px;
     }
+    .album { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .cell {
+      border: 3px solid var(--line); background: #08150b; padding: 8px 6px 10px;
+      text-align: center; min-height: 148px;
+    }
+    .cell img {
+      width: 84px; height: 105px; image-rendering: pixelated; border: 3px solid var(--nv);
+      margin: 0 auto 6px; display: block; background: #061108;
+    }
+    .cell.lock { opacity: .38; filter: grayscale(1); }
+    .cell b { display: block; font-size: 12px; color: var(--gold); }
+    .cell span { display: block; font-size: 11px; color: var(--dim); margin-top: 4px; }
     .body { font-size: 15px; line-height: 1.55; }
     .hint { margin-top: 8px; color: var(--dim); font-size: 12px; line-height: 1.5; }
     .choice, .go, .mem, .face {
@@ -303,6 +316,13 @@
       { id: "peekseed", name: "peekseed", body: "内部黑话写在手心，开会要低头看。很内部，也很累。" },
       { id: "caloud", name: "caloud", body: "只怕有人比他更懂皮衣。你已经赢了一半。" }
     ];
+    const ROASTS = [
+      { id: "peekseed", name: "peekseed", body: "匿名锐评：内部派的内部，是把手心当黑板。gooola 已收录。" },
+      { id: "cobax", name: "cobax", body: "匿名锐评：空降很准时，准时地错过每一个细节。" },
+      { id: "caloud", name: "caloud", body: "匿名锐评：硬件很硬，皮衣更硬。他怕的其实是衣服。" }
+    ];
+    const ALBUM_KEY = "advn-endings";
+    const BEST_KEY = "advn-best";
     const GOSSIP = [
       { t: "peekseed 说 cobax 在买董事，发票还没贴完", catch: true },
       { t: "有人说你的皮衣和简历一样神秘", catch: false },
@@ -328,6 +348,7 @@
       almost: { title: "有争议的任命", body: "你出任了，房间里一半人在看股价。", souvenir: "一半的钥匙", hero: "almost" },
       advisor: { title: "顾问席", body: "他们留了你，把 CEO 给了别人。", souvenir: "顾问胸针", hero: "advisor" }
     };
+    const END_ORDER = ["ceo", "crisis_ceo", "bubble", "almost", "advisor", "stolen", "crash", "fail", "quit"];
 
     const state = {
       scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
@@ -457,6 +478,19 @@
     function liveScore() {
       return Math.round(state.trust * 12 + Math.max(0, state.stock - 90) * 2.2 + (START_RIVALS - state.rivals) * 2);
     }
+    function loadAlbum() {
+      try { return JSON.parse(localStorage.getItem(ALBUM_KEY) || "{}"); } catch (_) { return {}; }
+    }
+    function saveAlbum(id) {
+      const a = loadAlbum(); a[id] = true;
+      try { localStorage.setItem(ALBUM_KEY, JSON.stringify(a)); } catch (_) {}
+    }
+    function bestScore() {
+      try { return Number(localStorage.getItem(BEST_KEY) || 0) || 0; } catch (_) { return 0; }
+    }
+    function saveBest(n) {
+      if (n > bestScore()) try { localStorage.setItem(BEST_KEY, String(n)); } catch (_) {}
+    }
     function beginWave() { state.waveStart = state.rivals; }
 
     function drawSpark() {
@@ -583,7 +617,7 @@
       const stage = $("stage"), box = $("choices");
       const sc = state.scene;
       const roundMap = {
-        title: "开局", intel: "调研", apply: "投递", sending: "筛选",
+        title: "开局", album: "图鉴", intel: "调研", apply: "投递", sending: "筛选",
         quote: "海选", danmaku: "海选", sum1: "结算", intro1: "一面",
         hr: "初面", sum2: "结算", intro2: "二面", tech: "二面",
         sum3: "结算", intro3: "职场", campus: "职场",
@@ -597,6 +631,7 @@
       if (sc === "end" || sc === "quitend") {
         const e = judge();
         const info = ENDINGS[e.id];
+        saveAlbum(e.id); saveBest(e.score);
         stage.innerHTML = '<div class="scene-kicker">任命结果</div><h2>' + info.title + "</h2>" +
           '<div class="hero-wrap">' + heroHtml(false, info.hero) + '<div class="body">' + info.body +
           '</div></div><div class="badge">纪念品 · ' + esc(info.souvenir) + "</div>" +
@@ -613,14 +648,30 @@
       if (sc === "title") {
         stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>绿色芯片CEO竞选计</h1>' +
           '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神秘人士。近期由于一些众人皆知的原因，万众瞩目的绿色芯片公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
-        box.innerHTML = '<button class="go" data-act="intel" type="button">我要竞选CEO！</button>';
+        box.innerHTML = '<button class="go" data-act="intel" type="button">我要竞选CEO！</button>' +
+          '<button class="choice ghost" data-act="album" type="button">结局陈列室</button>' +
+          (bestScore() ? '<div class="hint">本机最高分 ' + bestScore() + "</div>" : "");
+        return;
+      }
+      if (sc === "album") {
+        const got = loadAlbum();
+        const n = END_ORDER.filter((id) => got[id]).length;
+        stage.innerHTML = '<div class="scene-kicker">COLLECT</div><h2>结局陈列室</h2>' +
+          '<div class="body">已收集 ' + n + " / " + END_ORDER.length + "。每通一种结局，这里会留下当时的 xunxun 和纪念品。</div>" +
+          '<div class="album">' + END_ORDER.map((id) => {
+            const info = ENDINGS[id];
+            const on = !!got[id];
+            return '<div class="cell' + (on ? "" : " lock") + '"><img alt="" width="84" height="105" src="' + heroUrl(on ? info.hero : "default") + '" /><b>' +
+              (on ? info.title : "未收集") + "</b><span>" + (on ? info.souvenir : "再竞选一次才看得到") + "</span></div>";
+          }).join("") + "</div>";
+        box.innerHTML = '<button class="go" data-act="home" type="button">返回首页</button>';
         return;
       }
       if (sc === "intel") {
         stage.innerHTML = '<div class="scene-kicker">gooola 调研</div><h2>没有硝烟的斗争</h2>' +
           '<div class="hero-wrap">' + heroHtml() + '<div class="body">你依据 gooola 搜索，充分地调研了自己的竞争对手，发现他们包含' + RIVAL_BLURB + '。你深知他们都是可敬的对手，看来这是一场没有硝烟的实际斗争！</div></div>';
         box.innerHTML = '<button class="go" data-act="goapply" type="button"><span class="key">1</span>迎难而上，花落谁家拭目以待</button>' +
-          '<button class="choice" data-act="buyweak" type="button"><span class="key">2</span>花钱买对手的弱点（限时）</button>' +
+          '<button class="choice" data-act="roast" type="button"><span class="key">2</span>在 gooola 匿名锐评对手</button>' +
           '<button class="choice ghost" data-act="quit" type="button"><span class="key">3</span>放弃机会，我终究还是做不到</button>';
         return;
       }
@@ -799,6 +850,15 @@
       } else if (state.pay === "ready") {
         inner = '<h3>anan 的攻击规则</h3><div class="body">他会连着闪三个词。看清顺序，再按同样顺序点出来。点对了会变绿；点错了这一局就乱。看完再开始。</div>';
         actions = '<button class="go" data-act="memgo" type="button">准备好了，开始</button>';
+      } else if (state.pay === "roastpick") {
+        inner = '<h3>gooola 匿名锐评</h3><div class="body">不花钱。选一个对手，用键盘输出一点没有硝烟的伤害。</div>';
+        actions = ROASTS.map((r) =>
+          '<button class="choice" data-act="roastwho" data-id="' + r.id + '" type="button">锐评 ' + r.name + "</button>"
+        ).join("");
+      } else if (state.pay === "roast") {
+        const r = ROASTS.find((x) => x.id === state.fileRead) || ROASTS[0];
+        inner = "<h3>已发布</h3><div class=\"body\">" + r.body + "</div>";
+        actions = '<button class="go" data-act="roastok" type="button">去提交申请</button>';
       } else if (state.pay === "retain") {
         inner = '<h3>真的放弃吗</h3><div class="body">这可是价值百亿的情报。再想想？</div>';
         actions = '<button class="go" data-act="buynow" type="button">还是解锁</button>' +
@@ -809,7 +869,7 @@
       } else {
         ov.className = ""; ov.innerHTML = ""; return;
       }
-      ov.className = "on" + (state.pay === "files" ? " many" : "");
+      ov.className = "on" + (state.pay === "files" || state.pay === "roastpick" ? " many" : "");
       $("choices").style.visibility = "hidden";
       ov.innerHTML = '<div class="sheet">' + inner + (actions ? '<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">' + actions + "</div>" : "") + "</div>";
       if (state.pay === "buying") {
@@ -827,7 +887,6 @@
     }
     function afterPayClose() {
       hidePay(); paintHud();
-      if (state.scene === "intel") { state.scene = "apply"; render(); return; }
       if (state.scene === "vote") render();
     }
 
@@ -1108,11 +1167,12 @@
       const act = b.dataset.act;
       if (act === "restart") { sfx("click"); restart(); return; }
       if (act === "intel") { sfx("boom"); state.scene = "intel"; render(); return; }
+      if (act === "album") { sfx("click"); state.scene = "album"; render(); return; }
+      if (act === "home") { sfx("click"); state.scene = "title"; render(); return; }
       if (act === "goapply") { sfx("click"); hidePay(); state.scene = "apply"; render(); return; }
-      if (act === "buyweak") {
-        if (state.pay === "lost" || state.pay === "pranked") { sfx("click"); state.scene = "apply"; render(); return; }
-        sfx("click"); state.pay = "offer"; showPay(); return;
-      }
+      if (act === "roast") { sfx("click"); state.pay = "roastpick"; showPay(); return; }
+      if (act === "roastwho") { sfx("click"); state.fileRead = b.dataset.id; state.pay = "roast"; showPay(); return; }
+      if (act === "roastok") { sfx("ok"); bumpTrust(1); bumpStock(-0.8, "gooola 锐评已发出"); hidePay(); state.scene = "apply"; render(); return; }
       if (act === "to") {
         sfx("click");
         if (b.dataset.next === "campus") state.gossip = { i: 0, ok: 0 };
@@ -1180,7 +1240,7 @@
       if ((state.scene === "end" || state.scene === "quitend") && (e.key === "Enter" || e.key === "r")) { restart(); return; }
       if (state.scene === "title" && (e.key === "1" || e.key === "Enter")) { sfx("boom"); state.scene = "intel"; render(); return; }
       if (state.scene === "intel" && e.key === "1") { state.scene = "apply"; render(); return; }
-      if (state.scene === "intel" && e.key === "2") { state.pay = "offer"; showPay(); return; }
+      if (state.scene === "intel" && e.key === "2") { state.pay = "roastpick"; showPay(); return; }
       if (state.scene === "intel" && e.key === "3") { sfx("lose"); state.quit = true; state.scene = "quitend"; render(); return; }
       if (state.scene === "apply" && (e.key === "1" || e.key === "Enter")) { state.scene = "sending"; render(); return; }
       if ((state.scene || "").indexOf("intro") === 0 && e.key === "Enter") { document.querySelector("[data-act=to]")?.click(); return; }
@@ -1210,11 +1270,13 @@
       if (act === "file") { sfx("click"); state.fileRead = b.dataset.id; state.pay = "file"; showPay(); return; }
       if (act === "fileok") { sfx("ok"); state.pay = "pranked"; bumpTrust(2); toast("情报已阅，没什么用"); afterPayClose(); return; }
       if (act === "memgo") { sfx("click"); hidePay(); state.mem.go = true; startMemory(); return; }
+      if (act === "roastwho") { sfx("click"); state.fileRead = b.dataset.id; state.pay = "roast"; showPay(); return; }
+      if (act === "roastok") { sfx("ok"); bumpTrust(1); bumpStock(-0.8, "gooola 锐评已发出"); hidePay(); state.scene = "apply"; render(); return; }
       if (act === "lostok") { afterPayClose(); return; }
     });
 
     setInterval(() => {
-      if (state.scene === "end" || state.scene === "quitend" || state.scene === "title" || state.scene === "help" || state.scene === "apply" || state.scene === "sending") {
+      if (state.scene === "end" || state.scene === "quitend" || state.scene === "title" || state.scene === "album" || state.scene === "help" || state.scene === "apply" || state.scene === "sending") {
         bumpStock((Math.random() - 0.48) * 0.3, null, true); paintHud(); return;
       }
       bumpStock((Math.random() - 0.5) * 0.55 + state.sentiment, null, true); paintHud();
