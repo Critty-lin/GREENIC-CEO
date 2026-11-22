@@ -22,6 +22,7 @@
     th, td { text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--line); vertical-align: top; }
     th { color: var(--gold); font-weight: 700; }
     .empty { color: var(--dim); padding: 20px 0; }
+    h2 { font-size: 14px; color: var(--gold); margin: 18px 0 8px; }
     @media (max-width: 640px) {
       .wide { display: none; }
     }
@@ -29,7 +30,7 @@
 </head>
 <body>
   <h1>数据复盘</h1>
-  <div class="sub">所有走完结局的对局都会记在这里，用来看关卡和数值。不会出现在玩家首页。</div>
+  <div class="sub">所有走完结局的对局都会记在这里。同一台设备归在一组。刷新本页看最新。不会出现在玩家首页。</div>
   <div class="cards" id="cards"></div>
   <div id="table"></div>
   <script>
@@ -52,28 +53,51 @@
       const n = rows.length;
       const avg = (k) => n ? (rows.reduce((s, r) => s + Number(r[k] || 0), 0) / n) : 0;
       const maxs = n ? Math.max.apply(null, rows.map((r) => Number(r.score || 0))) : 0;
+      const groups = {};
+      rows.forEach((r) => {
+        const d = r.device || "unknown";
+        if (!groups[d]) groups[d] = [];
+        groups[d].push(r);
+      });
+      const devices = Object.keys(groups);
       document.getElementById("cards").innerHTML =
+        '<div class="card"><span>设备数</span><b>' + devices.length + "</b></div>" +
         '<div class="card"><span>总局数</span><b>' + n + "</b></div>" +
         '<div class="card"><span>平均分</span><b>' + Math.round(avg("score")) + "</b></div>" +
         '<div class="card"><span>最高分</span><b>' + maxs + "</b></div>" +
         '<div class="card"><span>平均印象</span><b>' + Math.round(avg("trust")) + "</b></div>" +
-        '<div class="card"><span>平均股价</span><b>' + avg("stock").toFixed(1) + "</b></div>" +
-        '<div class="card"><span>平均淘汰</span><b>' + Math.round(avg("beaten")) + "</b></div>";
+        '<div class="card"><span>平均股价</span><b>' + avg("stock").toFixed(1) + "</b></div>";
       const dist = '<div class="sub">结局分布：' + esc(countMap(rows, "ending")) +
         '<br/>宣言分布：' + esc(countMap(rows, "quote")) + "</div>";
       if (!n) {
         document.getElementById("table").innerHTML = dist + '<div class="empty">还没有人走完全程。</div>';
         return;
       }
-      const latest = rows.slice().reverse();
-      document.getElementById("table").innerHTML = dist + "<table><thead><tr>" +
-        "<th>时间</th><th>结局</th><th>分</th><th>印象</th><th class='wide'>股价</th><th class='wide'>剩余</th><th class='wide'>淘汰</th><th class='wide'>宣言</th>" +
-        "</tr></thead><tbody>" + latest.map((r) =>
-          "<tr><td>" + when(r.at) + "</td><td>" + esc(r.ending || "") + "</td><td>" + (r.score || 0) +
-          "</td><td>" + (r.trust || 0) + "</td><td class='wide'>" + (r.stock || 0) +
-          "</td><td class='wide'>" + (r.rivals || 0) + "</td><td class='wide'>" + (r.beaten || 0) +
-          "</td><td class='wide'>" + esc(r.quote || "") + "</td></tr>"
-        ).join("") + "</tbody></table>";
+      function shortDev(d) {
+        if (!d || d === "unknown") return "未知设备";
+        return "设备 " + d.slice(-6);
+      }
+      const ordered = devices.sort((a, b) => {
+        const ta = Math.max.apply(null, groups[a].map((r) => r.at || 0));
+        const tb = Math.max.apply(null, groups[b].map((r) => r.at || 0));
+        return tb - ta;
+      });
+      function tableFor(list) {
+        const latest = list.slice().sort((a, b) => (b.at || 0) - (a.at || 0));
+        return "<table><thead><tr>" +
+          "<th>时间</th><th>结局</th><th>分</th><th>印象</th><th class='wide'>股价</th><th class='wide'>剩余</th><th class='wide'>淘汰</th><th class='wide'>宣言</th>" +
+          "</tr></thead><tbody>" + latest.map((r) =>
+            "<tr><td>" + when(r.at) + "</td><td>" + esc(r.ending || "") + "</td><td>" + (r.score || 0) +
+            "</td><td>" + (r.trust || 0) + "</td><td class='wide'>" + (r.stock || 0) +
+            "</td><td class='wide'>" + (r.rivals || 0) + "</td><td class='wide'>" + (r.beaten || 0) +
+            "</td><td class='wide'>" + esc(r.quote || "") + "</td></tr>"
+          ).join("") + "</tbody></table>";
+      }
+      document.getElementById("table").innerHTML = dist + ordered.map((d) => {
+        const list = groups[d];
+        const best = Math.max.apply(null, list.map((r) => Number(r.score || 0)));
+        return "<h2>" + esc(shortDev(d)) + " · " + list.length + " 局 · 最好 " + best + "</h2>" + tableFor(list);
+      }).join("");
     }).catch(() => {
       document.getElementById("table").innerHTML = '<div class="empty">数据暂时读不到。</div>';
     });

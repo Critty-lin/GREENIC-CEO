@@ -499,6 +499,18 @@
       const a = loadAlbum(); a[id] = true;
       try { localStorage.setItem(ALBUM_KEY, JSON.stringify(a)); } catch (_) {}
     }
+    function deviceId() {
+      try {
+        let id = localStorage.getItem("advn-device");
+        if (!id) {
+          id = "d" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+          localStorage.setItem("advn-device", id);
+        }
+        return id;
+      } catch (_) {
+        return "unknown";
+      }
+    }
     function reportRun(e, info) {
       if (state.reported) return;
       state.reported = true;
@@ -513,7 +525,8 @@
           stock: Math.round(state.stock * 100) / 100,
           rivals: state.rivals,
           beaten: START_RIVALS - state.rivals,
-          quote: state.quote || ""
+          quote: state.quote || "",
+          device: deviceId()
         })
       }).catch(function () {});
     }

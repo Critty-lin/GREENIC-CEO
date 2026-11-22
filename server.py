@@ -44,19 +44,18 @@ class Handler(SimpleHTTPRequestHandler):
                 score = int((q.get("score") or ["0"])[0])
             except Exception:
                 score = 0
-            rows = load_rows()
-            total = len(rows)
+            best = {}
+            for r in load_rows():
+                d = str(r.get("device") or "unknown")[:40]
+                s = int(r.get("score") or 0)
+                if d not in best or s > best[d]:
+                    best[d] = s
+            total = len(best)
             if total <= 1:
                 self._json({"total": total, "beat": 0, "pct": 100, "first": True})
                 return
-            others = total - 1
-            worse = sum(1 for r in rows if int(r.get("score") or 0) < score)
-            # 不含自己时：比自己低的局 / 其他局
-            if others > 0:
-                # 当前这局已写入，则 worse 含「严格低于自己」的全部，自己那条不算 worse
-                pct = int(round(100.0 * worse / others))
-            else:
-                pct = 100
+            worse = sum(1 for s in best.values() if s < score)
+            pct = int(round(100.0 * worse / total))
             self._json({"total": total, "beat": worse, "pct": max(0, min(100, pct)), "first": False})
             return
         return super().do_GET()
@@ -95,6 +94,7 @@ class Handler(SimpleHTTPRequestHandler):
             "rivals": num("rivals"),
             "beaten": num("beaten"),
             "quote": str(body.get("quote") or "")[:24],
+            "device": str(body.get("device") or "unknown")[:40],
             "at": int(time.time()),
         }
         rows = load_rows()
