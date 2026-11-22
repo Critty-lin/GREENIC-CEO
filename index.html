@@ -337,7 +337,6 @@
       { id: "caloud", name: "caloud", body: "匿名锐评：硬件很硬，皮衣更硬。他怕的其实是衣服。" }
     ];
     const ALBUM_KEY = "advn-endings";
-    const BEST_KEY = "advn-best";
     const GOSSIP = [
       { t: "peekseed 说 cobax 在买董事，发票还没贴完", catch: true },
       { t: "有人说你的皮衣和简历一样神秘", catch: false },
@@ -369,7 +368,7 @@
       scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
       rivals: START_RIVALS, waveStart: START_RIVALS, trust: 42, sentiment: 0, fileRead: "",
       muted: false, news: "盘前等待开盘", quote: null, busy: false,
-      pay: "idle", votes: {}, quit: false, posted: false, lastEnd: null,
+      pay: "idle", votes: {}, quit: false, posted: false, lastEnd: null, reported: false,
       dm: { items: [], raf: 0, t0: 0, hits: 0, miss: 0, running: false },
       time: { raf: 0, x: 0, t: 0, n: 0, hits: 0, tries: 0, zone: { left: 0.34, width: 0.28 } },
       mem: { seq: [], step: 0, phase: "show", go: false },
@@ -500,11 +499,23 @@
       const a = loadAlbum(); a[id] = true;
       try { localStorage.setItem(ALBUM_KEY, JSON.stringify(a)); } catch (_) {}
     }
-    function bestScore() {
-      try { return Number(localStorage.getItem(BEST_KEY) || 0) || 0; } catch (_) { return 0; }
-    }
-    function saveBest(n) {
-      if (n > bestScore()) try { localStorage.setItem(BEST_KEY, String(n)); } catch (_) {}
+    function reportRun(e, info) {
+      if (state.reported) return;
+      state.reported = true;
+      fetch("/api/runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          score: e.score,
+          ending: info.title,
+          endingId: e.id,
+          trust: state.trust,
+          stock: Math.round(state.stock * 100) / 100,
+          rivals: state.rivals,
+          beaten: START_RIVALS - state.rivals,
+          quote: state.quote || ""
+        })
+      }).catch(function () {});
     }
     function beginWave() { state.waveStart = state.rivals; }
 
@@ -632,7 +643,7 @@
       const stage = $("stage"), box = $("choices");
       const sc = state.scene;
       const roundMap = {
-        title: "开局", album: "图鉴", board: "排行榜", intel: "调研", apply: "投递", sending: "筛选",
+        title: "开局", album: "图鉴", honor: "授勋", intel: "调研", apply: "投递", sending: "筛选",
         quote: "海选", danmaku: "海选", sum1: "结算", intro1: "一面",
         hr: "初面", sum2: "结算", intro2: "二面", tech: "二面",
         sum3: "结算", intro3: "职场", campus: "职场",
@@ -646,7 +657,7 @@
       if (sc === "end" || sc === "quitend") {
         const e = judge();
         const info = ENDINGS[e.id];
-        saveAlbum(e.id); saveBest(e.score);
+        saveAlbum(e.id);
         stage.innerHTML = '<div class="scene-kicker">任命结果</div><h2>' + info.title + "</h2>" +
           '<div class="hero-wrap">' + heroHtml(false, info.hero) + '<div class="body">' + info.body +
           '</div></div><div class="badge">纪念品 · ' + esc(info.souvenir) + "</div>" +
@@ -655,11 +666,10 @@
           '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
           '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
           '<div class="score-pop" id="scorePop">0</div>';
-        state.lastEnd = { score: e.score, ending: info.title };
-        box.innerHTML = '<input class="nick" id="nick" maxlength="12" placeholder="留下你的名字上榜" />' +
-          '<button class="go" data-act="postboard" type="button">把成绩记上榜</button>' +
-          '<button class="choice ghost" data-act="restart" type="button">再竞选一次</button>' +
-          '<button class="choice ghost" data-act="board" type="button">去看排行榜</button>';
+        state.lastEnd = { score: e.score, ending: info.title, id: e.id };
+        reportRun(e, info);
+        box.innerHTML = '<button class="go" data-act="honor" type="button">查看排行</button>' +
+          '<button class="choice ghost" data-act="restart" type="button">再竞选一次</button>';
         animateScore(e.score); sfx(e.good ? "win" : "lose");
         return;
       }
@@ -668,9 +678,7 @@
         stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>绿色芯片CEO竞选计</h1>' +
           '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神秘人士。近期由于一些众人皆知的原因，万众瞩目的绿色芯片公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
         box.innerHTML = '<button class="go" data-act="intel" type="button">我要竞选CEO！</button>' +
-          '<button class="choice ghost" data-act="album" type="button">结局陈列室</button>' +
-          '<button class="choice ghost" data-act="board" type="button">排行榜</button>' +
-          (bestScore() ? '<div class="hint">本机最高分 ' + bestScore() + "</div>" : "");
+          '<button class="choice ghost" data-act="album" type="button">结局陈列室</button>';
         return;
       }
       if (sc === "album") {
@@ -687,20 +695,27 @@
         box.innerHTML = '<button class="go" data-act="home" type="button">返回首页</button>';
         return;
       }
-      if (sc === "board") {
-        stage.innerHTML = '<div class="scene-kicker">LIVE BOARD</div><h2>排行榜</h2>' +
-          '<div class="body" id="boardBody">正在拉取其他玩家的成绩…</div>';
-        box.innerHTML = '<button class="go" data-act="home" type="button">返回首页</button>';
-        fetch("/api/board").then((r) => r.json()).then((rows) => {
-          const el = $("boardBody"); if (!el) return;
-          if (!rows || !rows.length) { el.innerHTML = "榜上还空着。你可以把结局页的成绩交上来。"; return; }
-          el.innerHTML = rows.map((row, i) =>
-            '<div class="board-row"><b>' + (i + 1) + '</b><span class="who">' + esc(row.name || "匿名神人") +
-            " · " + esc(row.ending || "") + '</span><span class="pts">' + (row.score || 0) + "</span></div>"
-          ).join("");
+      if (sc === "honor") {
+        const last = state.lastEnd || { score: 0, ending: "" };
+        stage.innerHTML = '<div class="scene-kicker">授勋</div><h2>竞选授勋</h2>' +
+          '<div class="hero-wrap">' + heroHtml() + '<div class="body">本局得分 <b>' + last.score + "</b> · " + esc(last.ending || "") + "</div></div>" +
+          '<div class="score-pop" id="honorPct">计算中</div>' +
+          '<div class="hint" id="honorHint">正在对照其他竞选者…</div>';
+        box.innerHTML = '<button class="go" data-act="restart" type="button">再竞选一次</button>';
+        fetch("/api/honor?score=" + encodeURIComponent(last.score)).then((r) => r.json()).then((d) => {
+          const pctEl = $("honorPct"), hint = $("honorHint");
+          if (!pctEl) return;
+          if (d.first || !d.total) {
+            pctEl.textContent = "第一人";
+            if (hint) hint.textContent = "你是目前走完全程的第一人。";
+            return;
+          }
+          pctEl.textContent = "打败 " + d.pct + "%";
+          if (hint) hint.textContent = "在已记录的 " + d.total + " 局里，你超过了 " + d.pct + "% 的竞选者。";
         }).catch(() => {
-          const el = $("boardBody");
-          if (el) el.textContent = "榜暂时连不上，过一会儿再试。";
+          const pctEl = $("honorPct"), hint = $("honorHint");
+          if (pctEl) pctEl.textContent = "—";
+          if (hint) hint.textContent = "对照暂时连不上。";
         });
         return;
       }
@@ -1193,7 +1208,7 @@
       Object.assign(state, {
         scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
         rivals: START_RIVALS, waveStart: START_RIVALS, trust: 42, sentiment: 0, fileRead: "",
-        news: "盘前等待开盘", quote: null, busy: false, pay: "idle", votes: {}, quit: false, posted: false, lastEnd: null
+        news: "盘前等待开盘", quote: null, busy: false, pay: "idle", votes: {}, quit: false, posted: false, lastEnd: null, reported: false
       });
       state.gossip = { i: 0, ok: 0 };
       state.mem = { seq: [], step: 0, phase: "show", go: false, lock: false };
@@ -1206,22 +1221,7 @@
       if (act === "restart") { sfx("click"); restart(); return; }
       if (act === "intel") { sfx("boom"); state.scene = "intel"; render(); return; }
       if (act === "album") { sfx("click"); state.scene = "album"; render(); return; }
-      if (act === "board") { sfx("click"); state.scene = "board"; render(); return; }
-      if (act === "postboard") {
-        if (state.posted) { toast("这份成绩已经交过了"); return; }
-        const nick = (($("nick") && $("nick").value) || "").trim().slice(0, 12) || "匿名神人";
-        const last = state.lastEnd || { score: 0, ending: "" };
-        sfx("click");
-        fetch("/api/board", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: nick, score: last.score, ending: last.ending })
-        }).then((r) => r.json()).then((d) => {
-          state.posted = true;
-          toast(d && d.rank ? ("已上榜，第 " + d.rank + " 名") : "已记下");
-        }).catch(() => toast("榜暂时连不上"));
-        return;
-      }
+      if (act === "honor") { sfx("click"); state.scene = "honor"; render(); return; }
       if (act === "home") { sfx("click"); state.scene = "title"; render(); return; }
       if (act === "goapply") { sfx("click"); hidePay(); state.scene = "apply"; render(); return; }
       if (act === "roast") { sfx("click"); state.pay = "roastpick"; showPay(); return; }
@@ -1330,7 +1330,7 @@
     });
 
     setInterval(() => {
-      if (state.scene === "end" || state.scene === "quitend" || state.scene === "title" || state.scene === "album" || state.scene === "board" || state.scene === "help" || state.scene === "apply" || state.scene === "sending") {
+      if (state.scene === "end" || state.scene === "quitend" || state.scene === "title" || state.scene === "album" || state.scene === "honor" || state.scene === "help" || state.scene === "apply" || state.scene === "sending") {
         bumpStock((Math.random() - 0.48) * 0.3, null, true); paintHud(); return;
       }
       bumpStock((Math.random() - 0.5) * 0.55 + state.sentiment, null, true); paintHud();

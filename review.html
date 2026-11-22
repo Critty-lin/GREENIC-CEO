@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>绿色芯片 · 数据复盘</title>
+  <style>
+    :root { --bg:#07140a; --ink:#def5c8; --dim:#7fa36a; --nv:#76b900; --gold:#e6c35c; --line:#1d3a18; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 16px; padding-bottom: 32px;
+      background: #07140a; color: var(--ink);
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+    }
+    h1 { font-size: 20px; color: var(--nv); margin: 0 0 6px; }
+    .sub { color: var(--dim); font-size: 12px; margin-bottom: 16px; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .card { border: 3px solid var(--nv); padding: 10px; background: #0c1f10; }
+    .card span { display: block; font-size: 11px; color: var(--dim); }
+    .card b { font-size: 22px; color: var(--gold); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--line); vertical-align: top; }
+    th { color: var(--gold); font-weight: 700; }
+    .empty { color: var(--dim); padding: 20px 0; }
+    @media (max-width: 640px) {
+      .wide { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>数据复盘</h1>
+  <div class="sub">所有走完结局的对局都会记在这里，用来看关卡和数值。不会出现在玩家首页。</div>
+  <div class="cards" id="cards"></div>
+  <div id="table"></div>
+  <script>
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function when(ts) {
+      if (!ts) return "—";
+      const d = new Date(ts * 1000);
+      const p = (n) => (n < 10 ? "0" : "") + n;
+      return d.getMonth() + 1 + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+    function countMap(rows, key) {
+      const m = {};
+      rows.forEach((r) => { const k = r[key] || "—"; m[k] = (m[k] || 0) + 1; });
+      return Object.keys(m).sort((a, b) => m[b] - m[a]).map((k) => k + " " + m[k]).slice(0, 6).join(" · ") || "—";
+    }
+    fetch("/api/runs").then((r) => r.json()).then((rows) => {
+      if (!Array.isArray(rows)) rows = [];
+      const n = rows.length;
+      const avg = (k) => n ? (rows.reduce((s, r) => s + Number(r[k] || 0), 0) / n) : 0;
+      const maxs = n ? Math.max.apply(null, rows.map((r) => Number(r.score || 0))) : 0;
+      document.getElementById("cards").innerHTML =
+        '<div class="card"><span>总局数</span><b>' + n + "</b></div>" +
+        '<div class="card"><span>平均分</span><b>' + Math.round(avg("score")) + "</b></div>" +
+        '<div class="card"><span>最高分</span><b>' + maxs + "</b></div>" +
+        '<div class="card"><span>平均印象</span><b>' + Math.round(avg("trust")) + "</b></div>" +
+        '<div class="card"><span>平均股价</span><b>' + avg("stock").toFixed(1) + "</b></div>" +
+        '<div class="card"><span>平均淘汰</span><b>' + Math.round(avg("beaten")) + "</b></div>";
+      const dist = '<div class="sub">结局分布：' + esc(countMap(rows, "ending")) +
+        '<br/>宣言分布：' + esc(countMap(rows, "quote")) + "</div>";
+      if (!n) {
+        document.getElementById("table").innerHTML = dist + '<div class="empty">还没有人走完全程。</div>';
+        return;
+      }
+      const latest = rows.slice().reverse();
+      document.getElementById("table").innerHTML = dist + "<table><thead><tr>" +
+        "<th>时间</th><th>结局</th><th>分</th><th>印象</th><th class='wide'>股价</th><th class='wide'>剩余</th><th class='wide'>淘汰</th><th class='wide'>宣言</th>" +
+        "</tr></thead><tbody>" + latest.map((r) =>
+          "<tr><td>" + when(r.at) + "</td><td>" + esc(r.ending || "") + "</td><td>" + (r.score || 0) +
+          "</td><td>" + (r.trust || 0) + "</td><td class='wide'>" + (r.stock || 0) +
+          "</td><td class='wide'>" + (r.rivals || 0) + "</td><td class='wide'>" + (r.beaten || 0) +
+          "</td><td class='wide'>" + esc(r.quote || "") + "</td></tr>"
+        ).join("") + "</tbody></table>";
+    }).catch(() => {
+      document.getElementById("table").innerHTML = '<div class="empty">数据暂时读不到。</div>';
+    });
+  </script>
+</body>
+</html>

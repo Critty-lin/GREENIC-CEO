@@ -4,9 +4,10 @@ import os
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parent
-DATA = ROOT / "data" / "board.json"
+DATA = ROOT / "data" / "runs.json"
 PORT = int(os.environ["PORT"])
 
 
@@ -32,43 +33,82 @@ class Handler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
     def do_GET(self):
-        path = self.path.split("?", 1)[0]
-        if path == "/api/board":
-            rows = sorted(load_rows(), key=lambda r: -int(r.get("score") or 0))[:20]
-            self._json(rows)
+        parsed = urlparse(self.path)
+        path = parsed.path
+        if path == "/api/runs":
+            self._json(load_rows())
+            return
+        if path == "/api/honor":
+            q = parse_qs(parsed.query)
+            try:
+                score = int((q.get("score") or ["0"])[0])
+            except Exception:
+                score = 0
+            rows = load_rows()
+            total = len(rows)
+            if total <= 1:
+                self._json({"total": total, "beat": 0, "pct": 100, "first": True})
+                return
+            others = total - 1
+            worse = sum(1 for r in rows if int(r.get("score") or 0) < score)
+            # 不含自己时：比自己低的局 / 其他局
+            if others > 0:
+                # 当前这局已写入，则 worse 含「严格低于自己」的全部，自己那条不算 worse
+                pct = int(round(100.0 * worse / others))
+            else:
+                pct = 100
+            self._json({"total": total, "beat": worse, "pct": max(0, min(100, pct)), "first": False})
             return
         return super().do_GET()
 
     def do_POST(self):
-        path = self.path.split("?", 1)[0]
-        if path != "/api/board":
+        path = urlparse(self.path).path
+        if path != "/api/runs":
             self.send_error(404)
             return
         n = int(self.headers.get("Content-Length") or 0)
-        raw = self.rfile.read(max(0, min(n, 4096)))
+        raw = self.rfile.read(max(0, min(n, 8192)))
         try:
             body = json.loads(raw.decode("utf-8") or "{}")
         except Exception:
             self.send_error(400)
             return
-        name = str(body.get("name") or "").strip()[:12] or "匿名神人"
-        name = name.replace("<", "").replace(">", "")
-        try:
-            score = int(body.get("score") or 0)
-        except Exception:
-            score = 0
-        ending = str(body.get("ending") or "")[:40]
+
+        def num(key, default=0):
+            try:
+                return int(body.get(key) if body.get(key) is not None else default)
+            except Exception:
+                return default
+
+        def flt(key, default=0.0):
+            try:
+                return float(body.get(key) if body.get(key) is not None else default)
+            except Exception:
+                return default
+
+        row = {
+            "score": num("score"),
+            "ending": str(body.get("ending") or "")[:40],
+            "endingId": str(body.get("endingId") or "")[:24],
+            "trust": max(0, min(100, num("trust"))),
+            "stock": round(flt("stock"), 2),
+            "rivals": num("rivals"),
+            "beaten": num("beaten"),
+            "quote": str(body.get("quote") or "")[:24],
+            "at": int(time.time()),
+        }
         rows = load_rows()
-        rows.append({"name": name, "score": score, "ending": ending, "at": int(time.time())})
-        rows = sorted(rows, key=lambda r: -int(r.get("score") or 0))[:50]
+        rows.append(row)
+        if len(rows) > 2000:
+            rows = rows[-2000:]
         save_rows(rows)
-        rank = next((i + 1 for i, r in enumerate(rows) if r["name"] == name and r["score"] == score), 0)
-        self._json({"ok": True, "rank": rank})
+        self._json({"ok": True, "id": len(rows)})
 
     def _json(self, obj):
         blob = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(blob)))
         self.end_headers()
         self.wfile.write(blob)
