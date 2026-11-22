@@ -1,3 +1,5 @@
 .asteam-product.log
 data/*.json
 data/*.tmp
+__pycache__/
+*.pyc
