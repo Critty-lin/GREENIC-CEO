@@ -301,7 +301,7 @@
       </div>
       <div class="news-row">
         <div class="news" id="news">盘前等待开盘</div>
-        <button class="lock-btn" id="lockBtn" type="button" hidden>弱点 ¥</button>
+        <button class="lock-btn" id="lockBtn" type="button">攻略¥</button>
         <button class="mute" id="muteBtn" type="button">音效</button>
       </div>
     </header>
@@ -678,8 +678,7 @@
       $("trust").textContent = String(state.trust);
       $("trustBar").style.width = state.trust + "%";
       $("news").textContent = state.news;
-      const showLock = ["quote", "danmaku", "sum1", "intro1", "hr", "sum2", "intro2", "tech", "sum3", "intro3", "campus", "defend", "vote"].indexOf(state.scene) >= 0 && state.pay !== "pranked" && state.pay !== "lost";
-      $("lockBtn").hidden = !showLock;
+      $("lockBtn").hidden = false;
       drawSpark();
     }
     function recapHtml(title, extra) {
@@ -768,8 +767,7 @@
           '<div class="end-line"><span>剩余对手</span><b>' + state.rivals + "</b></div>" +
           '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
           '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
-          '<div class="score-pop" id="scorePop">0</div>' + restoredHint + wechatHint +
-          '<div class="hint"><a href="guide.html">打其他结局？查看全部结局攻略</a></div>';
+          '<div class="score-pop" id="scorePop">0</div>' + restoredHint + wechatHint;
         state.lastEnd = {
           score: e.score, ending: info.title, id: e.id,
           trust: state.trust, stock: state.stock, rivals: state.rivals,
@@ -789,8 +787,7 @@
         stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>绿色芯片CEO竞选计</h1>' +
           '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神秘人士。近期由于一些众人皆知的原因，万众瞩目的绿色芯片公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
         box.innerHTML = '<button class="go" data-act="intel" type="button">我要竞选CEO！</button>' +
-          '<button class="choice ghost" data-act="album" type="button">结局陈列室</button>' +
-          '<button class="choice ghost" data-act="guide" type="button">全结局攻略</button>';
+          '<button class="choice ghost" data-act="album" type="button">结局陈列室</button>';
         return;
       }
       if (sc === "album") {
@@ -994,7 +991,24 @@
       const ov = $("overlay");
       let inner = "";
       let actions = "";
-      if (state.pay === "offer") {
+      if (state.pay === "guide-offer") {
+        inner = '<h3>全结局攻略</h3><div class="body">九种结局、逐关操作、结局计算器。付费 ¥628 解锁全结局攻略。</div>';
+        actions = '<button class="go" data-act="guidebuy" type="button">立即解锁 ¥628</button>' +
+          '<button class="choice ghost" data-act="guidehaggle" type="button">算了</button>';
+      } else if (state.pay === "guide-haggle") {
+        inner = '<h3>真的不要吗？</h3><div class="body">现在给你一个优惠价：<b>¥6.28</b>。只要 6.28，全结局攻略带回家。</div>';
+        actions = '<button class="go" data-act="guidebuy" type="button">还是解锁 ¥6.28</button>' +
+          '<button class="choice ghost" data-act="guidegiveup" type="button">确认放弃</button>';
+      } else if (state.pay === "guide-buying") {
+        inner = '<h3>正在连接收银台</h3><div class="progress"><i id="bar"></i></div><div class="hint">请稍候…</div>';
+      } else if (state.pay === "guide-prank") {
+        inner = '<h3>哈哈！</h3><div class="body">其实这个游戏没有做付费系统，所以很遗憾，没有扣费。不过全结局攻略是真的，直接给你。</div>';
+        actions = '<button class="go" data-act="guideopen" type="button">打开攻略</button>' +
+          '<button class="choice ghost" data-act="guideclose" type="button">关闭</button>';
+      } else if (state.pay === "guide-lost") {
+        inner = '<h3>你失去了解锁全结局的机会！</h3><div class="body">刚才 ¥6.28 你都没要。现在只能自己摸索了。……不过 HUD 的按钮还在，要不要再考虑一次？</div>';
+        actions = '<button class="go" data-act="guidelostok" type="button">知道了</button>';
+      } else if (state.pay === "offer") {
         inner = '<h3>cobax 的弱点已加密</h3><div class="body">限时优惠。解锁后可让一名对手直接出局，并公开他的黑料。</div>';
         actions = '<button class="go" data-act="buynow" type="button">立即解锁 ¥128</button>' +
           '<button class="choice ghost" data-act="nopay" type="button">算了</button>';
@@ -1043,6 +1057,14 @@
         const t = setInterval(() => {
           w += 14; if (bar) bar.style.width = Math.min(100, w) + "%";
           if (w >= 100) { clearInterval(t); state.pay = "prank"; sfx("ok"); showPay(); }
+        }, 90);
+      }
+      if (state.pay === "guide-buying") {
+        const bar = $("bar");
+        let w = 0;
+        const t = setInterval(() => {
+          w += 14; if (bar) bar.style.width = Math.min(100, w) + "%";
+          if (w >= 100) { clearInterval(t); state.pay = "guide-prank"; sfx("ok"); showPay(); }
         }, 90);
       }
     }
@@ -1759,6 +1781,11 @@
       state.pay = "offer";
       showPay();
     }
+    function openGuideOffer() {
+      if (state.pay === "guide-buying") return;
+      state.pay = "guide-offer";
+      showPay();
+    }
 
     $("choices").addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
@@ -1767,7 +1794,6 @@
       if (act === "restart") { sfx("click"); restart(); return; }
       if (act === "intel") { sfx("boom"); state.scene = "intel"; render(); return; }
       if (act === "album") { sfx("click"); state.scene = "album"; render(); return; }
-      if (act === "guide") { sfx("click"); location.href = "guide.html"; return; }
       if (act === "honor") { sfx("click"); state.scene = "honor"; render(); return; }
       if (act === "home") { sfx("click"); state.scene = "title"; render(); return; }
       if (act === "goapply") { sfx("click"); hidePay(); state.scene = "apply"; render(); return; }
@@ -1858,8 +1884,8 @@
       state.muted = !state.muted; $("muteBtn").textContent = state.muted ? "静音" : "音效"; if (!state.muted) sfx("click");
     });
     $("lockBtn").addEventListener("click", () => {
-      if (state.pay === "lost" || state.pay === "pranked") { toast(state.pay === "lost" ? "你失去了价值百亿的机会" : "档案已经读过了"); return; }
-      sfx("click"); state.pay = "offer"; showPay();
+      sfx("click");
+      openGuideOffer();
     });
     $("overlay").addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
@@ -1874,6 +1900,20 @@
       if (act === "roastwho") { sfx("click"); state.fileRead = b.dataset.id; state.pay = "roast"; showPay(); return; }
       if (act === "roastok") { sfx("ok"); bumpTrust(1); bumpStock(-0.8, "gooola 锐评已发出"); hidePay(); state.scene = "apply"; render(); return; }
       if (act === "lostok") { afterPayClose(); return; }
+      if (act === "guidebuy") { sfx("click"); state.pay = "guide-buying"; showPay(); return; }
+      if (act === "guidehaggle") { sfx("click"); state.pay = "guide-haggle"; showPay(); return; }
+      if (act === "guidegiveup") { sfx("down"); state.pay = "guide-lost"; showPay(); return; }
+      if (act === "guideopen") {
+        sfx("ok");
+        hidePay();
+        state.pay = "idle";
+        const win = window.open("guide.html", "_blank");
+        if (win) win.opener = null;
+        else location.href = "guide.html";
+        return;
+      }
+      if (act === "guideclose") { sfx("click"); hidePay(); state.pay = "idle"; return; }
+      if (act === "guidelostok") { sfx("click"); hidePay(); state.pay = "idle"; return; }
     });
 
     $("btnShareX").addEventListener("click", hideShare);
