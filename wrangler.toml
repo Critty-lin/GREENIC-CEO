@@ -1,0 +1,10 @@
+name = "greenic-ceo-api"
+pages_build_output_dir = "pages-public"
+compatibility_date = "2026-11-01"
+
+[[kv_namespaces]]
+binding = "RUNS"
+id = "7be41ca1a8114264ac2a1a7eb9fe09c6"
+
+[vars]
+ALLOW_ORIGIN = "https://critty-lin.github.io"

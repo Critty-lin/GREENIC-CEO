@@ -7,9 +7,9 @@ compatibility_date = "2026-11-01"
 # 把输出的 id 填到下面。
 [[kv_namespaces]]
 binding = "RUNS"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "7be41ca1a8114264ac2a1a7eb9fe09c6"
 
 [vars]
 # 允许哪些站点读取数据。可以改成你的 Pages 域名，例如
 # "https://yourname.github.io"
-ALLOW_ORIGIN = "*"
+ALLOW_ORIGIN = "https://critty-lin.github.io"

@@ -4,7 +4,7 @@
 
 一个像素风的单页文字 + 小游戏合集：你扮演 `xunxun`，去「绿色芯片」（股票代码 **ADVN**）竞选 CEO，在海选、面试、职场流言、董事会护盘和终局拉票里活下来，最后按股价、董事会印象和剩余对手数拿到九种结局之一。
 
-纯前端、零依赖、无构建步骤：一个 `index.html` 就是完整游戏。可选的 Python 服务和 Cloudflare Worker 只负责收集对局数据。
+纯前端、零依赖、无构建步骤：一个 `index.html` 就是完整游戏。可选的 Python 服务、Cloudflare Pages Functions 或 Worker 只负责收集对局数据。
 
 ## 本地运行
 
@@ -54,11 +54,14 @@ PORT=3000 python3 server.py
 ```text
 index.html            游戏本体（样式 + 逻辑 + 像素立绘 + 音效）
 review.html           数据复盘页（按设备分组、导出 CSV / JSON）
-config.js             数据服务地址（默认同源，纯静态部署时填写）
+config.js             数据服务地址（当前指向 Pages API）
 server.py             本地 / 自托管服务：静态托管 + /api/runs + /api/honor
+wrangler.toml         Cloudflare Pages 项目配置（KV 绑定 / CORS）
+functions/api/        Pages Functions 版 /api/runs + /api/honor
+pages-public/         API 的简单落地页
 serverless/worker.js  可选：Cloudflare Worker 版战绩 API
 serverless/wrangler.toml
-data/runs.json        对局账本（已 gitignore，不会提交）
+data/runs.json        本地对局账本（已 gitignore，不会提交）
 robots.txt            禁止索引复盘页
 ```
 
@@ -83,9 +86,34 @@ robots.txt            禁止索引复盘页
 
 ## 公开发布：接上战绩服务
 
-### 方案 A：Cloudflare Worker + KV（推荐，和 GitHub Pages 搭配）
+### 方案 A：Cloudflare Pages Functions + KV（当前线上用法，推荐）
 
-`serverless/worker.js` 已经按现有 API 写好，CORS 也处理了。
+游戏在 GitHub Pages，API 单独部署成一个 Cloudflare Pages 项目。国内网络通常可以访问 `*.pages.dev`，而 `*.workers.dev` 可能被 DNS 污染。
+
+- 根目录 `wrangler.toml`：Pages 项目名、KV 绑定、CORS 来源
+- `functions/api/[[path]].js`：Pages Function，复用 `serverless/worker.js`
+- `pages-public/`：API 的简单落地页
+
+```bash
+npx wrangler login
+npx wrangler kv namespace create RUNS
+# 把 id 填进根目录 wrangler.toml 和 serverless/wrangler.toml
+
+npx wrangler pages project create greenic-ceo-api --production-branch main
+npx wrangler pages deploy pages-public --project-name greenic-ceo-api --branch main
+```
+
+拿到 `https://greenic-ceo-api.pages.dev` 后，把 `config.js` 改成：
+
+```js
+window.ADVN_API = "https://greenic-ceo-api.pages.dev";
+```
+
+提交推送，GitHub Pages 会自动重新部署；游戏上报、授勋和复盘页都走这个 API。`ALLOW_ORIGIN` 要写成你的 GitHub Pages 站点源（例如 `https://critty-lin.github.io`，不带仓库路径）。
+
+### 方案 B：Cloudflare Worker + KV（备用）
+
+`serverless/worker.js` 同时是一个标准 Worker。如果 `workers.dev` 在你的网络可访问：
 
 ```bash
 cd serverless
@@ -95,17 +123,11 @@ npx wrangler kv namespace create RUNS
 npx wrangler deploy
 ```
 
-拿到 `https://advn-runs.<你的子域>.workers.dev` 后，改 `config.js`：
-
-```js
-window.ADVN_API = "https://advn-runs.<你的子域>.workers.dev";
-```
-
-提交并推送，Pages 上的游戏就会把对局写到 Worker，授勋和复盘页也会读它。记得把 `wrangler.toml` 里的 `ALLOW_ORIGIN` 改成你的 Pages 域名（默认 `*`）。
+拿到 `https://advn-runs.<你的子域>.workers.dev` 后，改 `config.js` 并提交。记得把 `ALLOW_ORIGIN` 改成你的 Pages 域名。
 
 > KV 是最终一致存储，极少数并发同时提交时可能少记一条。小游戏够用；要严格计数可以换 D1 或给 Worker 加队列。
 
-### 方案 B：继续用 Python 服务（完整功能）
+### 方案 C：继续用 Python 服务（完整功能）
 
 把 `server.py` 部署到任意有持久磁盘的容器 / VPS（Render、Fly.io、Railway、自己的机器），`PORT` 由平台注入。游戏和复盘页同源，`config.js` 留空即可。
 
@@ -126,7 +148,7 @@ ALLOW_ORIGIN="https://<用户名>.github.io" PORT=8000 python3 server.py
 
 > 不要用无持久磁盘的免费实例，重启会丢 `data/runs.json`。记得定期把数据文件或复盘页导出的 JSON 备份走。
 
-### 方案 C：Supabase / 其他 BaaS
+### 方案 D：Supabase / 其他 BaaS
 
 接口只有三个，按同样契约实现即可；把 `config.js` 指向你的服务地址。复盘页不需要改。
 
@@ -151,6 +173,7 @@ ALLOW_ORIGIN="https://<用户名>.github.io" PORT=8000 python3 server.py
 - 服务端加固：屏蔽 `data/` 等敏感静态路径、并发锁、非法浮点、默认端口、断连静默。
 - 护盘提示统一为「失误」，不再把漏掉的红盘算成「误点绿」。
 - 补 favicon、`robots.txt`、README 和部署说明。
+- 战绩服务上线：Cloudflare Pages Functions + KV，`config.js` 指向 `https://greenic-ceo-api.pages.dev`，CORS 限定 GitHub Pages 源；`workers.dev` 版本保留为备用。
 
 ## 免责声明
 

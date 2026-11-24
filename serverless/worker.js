@@ -105,21 +105,23 @@ async function handlePost(request, env) {
   return json({ ok: true, id: trimmed.length }, 200, env);
 }
 
+export async function handleRequest(request, env) {
+  const url = new URL(request.url);
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: cors(env) });
+  }
+  if (url.pathname === "/api/runs" && request.method === "GET") {
+    return json(await loadRows(env), 200, env);
+  }
+  if (url.pathname === "/api/honor" && request.method === "GET") {
+    return handleHonor(url, env);
+  }
+  if (url.pathname === "/api/runs" && request.method === "POST") {
+    return handlePost(request, env);
+  }
+  return json({ error: "not found" }, 404, env);
+}
+
 export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: cors(env) });
-    }
-    if (url.pathname === "/api/runs" && request.method === "GET") {
-      return json(await loadRows(env), 200, env);
-    }
-    if (url.pathname === "/api/honor" && request.method === "GET") {
-      return handleHonor(url, env);
-    }
-    if (url.pathname === "/api/runs" && request.method === "POST") {
-      return handlePost(request, env);
-    }
-    return json({ error: "not found" }, 404, env);
-  },
+  fetch: handleRequest,
 };
