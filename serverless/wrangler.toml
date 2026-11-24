@@ -1,0 +1,15 @@
+name = "advn-runs"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+# 先执行：
+#   npx wrangler kv namespace create RUNS
+# 把输出的 id 填到下面。
+[[kv_namespaces]]
+binding = "RUNS"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+[vars]
+# 允许哪些站点读取数据。可以改成你的 Pages 域名，例如
+# "https://yourname.github.io"
+ALLOW_ORIGIN = "*"

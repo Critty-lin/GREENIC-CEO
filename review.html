@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Crect%20width='16'%20height='16'%20fill='%2307140a'/%3E%3Crect%20x='4'%20y='4'%20width='8'%20height='8'%20fill='%2376b900'/%3E%3C/svg%3E" />
   <title>绿色芯片 · 数据复盘</title>
+  <meta name="robots" content="noindex,nofollow" />
   <style>
     :root { --bg:#07140a; --ink:#def5c8; --dim:#7fa36a; --nv:#76b900; --gold:#e6c35c; --line:#1d3a18; }
     * { box-sizing: border-box; }
@@ -44,7 +46,11 @@
   </div>
   <div class="cards" id="cards"></div>
   <div id="table"></div>
+  <script src="config.js"></script>
   <script>
+    const API = String(window.ADVN_API == null ? "" : window.ADVN_API).replace(/\/+$/, "");
+    const QUOTE_LABEL = { story: "故事", tech: "技术", ambition: "野心" };
+    function qlabel(q) { return QUOTE_LABEL[q] || q || ""; }
     function esc(s) {
       return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     }
@@ -91,7 +97,7 @@
           r.stock || 0,
           r.rivals || 0,
           r.beaten || 0,
-          r.quote || ""
+          qlabel(r.quote)
         ].map(csvCell).join(","));
       });
       saveFile("绿色芯片对局-" + stamp() + ".csv", "\ufeff" + lines.join("\n"), "text/csv;charset=utf-8");
@@ -99,7 +105,7 @@
     document.getElementById("btnJson").onclick = function () {
       saveFile("绿色芯片对局备份-" + stamp() + ".json", JSON.stringify(cached, null, 2), "application/json");
     };
-    fetch("/api/runs").then((r) => r.json()).then((rows) => {
+    fetch(API + "/api/runs").then((r) => r.json()).then((rows) => {
       if (!Array.isArray(rows)) rows = [];
       cached = rows;
       const n = rows.length;
@@ -120,7 +126,7 @@
         '<div class="card"><span>平均印象</span><b>' + Math.round(avg("trust")) + "</b></div>" +
         '<div class="card"><span>平均股价</span><b>' + avg("stock").toFixed(1) + "</b></div>";
       const dist = '<div class="sub">结局分布：' + esc(countMap(rows, "ending")) +
-        '<br/>宣言分布：' + esc(countMap(rows, "quote")) + "</div>";
+        '<br/>宣言分布：' + esc(countMap(rows.map((r) => Object.assign({}, r, { quote: qlabel(r.quote) })), "quote")) + "</div>";
       if (!n) {
         document.getElementById("table").innerHTML = dist + '<div class="empty">还没有人走完全程。</div>';
         return;
@@ -143,7 +149,7 @@
             "<tr><td>" + when(r.at) + "</td><td>" + esc(r.ending || "") + "</td><td>" + (r.score || 0) +
             "</td><td>" + (r.trust || 0) + "</td><td class='wide'>" + (r.stock || 0) +
             "</td><td class='wide'>" + (r.rivals || 0) + "</td><td class='wide'>" + (r.beaten || 0) +
-            "</td><td class='wide'>" + esc(r.quote || "") + "</td></tr>"
+            "</td><td class='wide'>" + esc(qlabel(r.quote)) + "</td></tr>"
           ).join("") + "</tbody></table>";
       }
       document.getElementById("table").innerHTML = dist + ordered.map((d) => {
@@ -154,7 +160,7 @@
           "</h2><div class=\"devid\">" + esc(info.note) + "</div>" + tableFor(list);
       }).join("");
     }).catch(() => {
-      document.getElementById("table").innerHTML = '<div class="empty">数据暂时读不到。</div>';
+      document.getElementById("table").innerHTML = '<div class="empty">数据暂时读不到。纯静态部署时请在 config.js 填入数据服务地址。</div>';
     });
   </script>
 </body>

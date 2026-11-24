@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 import json
+import math
 import os
+import posixpath
+import sys
+import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data" / "runs.json"
-PORT = int(os.environ["PORT"])
+PORT = int(os.environ.get("PORT") or 8000)
+ALLOW_ORIGIN = os.environ.get("ALLOW_ORIGIN", "*")
+LOCK = threading.Lock()
 
 
 def load_rows():
@@ -28,13 +34,49 @@ def save_rows(rows):
     tmp.replace(DATA)
 
 
+class Server(ThreadingHTTPServer):
+    daemon_threads = True
+
+    def handle_error(self, request, client_address):
+        exc = sys.exc_info()[1]
+        if isinstance(exc, (BrokenPipeError, ConnectionResetError)):
+            return
+        super().handle_error(request, client_address)
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
+    def _blocked(self, path):
+        path = (path or "/").split("?", 1)[0].split("#", 1)[0]
+        norm = "/" + posixpath.normpath(unquote(path)).lstrip("/")
+        parts = [p for p in norm.split("/") if p]
+        if parts and (parts[0].lower() == "data" or any(p.startswith(".") for p in parts)):
+            return True
+        return norm.lower().endswith((".py", ".pyc", ".toml", ".log"))
+
+    def end_headers(self):
+        if ALLOW_ORIGIN:
+            self.send_header("Access-Control-Allow-Origin", ALLOW_ORIGIN)
+            self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        super().end_headers()
+
+    def do_OPTIONS(self):
+        if urlparse(self.path).path in ("/api/runs", "/api/honor"):
+            self.send_response(204)
+            self.end_headers()
+            return
+        self.send_error(404)
+
     def do_GET(self):
         parsed = urlparse(self.path)
         path = parsed.path
+        if self._blocked(self.path):
+            self.send_error(404)
+            return
         if path == "/api/runs":
             self._json(load_rows())
             return
@@ -65,7 +107,10 @@ class Handler(SimpleHTTPRequestHandler):
         if path != "/api/runs":
             self.send_error(404)
             return
-        n = int(self.headers.get("Content-Length") or 0)
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            n = 0
         raw = self.rfile.read(max(0, min(n, 8192)))
         try:
             body = json.loads(raw.decode("utf-8") or "{}")
@@ -81,7 +126,8 @@ class Handler(SimpleHTTPRequestHandler):
 
         def flt(key, default=0.0):
             try:
-                return float(body.get(key) if body.get(key) is not None else default)
+                v = float(body.get(key) if body.get(key) is not None else default)
+                return v if math.isfinite(v) else default
             except Exception:
                 return default
 
@@ -97,12 +143,14 @@ class Handler(SimpleHTTPRequestHandler):
             "device": str(body.get("device") or "unknown")[:40],
             "at": int(time.time()),
         }
-        rows = load_rows()
-        rows.append(row)
-        if len(rows) > 2000:
-            rows = rows[-2000:]
-        save_rows(rows)
-        self._json({"ok": True, "id": len(rows)})
+        with LOCK:
+            rows = load_rows()
+            rows.append(row)
+            if len(rows) > 2000:
+                rows = rows[-2000:]
+            save_rows(rows)
+            total = len(rows)
+        self._json({"ok": True, "id": total})
 
     def _json(self, obj):
         blob = json.dumps(obj, ensure_ascii=False).encode("utf-8")
@@ -121,4 +169,4 @@ if __name__ == "__main__":
     DATA.parent.mkdir(parents=True, exist_ok=True)
     if not DATA.exists():
         DATA.write_text("[]", encoding="utf-8")
-    ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+    Server(("0.0.0.0", PORT), Handler).serve_forever()
