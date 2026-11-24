@@ -6,9 +6,9 @@
  * 和 review.html 就能正常读写。
  *
  * API 与 server.py 完全一致：
- *   GET  /api/runs
- *   GET  /api/honor?score=N
- *   POST /api/runs
+ *   GET  /api/runs          需要 REVIEW_KEY（设置了的话）
+ *   GET  /api/honor?score=N 公开
+ *   POST /api/runs          公开
  */
 
 const MAX_ROWS = 2000;
@@ -18,7 +18,7 @@ function cors(env) {
   return {
     "Access-Control-Allow-Origin": env.ALLOW_ORIGIN || "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-Review-Key",
     "Access-Control-Max-Age": "86400",
   };
 }
@@ -111,6 +111,9 @@ export async function handleRequest(request, env) {
     return new Response(null, { status: 204, headers: cors(env) });
   }
   if (url.pathname === "/api/runs" && request.method === "GET") {
+    if (env.REVIEW_KEY && request.headers.get("X-Review-Key") !== env.REVIEW_KEY) {
+      return json({ error: "unauthorized" }, 401, env);
+    }
     return json(await loadRows(env), 200, env);
   }
   if (url.pathname === "/api/honor" && request.method === "GET") {

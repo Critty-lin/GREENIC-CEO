@@ -100,8 +100,14 @@ npx wrangler kv namespace create RUNS
 # 把 id 填进根目录 wrangler.toml 和 serverless/wrangler.toml
 
 npx wrangler pages project create greenic-ceo-api --production-branch main
+
+# 设置复盘访问钥匙。不设置的话 GET /api/runs 是公开的。
+npx wrangler pages secret put REVIEW_KEY --project-name greenic-ceo-api
+
 npx wrangler pages deploy pages-public --project-name greenic-ceo-api --branch main
 ```
+
+`REVIEW_KEY` 不会写进仓库，也不会出现在 `config.js` 里；复盘页会让访问者手动输入。对局上报 `POST /api/runs` 和授勋 `GET /api/honor` 仍然是公开的。
 
 拿到 `https://greenic-ceo-api.pages.dev` 后，把 `config.js` 改成：
 
@@ -154,12 +160,32 @@ ALLOW_ORIGIN="https://<用户名>.github.io" PORT=8000 python3 server.py
 
 ## 数据页怎么维护
 
-- 地址：`https://<站点>/review.html`，页面不在游戏导航里，但**它是公开文件**，`robots.txt` 的 `Disallow` 只是不给搜索引擎收录，不是权限控制。
+- 地址：`https://<站点>/review.html`。页面 HTML 本身仍是公开的，但**没有访问钥匙看不到任何对局数据**：`GET /api/runs` 会校验 `X-Review-Key`，返回 401 时页面只显示输入框。
+- 钥匙设置在 Cloudflare Pages 的加密 Secret `REVIEW_KEY` 里，不写进代码；复盘页输入后只存在当前浏览器标签页的 `sessionStorage`，关掉页面就要重新输入。页面上有「锁定」按钮可以立即清除。
+- 设置或更换钥匙：
+
+```bash
+npx wrangler pages secret put REVIEW_KEY --project-name greenic-ceo-api
+npx wrangler pages deploy pages-public --project-name greenic-ceo-api --branch main
+```
+
 - 页面做的事：拉 `/api/runs`，按设备编号分组，取每台最高分；提供「导出表格（CSV）」和「导出备份（JSON）」。
-- 公开数据想加保护：把复盘页放到单独的私有仓库 / 本地打开；或者复制一份只读 Worker，用 Cloudflare Access 保护它，写入用的 Worker 保持公开。
-- 数据字段：得分、结局、印象、股价、剩余对手、淘汰数、宣言、随机设备号、时间戳。设备号是浏览器 `localStorage` 里的 8 位随机串，**不记录 IP、UA、姓名**；Cloudflare 边缘仍可能按平台策略记录访问日志。
+- 如果 `REVIEW_KEY` 没设置，`GET /api/runs` 是公开的，适合本地开发；线上请务必设置。本地 `python3 server.py` 也支持 `REVIEW_KEY=...` 环境变量。
+- 数据字段：得分、结局、印象、股价、剩余对手、淘汰数、宣言、随机设备号、时间戳。设备号是浏览器 `localStorage` 里的 8 位随机串，**不记录 IP、UA、姓名**。
 - 写接口是公开的，技术上可以伪造分数。如果要做排行榜奖励，请加 Cloudflare Turnstile、限流或服务端校验，别把现有数据当权威成绩。
 - 定期在复盘页点「导出备份」；换服务前先导出，再迁移。
+
+## 访问日志
+
+- **GitHub Pages** 不提供逐请求访问日志，仓库的 Traffic 里只有访客/克隆的汇总。
+- **Cloudflare Pages** 控制台有请求量、状态码等分析；需要实时看 Function 调用可以用：
+
+```bash
+npx wrangler pages deployment tail --project-name greenic-ceo-api
+```
+
+- 原始 HTTP 请求日志（含 IP、路径）属于 Cloudflare 的 Logpush / 企业级功能，免费套餐通常拿不到；平台会按自己的策略保留访问日志。
+- 本项目自身只把随机设备号、分数和结局写进 KV，不记录 IP 或 UA。如果要做访客统计，可以另外接 Cloudflare Web Analytics 或轻量计数器，并在页面上说明隐私政策。
 
 ## 最近的修改（2026-11-24）
 
@@ -174,6 +200,7 @@ ALLOW_ORIGIN="https://<用户名>.github.io" PORT=8000 python3 server.py
 - 护盘提示统一为「失误」，不再把漏掉的红盘算成「误点绿」。
 - 补 favicon、`robots.txt`、README 和部署说明。
 - 战绩服务上线：Cloudflare Pages Functions + KV，`config.js` 指向 `https://greenic-ceo-api.pages.dev`，CORS 限定 GitHub Pages 源；`workers.dev` 版本保留为备用。
+- 复盘页加访问钥匙：`GET /api/runs` 校验 `REVIEW_KEY`，页面无钥匙只显示输入框；对局上报和授勋保持公开。
 
 ## 免责声明
 
