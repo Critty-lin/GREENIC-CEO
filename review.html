@@ -55,14 +55,14 @@
   <h1>数据复盘</h1>
   <div class="sub">所有走完结局的对局都会记在这里。同一台设备归在一组。刷新本页看最新。不会出现在玩家首页。<br/>这个页面需要访问钥匙；钥匙只保存在当前浏览器会话。表格可用 Excel / WPS 打开，备份是完整账本。</div>
 
-  <div class="gate" id="gate" hidden>
+  <div class="gate" id="gate">
     <h2>需要访问钥匙</h2>
     <p>输入站长设置的访问钥匙后才能查看对局统计。玩家不需要这个页面，游戏和授勋不受影响。</p>
     <div class="gate-row">
       <input id="reviewKey" type="password" inputmode="text" autocomplete="off" spellcheck="false" placeholder="访问钥匙" aria-label="访问钥匙" />
       <button id="btnUnlock" type="button">解锁</button>
     </div>
-    <div class="gate-msg" id="gateMsg"></div>
+    <div class="gate-msg" id="gateMsg">正在检查访问状态…</div>
   </div>
 
   <div id="content" hidden>
