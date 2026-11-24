@@ -200,6 +200,46 @@
     }
     #overlay.on { display: flex; }
     .modal { width: 100%; }
+    #shareOverlay {
+      position: fixed; inset: 0; z-index: 20; display: none;
+      align-items: center; justify-content: center; padding: 16px;
+      background: rgba(0,0,0,.86);
+    }
+    #shareOverlay.on { display: flex; }
+    #shareOverlay [hidden] { display: none !important; }
+    .share-sheet {
+      position: relative; width: 100%; max-width: 480px; height: 92vh; height: 92dvh;
+      display: flex; flex-direction: column; overflow-y: auto;
+      background: #0c1a0c; border: 3px solid var(--gold);
+      padding: 14px; box-shadow: 6px 6px 0 #031006;
+    }
+    .share-sheet h3 { margin: 0 0 8px; color: var(--gold); font-size: 16px; }
+    .share-x {
+      position: absolute; top: 8px; right: 8px; width: 32px; height: 32px;
+      padding: 0; background: #061108; color: var(--dim); border: 2px solid var(--line);
+      font-family: inherit; font-size: 18px; line-height: 1; cursor: pointer;
+    }
+    .share-preview-wrap {
+      flex: 1 1 auto; min-height: 0; display: flex; align-items: center;
+      justify-content: center; overflow: hidden; margin: 8px 0 10px;
+    }
+    .share-preview {
+      max-width: 100%; max-height: 100%; width: auto; height: auto; display: block;
+      border: 2px solid var(--line); background: #08150b;
+    }
+    .share-loading {
+      flex: 1 1 auto; min-height: 160px; display: flex; align-items: center; justify-content: center;
+      gap: 8px; color: var(--dim); font-size: 12px;
+    }
+    .share-hint { color: var(--dim); font-size: 11px; line-height: 1.6; margin: 0 0 10px; min-height: 18px; }
+    .share-text {
+      width: 100%; min-height: 96px; margin: 0 0 10px; padding: 8px; resize: vertical;
+      background: #08150b; color: var(--ink); border: 2px solid var(--line);
+      font-family: inherit; font-size: 11px; line-height: 1.5;
+    }
+    .share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+    .share-actions .wide { grid-column: 1 / -1; }
+    .share-actions .go, .share-actions .choice { min-height: 44px; padding: 10px 8px; }
     .sheet {
       width: 100%; background: #0c1a0c; border: 3px solid var(--gold); padding: 14px;
       box-shadow: 6px 6px 0 #031006;
@@ -255,11 +295,30 @@
     <div id="overlay"></div>
   </div>
   <div class="floaters" id="floaters"></div>
+  <div id="shareOverlay" aria-hidden="true">
+    <div class="share-sheet" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+      <h3 id="shareTitle">分享战绩</h3>
+      <button class="share-x" id="btnShareX" type="button" aria-label="关闭">×</button>
+      <div class="share-loading" id="shareLoading"><span class="spin"></span> 正在生成战绩图…</div>
+      <div class="share-preview-wrap" id="sharePreviewWrap" hidden>
+        <img class="share-preview" id="sharePreview" alt="绿色芯片CEO竞选计战绩图" />
+      </div>
+      <div class="share-hint" id="shareHint" aria-live="polite"></div>
+      <textarea class="share-text" id="shareTextFallback" readonly hidden aria-label="分享文案"></textarea>
+      <div class="share-actions" id="shareActions" hidden>
+        <button class="go" id="btnShareSystem" type="button">分享到…</button>
+        <button class="choice" id="btnShareSave" type="button">保存图片</button>
+        <button class="choice ghost wide" id="btnShareCopy" type="button">复制文案</button>
+        <button class="choice ghost wide" id="btnShareClose" type="button">关闭</button>
+      </div>
+    </div>
+  </div>
   <script src="config.js"></script>
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
     const OPEN = 138.4;
+    const SHARE_URL = "https://critty-lin.github.io/GREENIC-CEO/";
     const API = String(window.ADVN_API == null ? "" : window.ADVN_API).replace(/\/+$/, "");
     const START_RIVALS = 128;
     const RIVAL_BLURB = "内部派 peekseed、华尔街空降 cobax、学术派 gpl、硬件狂人 caloud、公关天才 mini、成本杀手 kwan、云厂商说客 bork，以及一百多名海选选手";
@@ -679,9 +738,14 @@
           '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
           '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
           '<div class="score-pop" id="scorePop">0</div>';
-        state.lastEnd = { score: e.score, ending: info.title, id: e.id };
+        state.lastEnd = {
+          score: e.score, ending: info.title, id: e.id,
+          trust: state.trust, stock: state.stock, rivals: state.rivals,
+          quote: state.quote, souvenir: info.souvenir, hero: info.hero
+        };
         reportRun(e, info);
-        box.innerHTML = '<button class="go" data-act="honor" type="button">查看排行</button>' +
+        box.innerHTML = '<button class="go" data-act="share" type="button">分享战绩</button>' +
+          '<button class="choice" data-act="honor" type="button">查看排行</button>' +
           '<button class="choice ghost" data-act="restart" type="button">再竞选一次</button>';
         animateScore(e.score); sfx(e.good ? "win" : "lose");
         return;
@@ -1226,8 +1290,321 @@
       }, "sum5");
     }
 
+    let shareBlob = null;
+    let shareFile = null;
+    let shareTextValue = "";
+    let sharePreviewUrl = "";
+
+    function shareInfo() {
+      const last = state.lastEnd;
+      const e = last || judge();
+      const info = ENDINGS[e.id] || ENDINGS.advisor;
+      const quoteId = e.quote != null ? e.quote : state.quote;
+      const quote = QUOTES.find((q) => q.id === quoteId);
+      const rivals = e.rivals != null ? e.rivals : state.rivals;
+      return {
+        id: e.id,
+        title: info.title,
+        body: info.body,
+        souvenir: e.souvenir || info.souvenir,
+        hero: e.hero || info.hero,
+        score: e.score,
+        trust: e.trust != null ? e.trust : state.trust,
+        stock: e.stock != null ? e.stock : state.stock,
+        rivals,
+        beaten: START_RIVALS - rivals,
+        quote: quote ? quote.text : "",
+        date: new Date()
+      };
+    }
+
+    function shareDate(d) {
+      const p = (n) => (n < 10 ? "0" : "") + n;
+      return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate());
+    }
+
+    function buildShareText(d) {
+      const lines = [
+        "我在《绿色芯片CEO竞选计》拿到了「" + d.title + "」！",
+        "得分 " + d.score + " · 董事会印象 " + d.trust + " · 收盘 $" + d.stock.toFixed(2)
+      ];
+      if (d.quote) lines.push("宣言：" + d.quote);
+      lines.push("你也来竞选：" + SHARE_URL);
+      lines.push("#绿色芯片CEO竞选计");
+      return lines.join("\n");
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    function wrapText(ctx, text, maxWidth, maxLines) {
+      const chars = Array.from(String(text || ""));
+      const lines = [];
+      let line = "";
+      for (const ch of chars) {
+        const test = line + ch;
+        if (line && ctx.measureText(test).width > maxWidth) {
+          lines.push(line);
+          line = ch;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+      if (maxLines && lines.length > maxLines) lines.length = maxLines;
+      if (maxLines && lines.length === maxLines && lines.join("").length < chars.length) {
+        let last = lines[maxLines - 1];
+        while (last && ctx.measureText(last + "…").width > maxWidth) last = last.slice(0, -1);
+        lines[maxLines - 1] = last + "…";
+      }
+      return lines;
+    }
+
+    async function drawShareCard(d) {
+      const W = 1080, H = 1350;
+      const canvas = document.createElement("canvas");
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d");
+      const FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, "PingFang SC", "Microsoft YaHei", monospace';
+      ctx.imageSmoothingEnabled = false;
+      ctx.textBaseline = "top";
+      ctx.textAlign = "left";
+
+      ctx.fillStyle = "#07140a";
+      ctx.fillRect(0, 0, W, H);
+      for (let x = 0; x < W; x += 48) {
+        ctx.fillStyle = (x / 48) % 2 ? "#081609" : "#0a1c0c";
+        ctx.fillRect(x, 0, 24, H);
+      }
+      ctx.strokeStyle = "#76b900";
+      ctx.lineWidth = 12;
+      ctx.strokeRect(24, 24, W - 48, H - 48);
+      ctx.strokeStyle = "#1d3a18";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(52, 52, W - 104, H - 104);
+
+      ctx.fillStyle = "#e6c35c";
+      ctx.font = "bold 26px " + FONT;
+      ctx.fillText("PIXEL CAMPAIGN / 任命结果", 90, 96);
+      ctx.fillStyle = "#76b900";
+      ctx.font = "bold 62px " + FONT;
+      ctx.fillText("绿色芯片CEO竞选计", 90, 142);
+      ctx.fillStyle = "#def5c8";
+      ctx.font = "bold 96px " + FONT;
+      ctx.fillText(d.title, 90, 246);
+      ctx.fillStyle = "#1d3a18";
+      ctx.fillRect(90, 382, 900, 4);
+
+      const hx = 90, hy = 420, hw = 300, hh = 375;
+      ctx.fillStyle = "#08150b";
+      ctx.fillRect(hx, hy, hw, hh);
+      try {
+        const hero = await loadImage(heroUrl(d.hero));
+        ctx.drawImage(hero, hx, hy, hw, hh);
+      } catch (_) {}
+      ctx.strokeStyle = "#76b900";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(hx, hy, hw, hh);
+      ctx.fillStyle = "#7fa36a";
+      ctx.font = "bold 20px " + FONT;
+      ctx.fillText("xunxun / ADVN", hx, 390);
+
+      const rx = 440, rw = 550;
+      ctx.fillStyle = "#def5c8";
+      ctx.font = "28px " + FONT;
+      const bodyLines = wrapText(ctx, d.body, rw, 4);
+      bodyLines.forEach((line, i) => ctx.fillText(line, rx, 420 + i * 42));
+
+      const by = 420 + bodyLines.length * 42 + 20;
+      ctx.strokeStyle = "#e6c35c";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(rx, by, rw, 58);
+      ctx.fillStyle = "#e6c35c";
+      ctx.font = "bold 24px " + FONT;
+      ctx.fillText("纪念品 · " + d.souvenir, rx + 16, by + 16);
+
+      ctx.fillStyle = "#7fa36a";
+      ctx.font = "bold 26px " + FONT;
+      ctx.fillText("本局得分", 90, 815);
+      ctx.fillStyle = "#e6c35c";
+      ctx.font = "bold 118px " + FONT;
+      ctx.fillText(String(d.score), 90, 850);
+
+      const stats = [
+        ["收盘价", "$" + d.stock.toFixed(2)],
+        ["董事会印象", String(d.trust)],
+        ["累计淘汰", String(d.beaten)],
+        ["剩余对手", String(d.rivals)]
+      ];
+      const sx = [90, 315, 540, 765];
+      ctx.fillStyle = "#1d3a18";
+      [300, 525, 750].forEach((x) => ctx.fillRect(x, 1000, 2, 92));
+      stats.forEach((s, i) => {
+        ctx.fillStyle = "#7fa36a";
+        ctx.font = "bold 22px " + FONT;
+        ctx.fillText(s[0], sx[i], 1000);
+        ctx.fillStyle = "#def5c8";
+        ctx.font = "bold 40px " + FONT;
+        ctx.fillText(s[1], sx[i], 1038);
+      });
+
+      ctx.fillStyle = "#7fa36a";
+      ctx.font = "bold 22px " + FONT;
+      ctx.fillText("本局宣言 / QUOTE", 90, 1115);
+      ctx.fillStyle = "#e6c35c";
+      ctx.font = "26px " + FONT;
+      const quoteText = d.quote ? "“" + d.quote + "”" : "这局没有留下宣言。";
+      wrapText(ctx, quoteText, 900, 2).forEach((line, i) => ctx.fillText(line, 90, 1150 + i * 36));
+
+      ctx.fillStyle = "#1d3a18";
+      ctx.fillRect(90, 1248, 900, 2);
+      ctx.fillStyle = "#76b900";
+      ctx.font = "bold 22px " + FONT;
+      ctx.textAlign = "left";
+      ctx.fillText("你也来竞选：" + SHARE_URL, 90, 1268);
+      ctx.fillStyle = "#7fa36a";
+      ctx.font = "18px " + FONT;
+      ctx.textAlign = "right";
+      ctx.fillText(shareDate(d.date), 990, 1300);
+      ctx.textAlign = "left";
+
+      ctx.fillStyle = "#76b900";
+      [[30, 30], [W - 54, 30], [30, H - 54], [W - 54, H - 54]].forEach(([x, y]) => ctx.fillRect(x, y, 24, 24));
+
+      return await new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("toBlob failed"))), "image/png");
+      });
+    }
+
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (_) {}
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand("copy");
+        ta.remove();
+        return ok;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function downloadBlob(blob, filename) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+    }
+
+    function hideShare() {
+      const ov = $("shareOverlay");
+      if (!ov) return;
+      ov.classList.remove("on");
+      ov.setAttribute("aria-hidden", "true");
+      if (sharePreviewUrl) {
+        URL.revokeObjectURL(sharePreviewUrl);
+        sharePreviewUrl = "";
+      }
+      const preview = $("sharePreview");
+      if (preview) {
+        preview.removeAttribute("src");
+        preview.hidden = true;
+      }
+      $("sharePreviewWrap").hidden = true;
+      $("shareActions").hidden = true;
+      $("shareLoading").hidden = false;
+      $("shareTextFallback").hidden = true;
+      $("shareTextFallback").value = "";
+      shareBlob = null;
+      shareFile = null;
+      const trigger = document.querySelector('[data-act="share"]');
+      if (trigger) trigger.focus();
+    }
+
+    async function openShare() {
+      const d = shareInfo();
+      shareTextValue = buildShareText(d);
+      const ov = $("shareOverlay");
+      ov.classList.add("on");
+      ov.setAttribute("aria-hidden", "false");
+      $("sharePreview").hidden = true;
+      $("sharePreviewWrap").hidden = true;
+      $("shareActions").hidden = true;
+      $("shareLoading").hidden = false;
+      $("shareHint").textContent = "";
+      $("shareTextFallback").hidden = true;
+      $("shareTextFallback").value = "";
+      $("btnShareSystem").hidden = false;
+      $("btnShareSave").hidden = false;
+      $("btnShareCopy").hidden = false;
+      $("btnShareClose").hidden = false;
+      $("btnShareSave").classList.remove("wide");
+      $("btnShareCopy").classList.add("wide");
+      $("btnShareClose").classList.add("wide");
+      $("btnShareX").focus();
+
+      try {
+        const blob = await drawShareCard(d);
+        if (!ov.classList.contains("on")) return;
+        shareBlob = blob;
+        const safeTitle = String(d.title).replace(/[\\/:*?"<>|]/g, "");
+        try {
+          shareFile = new File([blob], "绿色芯片CEO-" + safeTitle + "-" + d.score + ".png", { type: "image/png" });
+        } catch (_) {
+          shareFile = null;
+        }
+        if (sharePreviewUrl) URL.revokeObjectURL(sharePreviewUrl);
+        sharePreviewUrl = URL.createObjectURL(blob);
+        $("sharePreview").src = sharePreviewUrl;
+        $("sharePreview").hidden = false;
+        $("sharePreviewWrap").hidden = false;
+        $("shareLoading").hidden = true;
+
+        let canFile = false;
+        try {
+          canFile = !!(shareFile && navigator.canShare && navigator.share && navigator.canShare({ files: [shareFile] }));
+        } catch (_) {}
+        $("btnShareSystem").hidden = !canFile;
+        $("btnShareSave").classList.toggle("wide", !canFile);
+        $("shareActions").hidden = false;
+        $("shareHint").textContent = canFile
+          ? "可以直接发到微信、QQ、微博等；也可以先保存图片。"
+          : "当前浏览器不支持直接分享图片，请保存后用微信 / QQ 发送。";
+      } catch (_) {
+        if (!ov.classList.contains("on")) return;
+        $("shareLoading").hidden = true;
+        $("shareHint").textContent = "图片生成失败，请关闭后重试。";
+        $("btnShareSystem").hidden = true;
+        $("btnShareSave").hidden = true;
+        $("btnShareCopy").hidden = true;
+        $("btnShareClose").classList.add("wide");
+        $("shareActions").hidden = false;
+      }
+    }
+
     function restart() {
       stopLoops();
+      hideShare();
       hidePay();
       Object.assign(state, {
         scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
@@ -1262,6 +1639,7 @@
     $("choices").addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
       const act = b.dataset.act;
+      if (act === "share") { sfx("click"); openShare(); return; }
       if (act === "restart") { sfx("click"); restart(); return; }
       if (act === "intel") { sfx("boom"); state.scene = "intel"; render(); return; }
       if (act === "album") { sfx("click"); state.scene = "album"; render(); return; }
@@ -1315,9 +1693,14 @@
     document.addEventListener("keydown", (e) => {
       if (e.repeat) return;
       if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT")) return;
+      if ($("shareOverlay").classList.contains("on")) {
+        if (e.key === "Escape") hideShare();
+        return;
+      }
       if ($("overlay").classList.contains("on")) return;
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      if ((state.scene === "end" || state.scene === "quitend") && (key === "Enter" || key === "r")) { restart(); return; }
+      if ((state.scene === "end" || state.scene === "quitend") && key === "Enter") { openShare(); return; }
+      if ((state.scene === "end" || state.scene === "quitend") && key === "r") { restart(); return; }
       if (state.scene === "title" && (key === "1" || key === "Enter")) { sfx("boom"); state.scene = "intel"; render(); return; }
       if (state.scene === "intel" && key === "1") { state.scene = "apply"; render(); return; }
       if (state.scene === "intel" && key === "2") { state.pay = "roastpick"; showPay(); return; }
@@ -1366,6 +1749,42 @@
       if (act === "roastwho") { sfx("click"); state.fileRead = b.dataset.id; state.pay = "roast"; showPay(); return; }
       if (act === "roastok") { sfx("ok"); bumpTrust(1); bumpStock(-0.8, "gooola 锐评已发出"); hidePay(); state.scene = "apply"; render(); return; }
       if (act === "lostok") { afterPayClose(); return; }
+    });
+
+    $("btnShareX").addEventListener("click", hideShare);
+    $("btnShareClose").addEventListener("click", hideShare);
+    $("btnShareSave").addEventListener("click", () => {
+      if (!shareBlob) return;
+      downloadBlob(shareBlob, shareFile ? shareFile.name : "绿色芯片CEO战绩.png");
+      $("shareHint").textContent = "图片已保存，去微信 / QQ 发送吧。";
+    });
+    $("btnShareCopy").addEventListener("click", async () => {
+      const ok = await copyText(shareTextValue);
+      const ta = $("shareTextFallback");
+      if (ok) {
+        ta.hidden = true;
+        $("shareHint").textContent = "文案已复制，去粘贴吧。";
+      } else {
+        ta.value = shareTextValue;
+        ta.hidden = false;
+        ta.focus();
+        ta.select();
+        $("shareHint").textContent = "自动复制失败，已选中文本，请手动复制。";
+      }
+    });
+    $("btnShareSystem").addEventListener("click", async () => {
+      if (!shareFile || !shareBlob) return;
+      try {
+        await navigator.share({ files: [shareFile], title: "绿色芯片CEO竞选计", text: shareTextValue });
+        $("shareHint").textContent = "已打开系统分享。";
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        downloadBlob(shareBlob, shareFile.name);
+        $("shareHint").textContent = "系统分享不可用，已保存图片。";
+      }
+    });
+    $("shareOverlay").addEventListener("click", (e) => {
+      if (e.target === $("shareOverlay")) hideShare();
     });
 
     setInterval(() => {
