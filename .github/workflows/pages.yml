@@ -3,6 +3,13 @@ name: Deploy Pages
 on:
   push:
     branches: [master]
+    paths:
+      - "index.html"
+      - "review.html"
+      - "config.js"
+      - "robots.txt"
+      - ".nojekyll"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -37,6 +44,10 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+
+      # GitHub 的 artifact 索引偶尔会比上传步骤慢一拍，等几秒再部署。
+      - name: Wait for artifact indexing
+        run: sleep 8
 
       - name: Deploy
         id: deployment
