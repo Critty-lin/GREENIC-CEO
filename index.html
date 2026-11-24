@@ -308,6 +308,7 @@
       <div class="share-actions" id="shareActions" hidden>
         <button class="go" id="btnShareSystem" type="button">分享到…</button>
         <button class="choice" id="btnShareSave" type="button">保存图片</button>
+        <button class="choice ghost" id="btnShareLink" type="button" hidden>复制结局链接</button>
         <button class="choice ghost wide" id="btnShareCopy" type="button">复制文案</button>
         <button class="choice ghost wide" id="btnShareClose" type="button">关闭</button>
       </div>
@@ -319,6 +320,8 @@
     const $ = (id) => document.getElementById(id);
     const OPEN = 138.4;
     const SHARE_URL = "https://critty-lin.github.io/GREENIC-CEO/";
+    const IS_WECHAT = /micromessenger/i.test(navigator.userAgent);
+    const RESULT_KEY = "advn-result";
     const API = String(window.ADVN_API == null ? "" : window.ADVN_API).replace(/\/+$/, "");
     const START_RIVALS = 128;
     const RIVAL_BLURB = "内部派 peekseed、华尔街空降 cobax、学术派 gpl、硬件狂人 caloud、公关天才 mini、成本杀手 kwan、云厂商说客 bork，以及一百多名海选选手";
@@ -423,7 +426,7 @@
       scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
       rivals: START_RIVALS, waveStart: START_RIVALS, trust: 42, sentiment: 0, fileRead: "",
       muted: false, news: "盘前等待开盘", quote: null, busy: false,
-      pay: "idle", votes: {}, quit: false, lastEnd: null, reported: false,
+      pay: "idle", votes: {}, quit: false, lastEnd: null, reported: false, restored: false,
       dm: { items: [], raf: 0, t0: 0, hits: 0, miss: 0, leaks: 0, running: false },
       time: { raf: 0, x: 0, t: 0, n: 0, hits: 0, tries: 0, zone: { left: 0.34, width: 0.28 } },
       mem: { seq: [], step: 0, phase: "show", go: false },
@@ -727,8 +730,15 @@
       try {
 
       if (sc === "end" || sc === "quitend") {
-        const e = judge();
+        const e = state.lastEnd || judge();
         const info = ENDINGS[e.id];
+        const good = e.good != null ? e.good : GOOD_ENDINGS.indexOf(e.id) >= 0;
+        const restoredHint = state.restored
+          ? '<div class="hint">已从结局链接恢复这局结果，可以直接保存分享图，或再竞选一次。</div>'
+          : "";
+        const wechatHint = IS_WECHAT
+          ? '<div class="hint">微信内无法直接保存图片：点右上角「···」→「在浏览器打开」，结局会自动恢复。</div>'
+          : "";
         saveAlbum(e.id);
         stage.innerHTML = '<div class="scene-kicker">任命结果</div><h2>' + info.title + "</h2>" +
           '<div class="hero-wrap">' + heroHtml(false, info.hero) + '<div class="body">' + info.body +
@@ -737,17 +747,19 @@
           '<div class="end-line"><span>剩余对手</span><b>' + state.rivals + "</b></div>" +
           '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
           '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
-          '<div class="score-pop" id="scorePop">0</div>';
+          '<div class="score-pop" id="scorePop">0</div>' + restoredHint + wechatHint;
         state.lastEnd = {
           score: e.score, ending: info.title, id: e.id,
           trust: state.trust, stock: state.stock, rivals: state.rivals,
-          quote: state.quote, souvenir: info.souvenir, hero: info.hero
+          quote: state.quote, souvenir: info.souvenir, hero: info.hero,
+          good, at: e.at || Math.floor(Date.now() / 1000)
         };
-        reportRun(e, info);
+        if (!state.reported) reportRun(e, info);
+        rememberResult(state.lastEnd);
         box.innerHTML = '<button class="go" data-act="share" type="button">分享战绩</button>' +
           '<button class="choice" data-act="honor" type="button">查看排行</button>' +
           '<button class="choice ghost" data-act="restart" type="button">再竞选一次</button>';
-        animateScore(e.score); sfx(e.good ? "win" : "lose");
+        animateScore(e.score); sfx(good ? "win" : "lose");
         return;
       }
 
@@ -1314,7 +1326,7 @@
         rivals,
         beaten: START_RIVALS - rivals,
         quote: quote ? quote.text : "",
-        date: new Date()
+        date: new Date((e.at || Math.floor(Date.now() / 1000)) * 1000)
       };
     }
 
@@ -1535,6 +1547,7 @@
       $("shareLoading").hidden = false;
       $("shareTextFallback").hidden = true;
       $("shareTextFallback").value = "";
+      $("btnShareLink").hidden = true;
       shareBlob = null;
       shareFile = null;
       const trigger = document.querySelector('[data-act="share"]');
@@ -1557,6 +1570,7 @@
       $("btnShareSystem").hidden = false;
       $("btnShareSave").hidden = false;
       $("btnShareCopy").hidden = false;
+      $("btnShareLink").hidden = true;
       $("btnShareClose").hidden = false;
       $("btnShareSave").classList.remove("wide");
       $("btnShareCopy").classList.add("wide");
@@ -1584,12 +1598,16 @@
         try {
           canFile = !!(shareFile && navigator.canShare && navigator.share && navigator.canShare({ files: [shareFile] }));
         } catch (_) {}
+        if (IS_WECHAT) canFile = false;
         $("btnShareSystem").hidden = !canFile;
-        $("btnShareSave").classList.toggle("wide", !canFile);
+        $("btnShareLink").hidden = !IS_WECHAT;
+        $("btnShareSave").classList.toggle("wide", !canFile && !IS_WECHAT);
         $("shareActions").hidden = false;
-        $("shareHint").textContent = canFile
-          ? "可以直接发到微信、QQ、微博等；也可以先保存图片。"
-          : "当前浏览器不支持直接分享图片，请保存后用微信 / QQ 发送。";
+        $("shareHint").textContent = IS_WECHAT
+          ? "微信内不能直接保存或分享图片。请点右上角「···」→「在浏览器打开」，结局会自动恢复；也可以复制结局链接。"
+          : canFile
+            ? "可以直接发到微信、QQ、微博等；也可以先保存图片。"
+            : "当前浏览器不支持直接分享图片，请保存后用微信 / QQ 发送。";
       } catch (_) {
         if (!ov.classList.contains("on")) return;
         $("shareLoading").hidden = true;
@@ -1597,19 +1615,125 @@
         $("btnShareSystem").hidden = true;
         $("btnShareSave").hidden = true;
         $("btnShareCopy").hidden = true;
+        $("btnShareLink").hidden = true;
         $("btnShareClose").classList.add("wide");
         $("shareActions").hidden = false;
       }
+    }
+
+    const GOOD_ENDINGS = ["ceo", "crisis_ceo", "bubble", "almost"];
+
+    function encodeResult(r) {
+      const payload = {
+        v: 1,
+        id: r.id,
+        score: r.score,
+        trust: r.trust,
+        stock: r.stock,
+        rivals: r.rivals,
+        quote: r.quote || null,
+        at: r.at || Math.floor(Date.now() / 1000)
+      };
+      const bytes = new TextEncoder().encode(JSON.stringify(payload));
+      let bin = "";
+      bytes.forEach((b) => { bin += String.fromCharCode(b); });
+      return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+
+    function decodeResult(raw) {
+      try {
+        const b64 = raw.replace(/-/g, "+").replace(/_/g, "/");
+        const pad = b64.length % 4 ? "=".repeat(4 - (b64.length % 4)) : "";
+        const bin = atob(b64 + pad);
+        const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+        const d = JSON.parse(new TextDecoder().decode(bytes));
+        if (!d || d.v !== 1 || !Object.prototype.hasOwnProperty.call(ENDINGS, d.id)) return null;
+        const num = (value, fallback, min, max) => {
+          const n = Number(value);
+          return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+        };
+        return {
+          id: d.id,
+          score: Math.round(num(d.score, 0, 0, 999999)),
+          trust: Math.round(num(d.trust, 42, 0, 100)),
+          stock: Math.round(num(d.stock, OPEN, 42, 260) * 100) / 100,
+          rivals: Math.round(num(d.rivals, START_RIVALS, 0, START_RIVALS)),
+          quote: QUOTES.some((q) => q.id === d.quote) ? d.quote : null,
+          at: Math.round(num(d.at, Math.floor(Date.now() / 1000), 0, 4102444800))
+        };
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function applyRestoredResult(d) {
+      const info = ENDINGS[d.id];
+      state.scene = "end";
+      state.stock = d.stock;
+      state.trust = d.trust;
+      state.rivals = d.rivals;
+      state.hist = [d.stock, d.stock, d.stock];
+      state.quote = d.quote;
+      state.quit = d.id === "quit";
+      state.news = "已恢复结局 · 可保存分享图";
+      state.reported = true;
+      state.restored = true;
+      state.lastEnd = {
+        score: d.score, ending: info.title, id: d.id,
+        trust: d.trust, stock: d.stock, rivals: d.rivals,
+        quote: d.quote, souvenir: info.souvenir, hero: info.hero,
+        good: GOOD_ENDINGS.indexOf(d.id) >= 0, at: d.at
+      };
+    }
+
+    function rememberResult(r) {
+      let payload = "";
+      try { payload = encodeResult(r); } catch (_) { return; }
+      try { sessionStorage.setItem(RESULT_KEY, payload); } catch (_) {}
+      try {
+        history.replaceState(null, "", location.pathname + location.search + "#result=" + payload);
+      } catch (_) {
+        try { location.hash = "result=" + payload; } catch (_) {}
+      }
+    }
+
+    function clearRememberedResult() {
+      try { sessionStorage.removeItem(RESULT_KEY); } catch (_) {}
+      try {
+        if ((location.hash || "").indexOf("result=") >= 0) {
+          history.replaceState(null, "", location.pathname + location.search);
+        }
+      } catch (_) {
+        try { location.hash = ""; } catch (_) {}
+      }
+    }
+
+    function restoreResultFromUrl() {
+      let raw = "";
+      const m = (location.hash || "").match(/^#result=(.+)$/);
+      if (m) raw = m[1];
+      if (!raw) {
+        try { raw = sessionStorage.getItem(RESULT_KEY) || ""; } catch (_) {}
+      }
+      if (!raw) return false;
+      const d = decodeResult(raw);
+      if (!d) {
+        clearRememberedResult();
+        return false;
+      }
+      applyRestoredResult(d);
+      return true;
     }
 
     function restart() {
       stopLoops();
       hideShare();
       hidePay();
+      clearRememberedResult();
       Object.assign(state, {
         scene: "title", stock: OPEN, hist: [OPEN, OPEN + 0.2, OPEN],
         rivals: START_RIVALS, waveStart: START_RIVALS, trust: 42, sentiment: 0, fileRead: "",
-        news: "盘前等待开盘", quote: null, busy: false, pay: "idle", votes: {}, quit: false, lastEnd: null, reported: false
+        news: "盘前等待开盘", quote: null, busy: false, pay: "idle", votes: {}, quit: false, lastEnd: null, reported: false, restored: false
       });
       state.gossip = { i: 0, ok: 0 };
       state.mem = { seq: [], step: 0, phase: "show", go: false, lock: false };
@@ -1772,6 +1896,21 @@
         $("shareHint").textContent = "自动复制失败，已选中文本，请手动复制。";
       }
     });
+    $("btnShareLink").addEventListener("click", async () => {
+      const link = location.href;
+      const ok = await copyText(link);
+      const ta = $("shareTextFallback");
+      if (ok) {
+        ta.hidden = true;
+        $("shareHint").textContent = "结局链接已复制，去外部浏览器打开即可。";
+      } else {
+        ta.value = link;
+        ta.hidden = false;
+        ta.focus();
+        ta.select();
+        $("shareHint").textContent = "自动复制失败，已选中结局链接，请手动复制。";
+      }
+    });
     $("btnShareSystem").addEventListener("click", async () => {
       if (!shareFile || !shareBlob) return;
       try {
@@ -1794,8 +1933,13 @@
       bumpStock((Math.random() - 0.5) * 0.55 + state.sentiment, null, true); paintHud();
     }, 1600);
 
-    try { render(); window.asteamPreview && window.asteamPreview.ready && window.asteamPreview.ready(); }
-    catch (err) { window.asteamPreview && window.asteamPreview.fail && window.asteamPreview.fail(String(err && err.message || err)); }
+    try {
+      restoreResultFromUrl();
+      render();
+      window.asteamPreview && window.asteamPreview.ready && window.asteamPreview.ready();
+    } catch (err) {
+      window.asteamPreview && window.asteamPreview.fail && window.asteamPreview.fail(String(err && err.message || err));
+    }
   })();
   </script>
 </body>
