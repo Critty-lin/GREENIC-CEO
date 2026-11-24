@@ -117,6 +117,8 @@ window.ADVN_API = "https://greenic-ceo-api.pages.dev";
 
 提交推送，GitHub Pages 会自动重新部署；游戏上报、授勋和复盘页都走这个 API。`ALLOW_ORIGIN` 要写成你的 GitHub Pages 站点源（例如 `https://critty-lin.github.io`，不带仓库路径）。
 
+> KV 是最终一致存储，而且当前把整本账写在一个 `runs` 数组里，多个玩家同一秒结算时理论上可能互相覆盖。朋友局够用；如果要公开大流量，建议换 D1 / 队列，或至少接受极小概率的丢记录。
+
 ### 方案 B：Cloudflare Worker + KV（备用）
 
 `serverless/worker.js` 同时是一个标准 Worker。如果 `workers.dev` 在你的网络可访问：
@@ -126,6 +128,7 @@ cd serverless
 npx wrangler login
 npx wrangler kv namespace create RUNS
 # 把输出里的 id 填进 wrangler.toml
+npx wrangler secret put REVIEW_KEY
 npx wrangler deploy
 ```
 
@@ -183,6 +186,8 @@ npx wrangler pages deploy pages-public --project-name greenic-ceo-api --branch m
 ```bash
 npx wrangler pages deployment tail --project-name greenic-ceo-api
 ```
+
+`tail` 是实时输出，只显示你运行命令期间发生的请求；它不保存历史。
 
 - 原始 HTTP 请求日志（含 IP、路径）属于 Cloudflare 的 Logpush / 企业级功能，免费套餐通常拿不到；平台会按自己的策略保留访问日志。
 - 本项目自身只把随机设备号、分数和结局写进 KV，不记录 IP 或 UA。如果要做访客统计，可以另外接 Cloudflare Web Analytics 或轻量计数器，并在页面上说明隐私政策。
