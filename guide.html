@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07140a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Crect%20width='16'%20height='16'%20fill='%2307140a'/%3E%3Crect%20x='4'%20y='4'%20width='8'%20height='8'%20fill='%2376b900'/%3E%3C/svg%3E" />
+  <title>全结局攻略 · 绿色芯片CEO竞选计</title>
+  <style>
+    :root {
+      --bg: #07140a; --panel: #0c1f10; --ink: #def5c8; --dim: #7fa36a;
+      --nv: #76b900; --gold: #e6c35c; --line: #1d3a18; --bad: #ff6b57;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      margin: 0; padding: 18px 14px 48px;
+      background:
+        linear-gradient(rgba(7,20,10,.94), rgba(7,20,10,.94)),
+        repeating-linear-gradient(90deg, #0a1c0c 0 12px, #081609 12px 24px);
+      color: var(--ink);
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, "PingFang SC", "Microsoft YaHei", monospace;
+      line-height: 1.7;
+    }
+    .wrap { max-width: 860px; margin: 0 auto; }
+    a { color: var(--nv); }
+    h1 { margin: 6px 0 8px; font-size: clamp(28px, 7vw, 44px); color: var(--nv); line-height: 1.15; text-shadow: 3px 3px 0 #102406; }
+    h2 { margin: 0 0 12px; color: var(--gold); font-size: 20px; }
+    h3 { margin: 0 0 6px; color: var(--ink); font-size: 16px; }
+    p { margin: 0 0 10px; }
+    .kicker { color: var(--gold); font-size: 11px; letter-spacing: .18em; }
+    .lead { color: var(--ink); font-size: 15px; }
+    .meta { color: var(--dim); font-size: 11px; }
+    header { padding: 18px; border: 3px solid var(--nv); background: #061108; box-shadow: 5px 5px 0 #031006; margin-bottom: 18px; }
+    .back { display: inline-block; margin-top: 10px; padding: 9px 12px; border: 3px solid var(--gold); color: var(--gold); text-decoration: none; font-weight: 700; font-size: 13px; }
+    nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; }
+    nav a { display: block; padding: 7px 9px; border: 2px solid var(--line); background: #0a160c; color: var(--dim); text-decoration: none; font-size: 11px; }
+    nav a:hover { border-color: var(--nv); color: var(--ink); }
+    section { border: 3px solid var(--line); background: var(--panel); padding: 16px; margin-bottom: 18px; }
+    section.highlight { border-color: var(--gold); }
+    .note { border-left: 4px solid var(--gold); background: #10240c; padding: 10px 12px; color: var(--dim); font-size: 12px; margin: 10px 0; }
+    .warn { border-left: 4px solid var(--bad); background: #2a1210; padding: 10px 12px; color: #ffb0a5; font-size: 12px; margin: 10px 0; }
+    .tip { border-left: 4px solid var(--nv); background: #0a1f0d; padding: 10px 12px; color: var(--ink); font-size: 12px; margin: 10px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 8px 0 12px; }
+    th, td { text-align: left; padding: 8px 7px; border-bottom: 2px solid var(--line); vertical-align: top; }
+    th { color: var(--gold); white-space: nowrap; }
+    td b { color: var(--nv); }
+    .scroll { overflow-x: auto; }
+    .good { color: var(--nv); }
+    .gold { color: var(--gold); }
+    .bad { color: var(--bad); }
+    .dim { color: var(--dim); }
+    .pill { display: inline-block; border: 2px solid var(--line); padding: 2px 6px; color: var(--dim); font-size: 10px; margin: 1px 2px 1px 0; }
+    .pill.on { border-color: var(--nv); color: var(--ink); }
+    ol, ul { margin: 6px 0 10px; padding-left: 22px; }
+    li { margin: 4px 0; }
+    .ending { border: 3px solid var(--line); background: #0a160c; padding: 14px; margin: 12px 0; }
+    .ending h3 { color: var(--gold); }
+    .ending .tag { display: inline-block; border: 2px solid var(--nv); color: var(--nv); font-size: 10px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
+    .ending .tag.hard { border-color: var(--bad); color: var(--bad); }
+    .ending .stats { color: var(--dim); font-size: 11px; margin: 4px 0 8px; }
+    .calc-row { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 8px; align-items: end; }
+    .calc-row label { display: block; color: var(--dim); font-size: 11px; }
+    .calc-row input {
+      width: 100%; margin-top: 4px; padding: 9px; background: #08150b; color: var(--ink);
+      border: 3px solid var(--nv); font: inherit; font-weight: 700;
+    }
+    .calc-row button, .presets button {
+      appearance: none; cursor: pointer; font-family: inherit; font-weight: 700;
+      background: #16380c; color: var(--ink); border: 3px solid var(--nv); padding: 9px 12px; min-height: 42px;
+    }
+    .c-result { margin-top: 12px; border: 3px solid var(--line); background: #061108; padding: 12px; min-height: 58px; }
+    .c-result b { color: var(--gold); font-size: 20px; }
+    .c-result span { color: var(--dim); font-size: 12px; display: block; margin-top: 4px; }
+    .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .presets button { min-height: 32px; padding: 5px 8px; font-size: 11px; border-width: 2px; background: #0a160c; color: var(--dim); }
+    .presets button:hover { color: var(--ink); border-color: var(--gold); }
+    code { color: var(--gold); background: #08150b; padding: 1px 4px; }
+    footer { color: var(--dim); font-size: 11px; text-align: center; margin-top: 22px; }
+    @media (max-width: 640px) {
+      .calc-row { grid-template-columns: 1fr 1fr; }
+      .calc-row button { grid-column: 1 / -1; }
+      section { padding: 13px; }
+      table { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">GREENIC CEO / PLAYER GUIDE</div>
+    <h1>全结局攻略</h1>
+    <p class="lead">9 种结局 · 判定顺序 · 逐关操作 · 结局计算器</p>
+    <p class="meta">适用于当前线上版本 · 最后更新 2026.11</p>
+    <a class="back" href="./">← 回到游戏</a>
+  </header>
+
+  <nav>
+    <a href="#quick">速查表</a>
+    <a href="#priority">判定顺序</a>
+    <a href="#math">数值与淘汰</a>
+    <a href="#levels">逐关操作</a>
+    <a href="#endings">九结局打法</a>
+    <a href="#calc">结局计算器</a>
+    <a href="#traps">翻车点</a>
+  </nav>
+
+  <section id="quick" class="highlight">
+    <h2>一、结局速查表</h2>
+    <p class="dim">初始值：股价 <b>$138.40</b> · 董事会印象 <b>42</b> · 对手 <b>128</b>。下面给的是「想拿这个结局，结束时三围要落在哪」。</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>结局</th><th>股价</th><th>印象</th><th>对手</th><th>一句话打法</th></tr></thead>
+        <tbody>
+          <tr><td><b>你出任 CEO</b></td><td>≥128</td><td>≥68</td><td>≤22</td><td>全胜线：海选 12+ 条红，其他关全对。</td></tr>
+          <tr><td><b>泡沫上的加冕</b></td><td>≥168</td><td>≥52</td><td>≤48</td><td>把股价冲高，但别刚好满足 CEO；海选 9–11 条红最稳。</td></tr>
+          <tr><td><b>临危受命</b></td><td>96–127</td><td>≥50</td><td>≤48</td><td>保住印象和淘汰，再主动把股价压到 96–127。</td></tr>
+          <tr><td><b>有争议的任命</b></td><td>128–167</td><td>52–67（或 ≥68 且对手 23–30）</td><td>≤30</td><td>稳健但不冲 CEO，股价别上 168。</td></tr>
+          <tr><td><b>顾问席</b></td><td>其余情况</td><td>—</td><td>—</td><td>兜底结局；最常见是对手 31–48，或印象 &lt;52。</td></tr>
+          <tr><td><b>被对手截胡</b></td><td>≥96</td><td>≥36</td><td>≥49</td><td>少淘汰，但别把股价砸穿 96、印象跌破 36。</td></tr>
+          <tr><td><b>任命冻结</b></td><td>&lt;96</td><td>—</td><td>—</td><td>主动砸盘。跌破 96 就优先于其他结局。</td></tr>
+          <tr><td><b>印象没过线</b></td><td>≥96</td><td>&lt;36</td><td>—</td><td>故意低印象，但别把股价砸穿 96。</td></tr>
+          <tr><td><b>另谋出路</b></td><td>—</td><td>—</td><td>—</td><td>调研页选「放弃机会」并确认。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">表格是「目标区间」。判定有先后顺序，边界值（128、168、50、52、68、22、30、48）都按“大于等于 / 小于”精确取；拿不准就用下面的<a href="#calc">结局计算器</a>。</div>
+  </section>
+
+  <section id="priority">
+    <h2>二、判定顺序：先满足先赢</h2>
+    <p>结局不是同时比较，而是从上到下命中第一条：</p>
+    <ol>
+      <li><b>另谋出路</b>：调研页主动放弃。</li>
+      <li><b>任命冻结</b>：股价 &lt; 96。</li>
+      <li><b>印象没过线</b>：印象 &lt; 36。</li>
+      <li><b>被对手截胡</b>：对手 &gt; 48。</li>
+      <li><b>你出任 CEO</b>：印象 ≥ 68 且 股价 ≥ 128 且 对手 ≤ 22。</li>
+      <li><b>泡沫上的加冕</b>：股价 ≥ 168 且 印象 ≥ 52。</li>
+      <li><b>临危受命</b>：股价 &lt; 128 且 印象 ≥ 50（此时对手必然 ≤ 48，否则第 4 条已截胡）。</li>
+      <li><b>有争议的任命</b>：印象 ≥ 52 且 对手 ≤ 30。</li>
+      <li><b>顾问席</b>：以上都不满足。</li>
+    </ol>
+    <div class="warn">
+      三个最容易误解的点：<br />
+      1. 股价 ≥ 168 且印象 ≥ 52 时，<b>泡沫</b>优先于「有争议」；但如果同时满足 CEO（印象 ≥ 68、对手 ≤ 22），<b>CEO</b> 会先赢，哪怕股价 200。<br />
+      2. 泡沫<b>不要求</b>对手 ≤ 30，只要没被截胡（≤48）就行。<br />
+      3. 临危受命<b>不再要求</b>对手 ≤ 30，只要股价 96–127、印象 ≥ 50、对手 ≤ 48。
+    </div>
+  </section>
+
+  <section id="math">
+    <h2>三、数值与淘汰：先定结局，再定海选</h2>
+    <p>得分公式（只影响分数，不影响结局）：</p>
+    <p><code>印象 × 12 + max(0, 股价 − 90) × 2.2 + 已淘汰 × 2</code></p>
+    <p>对手从 128 开始，淘汰数 = 128 − 剩余对手。各结局需要的淘汰线：</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>目标</th><th>需要淘汰</th><th>海选大约要删多少红</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>对手 ≤ 22（CEO）</td><td>≥ 106</td><td>12–14 条</td><td>其他关卡几乎要全拿满（最多 39 淘汰）。</td></tr>
+          <tr><td>对手 ≤ 30（CEO / 有争议）</td><td>≥ 98</td><td>10–12 条</td><td>海选 10 条 + 其他关 39 淘汰 = 99，刚够。</td></tr>
+          <tr><td>对手 ≤ 48（危机 / 泡沫 / 顾问）</td><td>≥ 80</td><td>7–9 条</td><td>危机只要不被截胡，不必冲 30。</td></tr>
+          <tr><td>对手 ≥ 49（被截胡）</td><td>≤ 79</td><td>0–6 条</td><td>别太认真删红，同时保住股价和印象底线。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>其他关满淘汰 = 一面 12 + 二面 8 + 职场 10 + 护盘 8 + 表决 1 = <b>39</b>。海选每删 1 条红，立刻淘汰 3 人，结算再淘汰 <code>2 × 删除数</code>，所以一条红总共约等于 <b>5 个</b>淘汰，另外还有 10 人底数。</p>
+    <div class="tip">
+      海选公式（h = 删红数，m = 误伤绿框数，l = 漏过红框数）：<br />
+      淘汰 = <code>5h + 10</code>；印象 = <code>h + min(5,h) − m − floor(l/5)</code>；股价 = <code>2h − 3m − 0.7l</code>。<br />
+      想拿 CEO 就冲 h ≥ 12；想拿泡沫就控制在 h = 9–11；想拿危机 h 至少 7（或靠其他关卡补到 80 淘汰），再主动压股价。
+    </div>
+  </section>
+
+  <section id="levels">
+    <h2>四、逐关操作</h2>
+
+    <h3>1. 海选：弹幕</h3>
+    <ul>
+      <li>红框是反对言论，<b>点掉</b>；绿框是支持者，<b>不要点</b>；红框从左往右飘走算漏过。</li>
+      <li>优先级：先点红，再考虑绿；误伤绿框同时扣印象和股价，漏红也会扣股价。</li>
+      <li>键盘 <code>空格</code> 删除最左边一条，手机直接点。18 秒，大约会刷 24–25 条。</li>
+      <li>目标红数：CEO 12–14；泡沫 9–11；危机 7–12；有争议 10–12；顾问 7–9；截胡 0–6。</li>
+    </ul>
+
+    <h3>2. 一面：开口时机</h3>
+    <ul>
+      <li>指针在绿色区间时按 <code>空格</code> / 点「开口」，共 3 次。</li>
+      <li>3/3：印象 +12、股价 +6.6、淘汰 12；2/3：印象 +6、股价 +2.6、淘汰 8；1/3：印象 0、股价 −1.4、淘汰 4；0/3：印象 −6、股价 −5.4、淘汰 4。</li>
+      <li>盯住指针进绿区再按，不要连点。</li>
+    </ul>
+
+    <h3>3. 二面：记忆顺序</h3>
+    <ul>
+      <li>先看 3 个词依次出现，再从 6 个按钮里按同样顺序点；键盘 <code>1–6</code>。</li>
+      <li>全对：印象 +8、股价 +3.4、淘汰 8；点错一次立刻结束：印象 −3、股价 −2.2、淘汰 2。</li>
+      <li>可以默念第一个字编故事，例如「核-供-生」。</li>
+    </ul>
+
+    <h3>4. 职场：拆谣五连</h3>
+    <p>固定五句话，正确顺序是 <b>拆穿 / 放过 / 拆穿 / 放过 / 拆穿</b>，键盘 <code>1 2 1 2 1</code>：</p>
+    <ol>
+      <li>「peekseed 说 cobax 在买董事，发票还没贴完」→ <b>拆穿</b>（真谣）</li>
+      <li>「有人说你的皮衣和简历一样神秘」→ <b>放过</b>（闲聊）</li>
+      <li>「匿名在群里传播你是空降」→ <b>拆穿</b>（真谣）</li>
+      <li>「有人撞到了你，咖啡洒了，但那只是个意外」→ <b>放过</b>（意外）</li>
+      <li>「Caloud 说你不懂硬件，只懂皮衣」→ <b>拆穿</b>（真谣）</li>
+    </ol>
+    <p>5/5：印象 +10、股价 +4.2、淘汰 10；4/5：印象 +6、股价 +2.8、淘汰 10；3/5：印象 +2、股价 +1.4、淘汰 6；更少会倒扣。</p>
+
+    <h3>5. 董事会：护盘 8 秒</h3>
+    <ul>
+      <li>红 K 线是砸盘，点掉；绿 K 线是买盘，别点；红 K 线漏到底会扣股价和印象。</li>
+      <li>点红 6 个以上，结算淘汰 8（否则只有 3）；点红还能小幅拉股价。</li>
+      <li>每点一个绿、每漏一个红都会累积“失误”，结算最多扣 3 印象；为了压股价可以故意失误，但别在冲 CEO 时做。</li>
+    </ul>
+
+    <h3>6. 终局：拉票</h3>
+    <ul>
+      <li>三位可拉：peekseed、gpl、kwan，每人 +4 印象 +2.3 股价；提交表决时若 ≥2 人还会再淘汰 1。</li>
+      <li>cobax 是“钞能力”位，点了没有真实付费，也不会变成票；看完档案 +2 印象。</li>
+      <li>想压股价拿危机/截胡：可以只拉 0–2 人；想冲 CEO/泡沫：拉满 3 人。</li>
+    </ul>
+
+    <h3>7. 调研页与假付费</h3>
+    <ul>
+      <li>「匿名锐评」：印象 +1、股价 −0.8，可做可不做。</li>
+      <li>「弱点 ¥128」是玩梗，没有真实扣费。看完一份档案：印象 +2；选「确认放弃」：印象 −2、股价 −2.4。压股价时可以利用这个 −2.4。</li>
+    </ul>
+  </section>
+
+  <section id="endings">
+    <h2>五、九种结局逐条打法</h2>
+
+    <article class="ending">
+      <h3>你出任 CEO <span class="tag">全胜线</span></h3>
+      <div class="stats">目标：股价 ≥128 · 印象 ≥68 · 对手 ≤22</div>
+      <ol>
+        <li>海选：删 12–14 条红，尽量不误伤绿、不漏红。</li>
+        <li>一面 3/3；二面全对；职场 5/5；护盘点 6 个以上红，不点绿。</li>
+        <li>终局拉满 3 票；假付费可看档案补 +2 印象。</li>
+        <li>结果通常是印象 90–100、股价 180–210、对手 5–19。</li>
+      </ol>
+      <p class="dim">注意：股价 ≥168 也不会抢走 CEO，因为 CEO 判定在泡沫之前；只要印象 ≥68、对手 ≤22 就是 CEO。</p>
+    </article>
+
+    <article class="ending">
+      <h3>泡沫上的加冕 <span class="tag">冲高线</span></h3>
+      <div class="stats">目标：股价 ≥168 · 印象 ≥52 · 对手 ≤48，且不要满足 CEO</div>
+      <ol>
+        <li>海选删 <b>9–11</b> 条红。这个数量让对手大约剩 24–39，天然避开 CEO 的“≤22”。</li>
+        <li>一面、二面、职场尽量全对；护盘多点红，把股价推上去。</li>
+        <li>终局拉 3 票，股价更容易过 168。</li>
+        <li>如果股价没到 168，会掉到「有争议」或「顾问席」；如果海选删到 12+，容易变成 CEO。</li>
+      </ol>
+      <p class="dim">泡沫不要求对手 ≤30，所以 24–48 人都可以；但对手 &gt;48 会先被截胡。</p>
+    </article>
+
+    <article class="ending">
+      <h3>临危受命 <span class="tag hard">最容易被数值卡住</span></h3>
+      <div class="stats">目标：股价 96–127 · 印象 ≥50 · 对手 ≤48（≥49 会被截胡）</div>
+      <p>这一条的关键不是“多杀”，而是<b>把股价做难看，同时保住印象</b>。先正常打高印象，再在最后主动压盘。</p>
+      <ol>
+        <li>海选删 7–12 条红，保证总淘汰至少 80（否则对手 &gt;48 会被截胡）。其他关卡尽量拿印象和淘汰。</li>
+        <li>一面 3/3、二面全对、职场 5/5，把印象堆到 70 以上；护盘先点 6 个红拿淘汰。</li>
+        <li>压股价：终局少拉票（0–2 人）；假付费选「确认放弃」(−2.4 股价)；护盘后半段故意点绿、让红漏掉；海选可点 3–5 个绿框。</li>
+        <li>盯 HUD：把股价压到 <b>105–125</b> 最稳；低于 96 会变「任命冻结」，高于 127 会掉「有争议」。留 5–10 的余量给随机波动。</li>
+        <li>印象别掉到 50 以下；如果压盘导致印象接近 50，停止点绿，靠漏红/少拉票继续压。</li>
+      </ol>
+      <p class="dim">旧版本要求股价 &lt;120 且对手 ≤30，几乎不可能同时做到；现在危机带是 96–127，且不再要求对手 ≤30，正常打+主动压盘就能出。</p>
+    </article>
+
+    <article class="ending">
+      <h3>有争议的任命 <span class="tag">稳健线</span></h3>
+      <div class="stats">目标：股价 128–167 · 印象 52–67（或 ≥68 且对手 23–30）· 对手 ≤30</div>
+      <ol>
+        <li>海选 10–12 条红，其他关正常打，保证对手 ≤30。</li>
+        <li>不要把股价推过 168（少点绿、少拉票），也不要低于 128。</li>
+        <li>印象控制在 52–67：如果印象太高，让对手留在 23–30，避开 CEO 的 ≤22。</li>
+      </ol>
+    </article>
+
+    <article class="ending">
+      <h3>顾问席 <span class="tag">兜底线</span></h3>
+      <div class="stats">目标：最常见是对手 31–48；或印象 36–51 且对手 ≤30</div>
+      <ol>
+        <li>海选删 7–9 条红，其他关拿一部分淘汰，让对手停在 31–48。</li>
+        <li>股价压在 168 以下（否则可能泡沫）；如果股价低于 128，注意印象不要到 50，否则会变危机。</li>
+        <li>这是最容易自然掉进的结局：只要不满足上面任何一条，就是顾问席。</li>
+      </ol>
+    </article>
+
+    <article class="ending">
+      <h3>被对手截胡 <span class="tag">少杀线</span></h3>
+      <div class="stats">目标：对手 ≥49 · 股价 ≥96 · 印象 ≥36</div>
+      <ol>
+        <li>海选只删 0–6 条红，甚至直接跳过；其他关卡也别拿满淘汰。</li>
+        <li>保持股价不低于 96、印象不低于 36，避免先被判成冻结/没过线。</li>
+        <li>股价别上 168、印象别上 52，否则高股价会变成泡沫；必要时点绿/少拉票压一压。</li>
+      </ol>
+    </article>
+
+    <article class="ending">
+      <h3>任命冻结 <span class="tag">砸盘线</span></h3>
+      <div class="stats">目标：股价 &lt;96</div>
+      <ol>
+        <li>护盘时故意点绿、让红漏掉；终局少拉票；假付费确认放弃；海选可误伤绿框。</li>
+        <li>股价跌破 96 就锁定任命冻结，优先于印象/对手判定。</li>
+        <li>如果不想这么极端，留一点余量，别在 96 附近赌随机波动。</li>
+      </ol>
+    </article>
+
+    <article class="ending">
+      <h3>印象没过线 <span class="tag">低印象线</span></h3>
+      <div class="stats">目标：印象 &lt;36 · 股价 ≥96</div>
+      <ol>
+        <li>一面故意 0/3、二面点错、职场尽量拆错，压低印象。</li>
+        <li>别把股价砸穿 96（会先变冻结），所以不要点太多绿；可以用少拉票/漏红小幅压股价。</li>
+        <li>印象 &lt;36 后，哪怕对手很多也是“没过线”，不是截胡。</li>
+      </ol>
+    </article>
+
+    <article class="ending">
+      <h3>另谋出路 <span class="tag">退出线</span></h3>
+      <div class="stats">目标：调研页主动放弃</div>
+      <ol>
+        <li>首页开始 → 调研页 → 选「放弃机会，我终究还是做不到」。</li>
+        <li>在二次确认里点「确定放弃」。固定 120 分，进入结局页。</li>
+      </ol>
+    </article>
+  </section>
+
+  <section id="calc" class="highlight">
+    <h2>六、结局计算器</h2>
+    <p>输入结束时的三围，按当前正式判定算一遍。随机股价会让结果有 5–10 的波动，压线时请留余量。</p>
+    <div class="calc-row">
+      <label>股价（$）<input id="cStock" type="number" step="0.01" value="140" /></label>
+      <label>董事会印象<input id="cTrust" type="number" value="60" /></label>
+      <label>剩余对手<input id="cRivals" type="number" value="30" /></label>
+      <button id="cBtn" type="button">判定结局</button>
+    </div>
+    <div class="c-result" id="cResult"><b>—</b><span>输入三围后点判定。</span></div>
+    <div class="presets" id="presets">
+      <button type="button" data-s="150" data-t="80" data-r="15">CEO</button>
+      <button type="button" data-s="180" data-t="60" data-r="35">泡沫</button>
+      <button type="button" data-s="120" data-t="60" data-r="40">危机</button>
+      <button type="button" data-s="145" data-t="60" data-r="20">有争议</button>
+      <button type="button" data-s="145" data-t="60" data-r="40">顾问席</button>
+      <button type="button" data-s="130" data-t="50" data-r="60">截胡</button>
+      <button type="button" data-s="90" data-t="80" data-r="10">冻结</button>
+      <button type="button" data-s="130" data-t="30" data-r="10">没过线</button>
+    </div>
+    <div class="note">「另谋出路」不参与三围判定：在调研页选择放弃并确认即可。</div>
+  </section>
+
+  <section id="traps">
+    <h2>七、常见翻车点</h2>
+    <ul>
+      <li><b>想拿 CEO 却出了泡沫</b>：海选删少了，印象又没到 68；或者股价虽高但印象不够 CEO 线。CEO 要印象 ≥68、对手 ≤22。</li>
+      <li><b>想拿泡沫却出了 CEO</b>：海选删到 12+，对手 ≤22 且印象 ≥68，CEO 会优先。把海选控制在 9–11 条。</li>
+      <li><b>想拿危机却出了冻结</b>：压股价压过头，跌破 96。目标 105–125，不要贴着 96 赌。</li>
+      <li><b>想拿危机却出了截胡</b>：淘汰太少，对手 ≥49。危机要求至少 80 淘汰（对手 ≤48）。</li>
+      <li><b>想拿截胡却出了泡沫</b>：股价冲上 168 且印象 ≥52，泡沫优先。截胡要把股价压在 168 以下。</li>
+      <li><b>想拿顾问席却出了危机</b>：股价掉到 127 以下且印象 ≥50。顾问席要股价 ≥128，或印象 &lt;50。</li>
+      <li><b>最后几秒股价跳变</b>：股价每 1.6 秒随机走一次，压线时多留 5–10 余量。</li>
+    </ul>
+    <div class="tip">所有结局都会进入首页的「结局陈列室」，收集 9/9 会有完整的 xunxun 纪念品图鉴。分享战绩时，微信内请按提示点右上角「···」→「在浏览器打开」，结局会从链接自动恢复。</div>
+  </section>
+
+  <footer>
+    绿色芯片CEO竞选计 · 非官方恶搞作品 · 与 NVIDIA 及相关公司、人物无关联<br />
+    <a href="./">回到游戏</a>
+  </footer>
+</div>
+
+<script>
+  function judgeGuide(s, t, c) {
+    if (s < 96) return ["任命冻结", "股价跌破 96，先触发冻结"];
+    if (t < 36) return ["印象没过线", "印象低于 36"];
+    if (c > 48) return ["被对手截胡", "剩余对手超过 48"];
+    if (t >= 68 && s >= 128 && c <= 22) return ["你出任 CEO", "印象 ≥68、股价 ≥128、对手 ≤22"];
+    if (s >= 168 && t >= 52) return ["泡沫上的加冕", "股价 ≥168、印象 ≥52"];
+    if (s < 128 && t >= 50) return ["临危受命", "股价 96–127、印象 ≥50、对手 ≤48"];
+    if (t >= 52 && c <= 30) return ["有争议的任命", "印象 ≥52、对手 ≤30，股价 128–167"];
+    return ["顾问席", "没有命中前面的条件"];
+  }
+
+  const cStock = document.getElementById("cStock");
+  const cTrust = document.getElementById("cTrust");
+  const cRivals = document.getElementById("cRivals");
+  const cResult = document.getElementById("cResult");
+
+  function runCalculator() {
+    const s = Number(cStock.value);
+    const t = Number(cTrust.value);
+    const c = Number(cRivals.value);
+    if (!Number.isFinite(s) || !Number.isFinite(t) || !Number.isFinite(c)) {
+      cResult.innerHTML = "<b class='bad'>请输入数字</b><span>股价、印象、对手都要填。</span>";
+      return;
+    }
+    const [name, why] = judgeGuide(s, t, c);
+    cResult.innerHTML = "<b>" + name + "</b><span>" + why + "</span>";
+  }
+
+  document.getElementById("cBtn").addEventListener("click", runCalculator);
+  document.getElementById("presets").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    cStock.value = b.dataset.s;
+    cTrust.value = b.dataset.t;
+    cRivals.value = b.dataset.r;
+    runCalculator();
+  });
+  [cStock, cTrust, cRivals].forEach((el) => {
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter") runCalculator(); });
+  });
+  runCalculator();
+</script>
+</body>
+</html>

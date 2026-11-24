@@ -7,6 +7,7 @@ on:
       - "index.html"
       - "review.html"
       - "config.js"
+      - "guide.html"
       - "robots.txt"
       - ".nojekyll"
       - ".github/workflows/pages.yml"
@@ -38,7 +39,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp index.html review.html config.js robots.txt .nojekyll _site/
+          cp index.html review.html guide.html config.js robots.txt .nojekyll _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

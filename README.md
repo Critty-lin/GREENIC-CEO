@@ -1,6 +1,7 @@
 # 绿色芯片CEO竞选计
 
-在线游玩：<https://critty-lin.github.io/GREENIC-CEO/>
+在线游玩：<https://critty-lin.github.io/GREENIC-CEO/><br />
+全结局攻略：<https://critty-lin.github.io/GREENIC-CEO/guide.html>
 
 一个像素风的单页文字 + 小游戏合集：你扮演 `xunxun`，去「绿色芯片」（股票代码 **ADVN**）竞选 CEO，在海选、面试、职场流言、董事会护盘和终局拉票里活下来，最后按股价、董事会印象和剩余对手数拿到九种结局之一。
 
@@ -55,6 +56,7 @@ PORT=3000 python3 server.py
 ```text
 index.html            游戏本体（样式 + 逻辑 + 像素立绘 + 音效）
 review.html           数据复盘页（按设备分组、导出 CSV / JSON）
+guide.html            全结局攻略 + 结局判定计算器
 config.js             数据服务地址（当前指向 Pages API）
 server.py             本地 / 自托管服务：静态托管 + /api/runs + /api/honor
 wrangler.toml         Cloudflare Pages 项目配置（KV 绑定 / CORS）
@@ -209,6 +211,8 @@ npx wrangler pages deployment tail --project-name greenic-ceo-api
 - 复盘页加访问钥匙：`GET /api/runs` 校验 `REVIEW_KEY`，页面无钥匙只显示输入框；对局上报和授勋保持公开。
 - 结局页新增「分享战绩」：生成 1080×1350 的 PNG 战绩卡，只保留「保存图片」；微信内点击会自动复制结局链接并显示右上角引导。
 - 结局结果编码进 URL：刷新、从微信跳到外部浏览器时自动恢复结局并允许下载，恢复的页面不会重复上报对局。
+- 修复「临危受命」判定：旧版要求股价 <120 且对手 ≤30，和玩法数值反向耦合，线上几乎打不出；现在危机带改为股价 96–127、印象 ≥50、对手 ≤48。
+- 新增 `guide.html`：九结局条件、逐关操作和结局计算器，并从首页/结局页/README 链接进入。
 
 ## 免责声明
 

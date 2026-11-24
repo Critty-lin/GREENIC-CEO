@@ -95,6 +95,7 @@
     .cell span { display: block; font-size: 11px; color: var(--dim); margin-top: 4px; }
     .body { font-size: 15px; line-height: 1.55; }
     .hint { margin-top: 8px; color: var(--dim); font-size: 12px; line-height: 1.5; }
+    .hint a { color: var(--gold); }
     .choice, .go, .mem, .face {
       appearance: none; width: 100%; text-align: center; background: var(--btn); color: var(--ink);
       border: 3px solid var(--nv); padding: 12px 10px; min-height: 48px; font-size: 15px; line-height: 1.35;
@@ -727,7 +728,8 @@
       if (c > 48) return { id: "stolen", score, good: false };
       if (t >= 68 && s >= 128 && c <= 22) return { id: "ceo", score, good: true };
       if (s >= 168 && t >= 52) return { id: "bubble", score, good: true };
-      if (s < 120 && t >= 50 && c <= 30) return { id: "crisis_ceo", score, good: true };
+      // 危机带：96-127。股价低但董事会还信你即可；c>48 的截胡已在上面判掉。
+      if (s < 128 && t >= 50) return { id: "crisis_ceo", score, good: true };
       if (t >= 52 && c <= 30) return { id: "almost", score, good: true };
       return { id: "advisor", score, good: false };
     }
@@ -766,7 +768,8 @@
           '<div class="end-line"><span>剩余对手</span><b>' + state.rivals + "</b></div>" +
           '<div class="end-line"><span>累计已淘汰</span><b>' + (START_RIVALS - state.rivals) + "</b></div>" +
           '<div class="end-line"><span>董事会印象</span><b>' + state.trust + "</b></div>" +
-          '<div class="score-pop" id="scorePop">0</div>' + restoredHint + wechatHint;
+          '<div class="score-pop" id="scorePop">0</div>' + restoredHint + wechatHint +
+          '<div class="hint"><a href="guide.html">打其他结局？查看全部结局攻略</a></div>';
         state.lastEnd = {
           score: e.score, ending: info.title, id: e.id,
           trust: state.trust, stock: state.stock, rivals: state.rivals,
@@ -786,7 +789,8 @@
         stage.innerHTML = '<div class="scene-kicker">PIXEL CAMPAIGN</div><h1>绿色芯片CEO竞选计</h1>' +
           '<div class="hero-wrap">' + heroHtml(true) + '<div><div class="scene-kicker">xunxun</div><div class="body">你是 xunxun，一位多年扎根在 CEO 领域的神秘人士。近期由于一些众人皆知的原因，万众瞩目的绿色芯片公开寻找一位优秀的 CEO 继承人。出于对自身能力的自信和对皮衣的热爱，你决定参与这场竞选，成为搅动风云的人物之一！</div></div></div>';
         box.innerHTML = '<button class="go" data-act="intel" type="button">我要竞选CEO！</button>' +
-          '<button class="choice ghost" data-act="album" type="button">结局陈列室</button>';
+          '<button class="choice ghost" data-act="album" type="button">结局陈列室</button>' +
+          '<button class="choice ghost" data-act="guide" type="button">全结局攻略</button>';
         return;
       }
       if (sc === "album") {
@@ -1763,6 +1767,7 @@
       if (act === "restart") { sfx("click"); restart(); return; }
       if (act === "intel") { sfx("boom"); state.scene = "intel"; render(); return; }
       if (act === "album") { sfx("click"); state.scene = "album"; render(); return; }
+      if (act === "guide") { sfx("click"); location.href = "guide.html"; return; }
       if (act === "honor") { sfx("click"); state.scene = "honor"; render(); return; }
       if (act === "home") { sfx("click"); state.scene = "title"; render(); return; }
       if (act === "goapply") { sfx("click"); hidePay(); state.scene = "apply"; render(); return; }
