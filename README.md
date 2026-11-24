@@ -1,5 +1,7 @@
 # 绿色芯片CEO竞选计
 
+在线游玩：<https://critty-lin.github.io/GREENIC-CEO/>
+
 一个像素风的单页文字 + 小游戏合集：你扮演 `xunxun`，去「绿色芯片」（股票代码 **ADVN**）竞选 CEO，在海选、面试、职场流言、董事会护盘和终局拉票里活下来，最后按股价、董事会印象和剩余对手数拿到九种结局之一。
 
 纯前端、零依赖、无构建步骤：一个 `index.html` 就是完整游戏。可选的 Python 服务和 Cloudflare Worker 只负责收集对局数据。
@@ -65,10 +67,11 @@ robots.txt            禁止索引复盘页
 游戏本体可以直接放到 GitHub Pages，所有人打开网址就能玩。
 
 1. 新建仓库并推送本项目（`data/`、日志和缓存已被忽略）。
-2. 仓库 **Settings → Pages → Build and deployment**，选择 `Deploy from a branch`，分支选你推送的分支（本仓库当前是 `master`）、目录 `/ (root)`。
-3. 等一两分钟，访问 `https://<用户名>.github.io/<仓库名>/`。
+2. 仓库 **Settings → Pages → Build and deployment → Source**，选择 **GitHub Actions**。
+3. 仓库已带 `.github/workflows/pages.yml`，推送到 `master` 后会自动部署；首次也可以在 **Actions → Deploy Pages → Run workflow** 手动触发。
+4. 等一两分钟，访问 `https://<用户名>.github.io/<仓库名>/`。
 
-不需要 Actions，也没有构建产物。
+工作流只发布 `index.html`、`review.html`、`config.js`、`robots.txt` 和 `.nojekyll`，不会把 `server.py`、README 或开发文件放进站点。
 
 **注意：GitHub Pages 只能托管静态文件**，`/api/runs`、`/api/honor` 不存在。纯 Pages 部署时：
 
