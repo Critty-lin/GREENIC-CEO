@@ -28,7 +28,7 @@ PORT=3000 python3 server.py
 - 一面开口：`空格` / `Enter`，让指针落在绿区。
 - 二面记忆：先看词，再按顺序点；支持数字键 `1`–`6`。
 - 拉票：数字键 `1`–`4` 对应四个席位，`Enter` 提交。
-- 结局页：点「分享战绩」生成 1080×1350 分享图；`Enter` 分享，`R` 重开。
+- 结局页：点「分享战绩」生成 1080×1350 分享图；分享面板只有「保存图片 / 关闭」，`Enter` 分享，`R` 重开。
 - 微信内：结局页会提示点右上角「···」→「在浏览器打开」；结局会从 URL 恢复，然后保存或分享图片。
 
 ## 关卡与判定
@@ -207,7 +207,7 @@ npx wrangler pages deployment tail --project-name greenic-ceo-api
 - 补 favicon、`robots.txt`、README 和部署说明。
 - 战绩服务上线：Cloudflare Pages Functions + KV，`config.js` 指向 `https://greenic-ceo-api.pages.dev`，CORS 限定 GitHub Pages 源；`workers.dev` 版本保留为备用。
 - 复盘页加访问钥匙：`GET /api/runs` 校验 `REVIEW_KEY`，页面无钥匙只显示输入框；对局上报和授勋保持公开。
-- 结局页新增「分享战绩」：生成 1080×1350 的 PNG 战绩卡，支持系统分享、保存图片和复制文案。
+- 结局页新增「分享战绩」：生成 1080×1350 的 PNG 战绩卡，只保留「保存图片」；微信内点击会自动复制结局链接并显示右上角引导。
 - 结局结果编码进 URL：刷新、从微信跳到外部浏览器时自动恢复结局并允许下载，恢复的页面不会重复上报对局。
 
 ## 免责声明

@@ -232,14 +232,28 @@
       gap: 8px; color: var(--dim); font-size: 12px;
     }
     .share-hint { color: var(--dim); font-size: 11px; line-height: 1.6; margin: 0 0 10px; min-height: 18px; }
-    .share-text {
-      width: 100%; min-height: 96px; margin: 0 0 10px; padding: 8px; resize: vertical;
-      background: #08150b; color: var(--ink); border: 2px solid var(--line);
-      font-family: inherit; font-size: 11px; line-height: 1.5;
-    }
-    .share-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
-    .share-actions .wide { grid-column: 1 / -1; }
+    .share-actions { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: auto; }
     .share-actions .go, .share-actions .choice { min-height: 44px; padding: 10px 8px; }
+    .wx-guide {
+      position: fixed; inset: 0; z-index: 30; display: none;
+      align-items: center; justify-content: center; padding: 24px;
+      background: rgba(0,0,0,.92); text-align: center;
+    }
+    .wx-guide.on { display: flex; }
+    .wx-card {
+      position: relative; width: 100%; max-width: 420px;
+      background: #0c1a0c; border: 3px solid var(--gold); padding: 22px 18px;
+      box-shadow: 6px 6px 0 #031006;
+    }
+    .wx-card h3 { margin: 0 0 10px; color: var(--gold); font-size: 20px; }
+    .wx-card p { margin: 0 0 12px; color: var(--ink); font-size: 13px; line-height: 1.8; }
+    .wx-card .wx-note { color: var(--dim); font-size: 11px; min-height: 18px; }
+    .wx-arrow {
+      position: fixed; top: 10px; right: 18px; z-index: 31;
+      font-size: 52px; font-weight: 800; color: var(--nv);
+      text-shadow: 3px 3px 0 #031006; animation: wxpoint .9s steps(2) infinite;
+    }
+    @keyframes wxpoint { 50% { transform: translate(4px, -4px); } }
     .sheet {
       width: 100%; background: #0c1a0c; border: 3px solid var(--gold); padding: 14px;
       box-shadow: 6px 6px 0 #031006;
@@ -265,7 +279,7 @@
       .price { font-size: 18px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .price.flash, .floater, .ok-anim .check, .spin { animation: none; }
+      .price.flash, .floater, .ok-anim .check, .spin, .wx-arrow { animation: none; }
     }
   </style>
 </head>
@@ -304,14 +318,19 @@
         <img class="share-preview" id="sharePreview" alt="绿色芯片CEO竞选计战绩图" />
       </div>
       <div class="share-hint" id="shareHint" aria-live="polite"></div>
-      <textarea class="share-text" id="shareTextFallback" readonly hidden aria-label="分享文案"></textarea>
       <div class="share-actions" id="shareActions" hidden>
-        <button class="go" id="btnShareSystem" type="button">分享到…</button>
-        <button class="choice" id="btnShareSave" type="button">保存图片</button>
-        <button class="choice ghost" id="btnShareLink" type="button" hidden>复制结局链接</button>
-        <button class="choice ghost wide" id="btnShareCopy" type="button">复制文案</button>
+        <button class="go wide" id="btnShareSave" type="button">保存图片</button>
         <button class="choice ghost wide" id="btnShareClose" type="button">关闭</button>
       </div>
+    </div>
+  </div>
+  <div id="wxGuide" class="wx-guide" role="dialog" aria-modal="true" aria-labelledby="wxGuideTitle" aria-hidden="true">
+    <div class="wx-arrow">↗</div>
+    <div class="wx-card">
+      <h3 id="wxGuideTitle">请在浏览器打开</h3>
+      <p>微信内不能直接保存图片。点右上角「···」→「在浏览器打开」，结局会自动恢复，然后就能保存分享图。</p>
+      <p class="wx-note" id="wxCopyNote"></p>
+      <button class="go wide" id="btnWxClose" type="button">关闭</button>
     </div>
   </div>
   <script src="config.js"></script>
@@ -1303,8 +1322,7 @@
     }
 
     let shareBlob = null;
-    let shareFile = null;
-    let shareTextValue = "";
+    let shareName = "绿色芯片CEO战绩.png";
     let sharePreviewUrl = "";
 
     function shareInfo() {
@@ -1333,17 +1351,6 @@
     function shareDate(d) {
       const p = (n) => (n < 10 ? "0" : "") + n;
       return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate());
-    }
-
-    function buildShareText(d) {
-      const lines = [
-        "我在《绿色芯片CEO竞选计》拿到了「" + d.title + "」！",
-        "得分 " + d.score + " · 董事会印象 " + d.trust + " · 收盘 $" + d.stock.toFixed(2)
-      ];
-      if (d.quote) lines.push("宣言：" + d.quote);
-      lines.push("你也来竞选：" + SHARE_URL);
-      lines.push("#绿色芯片CEO竞选计");
-      return lines.join("\n");
     }
 
     function loadImage(src) {
@@ -1495,13 +1502,7 @@
       });
     }
 
-    async function copyText(text) {
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-          return true;
-        }
-      } catch (_) {}
+    function legacyCopy(text) {
       try {
         const ta = document.createElement("textarea");
         ta.value = text;
@@ -1516,6 +1517,18 @@
       } catch (_) {
         return false;
       }
+    }
+
+    async function copyText(text) {
+      // 微信 WebView 里 execCommand 往往比 Clipboard API 更可靠，先同步复制。
+      if (IS_WECHAT && legacyCopy(text)) return true;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (_) {}
+      return legacyCopy(text);
     }
 
     function downloadBlob(blob, filename) {
@@ -1545,18 +1558,19 @@
       $("sharePreviewWrap").hidden = true;
       $("shareActions").hidden = true;
       $("shareLoading").hidden = false;
-      $("shareTextFallback").hidden = true;
-      $("shareTextFallback").value = "";
-      $("btnShareLink").hidden = true;
+      const guide = $("wxGuide");
+      if (guide) {
+        guide.classList.remove("on");
+        guide.setAttribute("aria-hidden", "true");
+      }
       shareBlob = null;
-      shareFile = null;
+      shareName = "绿色芯片CEO战绩.png";
       const trigger = document.querySelector('[data-act="share"]');
       if (trigger) trigger.focus();
     }
 
     async function openShare() {
       const d = shareInfo();
-      shareTextValue = buildShareText(d);
       const ov = $("shareOverlay");
       ov.classList.add("on");
       ov.setAttribute("aria-hidden", "false");
@@ -1565,16 +1579,15 @@
       $("shareActions").hidden = true;
       $("shareLoading").hidden = false;
       $("shareHint").textContent = "";
-      $("shareTextFallback").hidden = true;
-      $("shareTextFallback").value = "";
-      $("btnShareSystem").hidden = false;
       $("btnShareSave").hidden = false;
-      $("btnShareCopy").hidden = false;
-      $("btnShareLink").hidden = true;
       $("btnShareClose").hidden = false;
-      $("btnShareSave").classList.remove("wide");
-      $("btnShareCopy").classList.add("wide");
+      $("btnShareSave").classList.add("wide");
       $("btnShareClose").classList.add("wide");
+      const guide = $("wxGuide");
+      if (guide) {
+        guide.classList.remove("on");
+        guide.setAttribute("aria-hidden", "true");
+      }
       $("btnShareX").focus();
 
       try {
@@ -1582,40 +1595,23 @@
         if (!ov.classList.contains("on")) return;
         shareBlob = blob;
         const safeTitle = String(d.title).replace(/[\\/:*?"<>|]/g, "");
-        try {
-          shareFile = new File([blob], "绿色芯片CEO-" + safeTitle + "-" + d.score + ".png", { type: "image/png" });
-        } catch (_) {
-          shareFile = null;
-        }
+        shareName = "绿色芯片CEO-" + safeTitle + "-" + d.score + ".png";
         if (sharePreviewUrl) URL.revokeObjectURL(sharePreviewUrl);
         sharePreviewUrl = URL.createObjectURL(blob);
         $("sharePreview").src = sharePreviewUrl;
         $("sharePreview").hidden = false;
         $("sharePreviewWrap").hidden = false;
         $("shareLoading").hidden = true;
-
-        let canFile = false;
-        try {
-          canFile = !!(shareFile && navigator.canShare && navigator.share && navigator.canShare({ files: [shareFile] }));
-        } catch (_) {}
-        if (IS_WECHAT) canFile = false;
-        $("btnShareSystem").hidden = !canFile;
-        $("btnShareLink").hidden = !IS_WECHAT;
-        $("btnShareSave").classList.toggle("wide", !canFile && !IS_WECHAT);
         $("shareActions").hidden = false;
         $("shareHint").textContent = IS_WECHAT
-          ? "微信内不能直接保存或分享图片。请点右上角「···」→「在浏览器打开」，结局会自动恢复；也可以复制结局链接。"
-          : canFile
-            ? "可以直接发到微信、QQ、微博等；也可以先保存图片。"
-            : "当前浏览器不支持直接分享图片，请保存后用微信 / QQ 发送。";
+          ? "微信内不能直接保存。点「保存图片」后按提示在浏览器打开。"
+          : "保存后可直接发微信 / QQ / 微博。";
       } catch (_) {
         if (!ov.classList.contains("on")) return;
         $("shareLoading").hidden = true;
         $("shareHint").textContent = "图片生成失败，请关闭后重试。";
-        $("btnShareSystem").hidden = true;
         $("btnShareSave").hidden = true;
-        $("btnShareCopy").hidden = true;
-        $("btnShareLink").hidden = true;
+        $("btnShareClose").hidden = false;
         $("btnShareClose").classList.add("wide");
         $("shareActions").hidden = false;
       }
@@ -1877,51 +1873,23 @@
 
     $("btnShareX").addEventListener("click", hideShare);
     $("btnShareClose").addEventListener("click", hideShare);
-    $("btnShareSave").addEventListener("click", () => {
+    $("btnShareSave").addEventListener("click", async () => {
       if (!shareBlob) return;
-      downloadBlob(shareBlob, shareFile ? shareFile.name : "绿色芯片CEO战绩.png");
+      if (IS_WECHAT) {
+        const ok = await copyText(location.href);
+        $("wxCopyNote").textContent = ok
+          ? "结局链接已自动复制。若菜单里没有「在浏览器打开」，粘贴到系统浏览器即可。"
+          : "如果菜单里没有「在浏览器打开」，可长按地址栏复制链接，粘贴到系统浏览器。";
+        const guide = $("wxGuide");
+        guide.classList.add("on");
+        guide.setAttribute("aria-hidden", "false");
+        $("btnWxClose").focus();
+        return;
+      }
+      downloadBlob(shareBlob, shareName);
       $("shareHint").textContent = "图片已保存，去微信 / QQ 发送吧。";
     });
-    $("btnShareCopy").addEventListener("click", async () => {
-      const ok = await copyText(shareTextValue);
-      const ta = $("shareTextFallback");
-      if (ok) {
-        ta.hidden = true;
-        $("shareHint").textContent = "文案已复制，去粘贴吧。";
-      } else {
-        ta.value = shareTextValue;
-        ta.hidden = false;
-        ta.focus();
-        ta.select();
-        $("shareHint").textContent = "自动复制失败，已选中文本，请手动复制。";
-      }
-    });
-    $("btnShareLink").addEventListener("click", async () => {
-      const link = location.href;
-      const ok = await copyText(link);
-      const ta = $("shareTextFallback");
-      if (ok) {
-        ta.hidden = true;
-        $("shareHint").textContent = "结局链接已复制，去外部浏览器打开即可。";
-      } else {
-        ta.value = link;
-        ta.hidden = false;
-        ta.focus();
-        ta.select();
-        $("shareHint").textContent = "自动复制失败，已选中结局链接，请手动复制。";
-      }
-    });
-    $("btnShareSystem").addEventListener("click", async () => {
-      if (!shareFile || !shareBlob) return;
-      try {
-        await navigator.share({ files: [shareFile], title: "绿色芯片CEO竞选计", text: shareTextValue });
-        $("shareHint").textContent = "已打开系统分享。";
-      } catch (err) {
-        if (err && err.name === "AbortError") return;
-        downloadBlob(shareBlob, shareFile.name);
-        $("shareHint").textContent = "系统分享不可用，已保存图片。";
-      }
-    });
+    $("btnWxClose").addEventListener("click", hideShare);
     $("shareOverlay").addEventListener("click", (e) => {
       if (e.target === $("shareOverlay")) hideShare();
     });
